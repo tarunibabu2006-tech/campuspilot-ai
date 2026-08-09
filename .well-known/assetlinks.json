@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.campuspilot.ai",
+      "sha256_cert_fingerprints": ["21:4D:F7:5D:8B:FA:53:FF:E1:0E:BD:CD:21:99:0C:63:97:CD:4E:A4:6D:5F:D8:76:B2:C4:E9:14:A8:D0:B7:B8"]
+    }
+  }
+]

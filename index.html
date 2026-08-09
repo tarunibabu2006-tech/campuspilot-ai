@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusPilot AI — India's AI-Powered Career Operating System</title>
+
+  <!-- PWA Manifest & Meta -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#020B14" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CampusPilot AI" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <meta name="description" content="India's AI-Powered Career Operating System — Career Navigator, ATS Resume, Verified Jobs & Mock Interview" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="web-body">
+
+  <!-- Background Glow Accents -->
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+
+  <!-- PWA Install Banner -->
+  <div id="install-banner" class="install-banner" style="display:none;">
+    <div class="install-banner-inner">
+      <span class="install-app-icon">⚡</span>
+      <div class="install-text">
+        <strong>Install CampusPilot AI</strong>
+        <p>Add to your desktop or phone for instant launch</p>
+      </div>
+      <button id="install-btn" class="install-now-btn">Install Web App</button>
+      <button onclick="document.getElementById('install-banner').style.display='none'" class="install-close">✕</button>
+    </div>
+  </div>
+
+  <!-- Web Application Top Navigation Bar -->
+  <header class="web-header" id="app-header" style="display:none;">
+    <div class="header-container">
+      <div class="brand-logo" onclick="switchTab('dashboard')">
+        <span class="logo-icon">⚡</span> CampusPilot <span class="grad">AI</span>
+      </div>
+      <nav class="web-nav-links">
+        <button class="w-nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><span>🏠</span> Dashboard</button>
+        <button class="w-nav-item" data-tab="navigator" onclick="switchTab('navigator')"><span>🧭</span> AI Roadmap</button>
+        <button class="w-nav-item" data-tab="resume" onclick="switchTab('resume')"><span>📄</span> ATS Resume</button>
+        <button class="w-nav-item" data-tab="jobs" onclick="switchTab('jobs')"><span>💼</span> Jobs & Drives</button>
+        <button class="w-nav-item" data-tab="interview" onclick="switchTab('interview')"><span>🎙️</span> Mock Interview</button>
+        <button class="w-nav-item" data-tab="learning" onclick="switchTab('learning')"><span>📚</span> Learning Hub</button>
+      </nav>
+      <div class="header-right">
+        <div class="notif-bell" onclick="alert('🔔 2 Placement Drive notifications!')">🔔</div>
+        <div class="user-badge" onclick="switchTab('profile')" title="View Profile">AK</div>
+        <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Web Content Container -->
+  <main class="main-app-container" id="main-content">
+
+    <!-- ── SPLASH / LOGIN SCREEN ──────────────────── -->
+    <div id="screen-login" class="screen active">
+      <div class="login-wrapper">
+        <div class="splash-hero-left">
+          <div class="splash-logo">⚡</div>
+          <h1 class="splash-brand">CampusPilot <span class="grad">AI</span></h1>
+          <p class="splash-sub">India's Premier AI-Powered Career Operating System</p>
+          <p class="splash-tagline">From First Year → Dream Job & Beyond 🚀</p>
+          
+          <div class="hero-features-list">
+            <div class="h-feat"><span>🎯</span> Personalized AI Career Roadmap</div>
+            <div class="h-feat"><span>📄</span> Corporate-Grade ATS Resume Analysis</div>
+            <div class="h-feat"><span>💼</span> 100% Verified Jobs & Off-Campus Drives</div>
+            <div class="h-feat"><span>🎙️</span> Real-time AI Mock Interviews with Instant Feedback</div>
+          </div>
+        </div>
+
+        <div class="login-card glass-card">
+          <h2>Welcome Back 👋</h2>
+          <p class="login-desc">Sign in to access your placement dashboard</p>
+
+          <div class="m-input">
+            <label>Email or Mobile Number</label>
+            <input type="text" id="login-email" value="arun.kumar@gmail.com" placeholder="Enter email or mobile" />
+          </div>
+          <div class="m-input">
+            <label>Password</label>
+            <input type="password" id="login-pass" value="••••••••" placeholder="Enter password" />
+          </div>
+          <button class="m-btn-primary" id="login-btn" onclick="doLogin()">Sign In to CampusPilot</button>
+          
+          <div class="or-divider"><span>or continue with</span></div>
+          
+          <button class="google-btn" onclick="doLogin()">
+            <span>🌐</span> Sign in with Google
+          </button>
+          
+          <p class="signup-link">New Student? <span onclick="showOnboarding()">Create Account</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ONBOARDING SCREEN ───────────────────────── -->
+    <div id="screen-onboarding" class="screen" style="display:none;">
+      <div class="onboard-wrapper">
+        <div class="onboard-header">
+          <button class="back-btn" onclick="showLogin()">← Back to Login</button>
+          <h2>Setup Your Student Profile</h2>
+        </div>
+        <div class="glass-card onboard-card">
+          <div class="form-grid">
+            <div class="m-input">
+              <label>Full Name</label>
+              <input type="text" value="Arun Kumar" />
+            </div>
+            <div class="m-input">
+              <label>Mobile Number</label>
+              <input type="tel" value="+91 98765 43210" />
+            </div>
+            <div class="m-input">
+              <label>Degree / Course</label>
+              <select>
+                <option>B.Sc Computer Science</option>
+                <option>B.E / B.Tech</option>
+                <option>MBA</option>
+                <option>MCA</option>
+                <option>B.Com</option>
+                <option>BCA</option>
+                <option>Diploma</option>
+              </select>
+            </div>
+            <div class="m-input">
+              <label>Department / Specialization</label>
+              <input type="text" value="Computer Science" />
+            </div>
+            <div class="m-input">
+              <label>Current Year</label>
+              <select>
+                <option>1st Year</option>
+                <option>2nd Year</option>
+                <option selected>3rd Year</option>
+                <option>Final Year</option>
+                <option>Fresh Graduate</option>
+              </select>
+            </div>
+            <div class="m-input">
+              <label>Target Career Goal</label>
+              <input type="text" value="Full Stack Software Developer" />
+            </div>
+          </div>
+          <button class="m-btn-primary" onclick="doLogin()">Complete Setup & Launch Dashboard →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD TAB ──────────────────────────── -->
+    <div id="tab-dashboard" class="tab-content screen" style="display:none;">
+      <!-- Welcome Hero Section -->
+      <div class="dashboard-hero-section">
+        <div class="dash-welcome">
+          <h2>Good Evening, Arun 👋</h2>
+          <p>Here is your placement readiness overview and recommended next steps.</p>
+        </div>
+      </div>
+
+      <!-- Readiness Banner -->
+      <div class="readiness-hero glass-card">
+        <div class="readiness-info">
+          <span class="readiness-badge">Top 12% in Batch</span>
+          <h3 class="readiness-title">Placement Readiness Index</h3>
+          <p class="readiness-sub">Based on your completed modules, resume ATS score, and mock interview practice.</p>
+          <div class="progress-row">
+            <div class="prog-bar-bg"><div class="prog-bar-fill" style="width: 78%;"></div></div>
+            <span class="prog-label">78% Ready</span>
+          </div>
+          <button class="m-btn-primary mini-hero-btn" onclick="switchTab('navigator')">View AI Roadmap →</button>
+        </div>
+        <div class="big-score-ring">
+          <svg viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="40"/>
+            <circle class="ring-fill" cx="50" cy="50" r="40" style="stroke-dashoffset:55;"/>
+          </svg>
+          <div class="big-score-text">78%</div>
+        </div>
+      </div>
+
+      <!-- Quick Action Grid -->
+      <div class="quick-grid">
+        <div class="q-action glass-card" onclick="switchTab('resume')">
+          <span class="q-icon">📄</span>
+          <div>
+            <strong>ATS Resume Scan</strong>
+            <p>Score: 88% Match</p>
+          </div>
+        </div>
+        <div class="q-action glass-card" onclick="switchTab('jobs')">
+          <span class="q-icon">💼</span>
+          <div>
+            <strong>Verified Jobs</strong>
+            <p>7 New Openings</p>
+          </div>
+        </div>
+        <div class="q-action glass-card" onclick="switchTab('interview')">
+          <span class="q-icon">🎙️</span>
+          <div>
+            <strong>AI Mock Interview</strong>
+            <p>Practice Session</p>
+          </div>
+        </div>
+        <div class="q-action glass-card" onclick="switchTab('learning')">
+          <span class="q-icon">📚</span>
+          <div>
+            <strong>Learning Hub</strong>
+            <p>DSA & Aptitude</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Modules Grid -->
+      <h3 class="section-title">Core Operating System Modules</h3>
+      <div class="modules-grid">
+        <div class="app-tile glass-card" onclick="switchTab('navigator')">
+          <div class="tile-icon icon-blue">🧭</div>
+          <div class="tile-title">AI Career Navigator</div>
+          <div class="tile-sub">Step-by-step personalized learning & skill path.</div>
+        </div>
+        <div class="app-tile glass-card" onclick="switchTab('resume')">
+          <div class="tile-icon icon-purple">📄</div>
+          <div class="tile-title">ATS Resume Builder</div>
+          <div class="tile-sub">AI keyword scanner & instant formatting.</div>
+        </div>
+        <div class="app-tile glass-card" onclick="switchTab('jobs')">
+          <div class="tile-icon icon-amber">💼</div>
+          <div class="tile-title">Verified Jobs & Drives</div>
+          <div class="tile-sub">Official application links to top tech giants.</div>
+        </div>
+        <div class="app-tile glass-card" onclick="switchTab('interview')">
+          <div class="tile-icon icon-green">🎙️</div>
+          <div class="tile-title">AI Mock Interview</div>
+          <div class="tile-sub">Real-time technical & HR question sessions.</div>
+        </div>
+        <div class="app-tile glass-card" onclick="switchTab('learning')">
+          <div class="tile-icon icon-cyan">📚</div>
+          <div class="tile-title">AI Learning Hub</div>
+          <div class="tile-sub">Bite-sized notes, cheat sheets & quizzes.</div>
+        </div>
+        <div class="app-tile glass-card" onclick="switchTab('profile')">
+          <div class="tile-icon icon-rose">👤</div>
+          <div class="tile-title">Student Profile</div>
+          <div class="tile-sub">Manage education, placement status & records.</div>
+        </div>
+      </div>
+
+      <!-- Campus Drives Section -->
+      <h3 class="section-title" style="margin-top:24px;">Upcoming Off-Campus Drives 🏛️</h3>
+      <div class="drives-grid">
+        <div class="drive-card glass-card">
+          <div class="drive-header">
+            <div>
+              <h4>TCS Campus Hiring 2026</h4>
+              <p>Eligibility: B.E, B.Sc, BCA • CGPA 6.0+</p>
+            </div>
+            <span class="drive-ctc">8.5 LPA</span>
+          </div>
+          <div class="drive-meta">📅 Sept 20, 2026 &nbsp; | &nbsp; 📍 Pan-India</div>
+        </div>
+        <div class="drive-card glass-card">
+          <div class="drive-header">
+            <div>
+              <h4>Infosys InfyTQ Certification Drive</h4>
+              <p>Eligibility: All Degrees • CGPA 5.5+</p>
+            </div>
+            <span class="drive-ctc">6.5 LPA</span>
+          </div>
+          <div class="drive-meta">📅 Oct 5, 2026 &nbsp; | &nbsp; 📍 Remote / Online</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI CAREER NAVIGATOR TAB ─────────────────── -->
+    <div id="tab-navigator" class="tab-content screen" style="display:none;">
+      <div class="tab-topbar">
+        <div>
+          <h2 class="topbar-title">AI Career Navigator 🧭</h2>
+          <p class="topbar-sub">Target Goal: <strong>Full Stack Software Developer</strong></p>
+        </div>
+        <button class="regenerate-btn">🔄 Regenerate AI Path</button>
+      </div>
+
+      <div class="web-two-col">
+        <div class="skill-meter glass-card">
+          <h3>Skill Gap Analysis</h3>
+          <p class="card-sub-desc">Comparison against target industry requirements.</p>
+
+          <div class="skill-item">
+            <span>Core Programming</span>
+            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:92%; background: var(--green);"></div></div>
+            <span>92%</span>
+          </div>
+          <div class="skill-item">
+            <span>Web Development</span>
+            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:78%; background: var(--cyan);"></div></div>
+            <span>78%</span>
+          </div>
+          <div class="skill-item">
+            <span>System Design</span>
+            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:40%; background: var(--amber);"></div></div>
+            <span>40%</span>
+          </div>
+          <div class="skill-item">
+            <span>DSA & Algorithms</span>
+            <div class="skill-bar-bg"><div class="skill-bar-fill" style="width:65%; background: var(--purple);"></div></div>
+            <span>65%</span>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="section-title">Career Action Roadmap</h3>
+          <div class="mobile-stepper">
+            <div class="m-step done">
+              <div class="m-step-num">✓</div>
+              <div class="m-step-info">
+                <h4>Phase 1: Core Foundations</h4>
+                <p>DSA, Git, OOP, Linux basics · <span class="tag-done">Completed</span></p>
+              </div>
+            </div>
+            <div class="m-step current">
+              <div class="m-step-num">2</div>
+              <div class="m-step-info">
+                <h4>Phase 2: Full-Stack Projects</h4>
+                <p>Build 3 apps with React + FastAPI + MongoDB</p>
+                <div class="step-tags">
+                  <span class="s-tag">FastAPI</span><span class="s-tag">React</span><span class="s-tag">MongoDB</span>
+                </div>
+              </div>
+            </div>
+            <div class="m-step">
+              <div class="m-step-num">3</div>
+              <div class="m-step-info">
+                <h4>Phase 3: Resume & System Design</h4>
+                <p>ATS-optimized resume + LLD/HLD basics</p>
+              </div>
+            </div>
+            <div class="m-step">
+              <div class="m-step-num">4</div>
+              <div class="m-step-info">
+                <h4>Phase 4: Official Applications & Mock Interviews</h4>
+                <p>Apply to Google, Microsoft, Amazon career portals</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ATS RESUME BUILDER TAB ──────────────────── -->
+    <div id="tab-resume" class="tab-content screen" style="display:none;">
+      <div class="tab-topbar">
+        <div>
+          <h2 class="topbar-title">ATS Resume Scanner & Builder 📄</h2>
+          <p class="topbar-sub">Optimize your resume against corporate applicant tracking systems.</p>
+        </div>
+      </div>
+
+      <div class="web-two-col">
+        <div class="glass-card">
+          <h3>Resume Information</h3>
+          <div class="form-grid">
+            <div class="m-input">
+              <label>Full Name</label>
+              <input type="text" value="Arun Kumar" />
+            </div>
+            <div class="m-input">
+              <label>Email</label>
+              <input type="email" value="arun.kumar@gmail.com" />
+            </div>
+          </div>
+          <div class="m-input">
+            <label>Target Role</label>
+            <input type="text" id="res-role" value="Software Developer" />
+          </div>
+          <div class="m-input">
+            <label>Key Skills (comma separated)</label>
+            <input type="text" id="res-skills" value="Python, FastAPI, Flutter, MongoDB, React, Git, DSA" />
+          </div>
+          <div class="m-input">
+            <label>Summary</label>
+            <textarea rows="3">Passionate CS student with hands-on experience in building scalable REST APIs, cross-platform apps, and cloud-native systems.</textarea>
+          </div>
+          <button class="m-btn-primary" onclick="calculateAtsScore()">🔍 Run AI ATS Scan</button>
+        </div>
+
+        <div class="ats-result-card glass-card" id="ats-card">
+          <h3>AI Analysis Result</h3>
+          <div class="ats-score-row">
+            <div class="ats-score-dial"><span id="ats-score-val">88%</span></div>
+            <div>
+              <h4 id="ats-verdict">Strong Match!</h4>
+              <p>Passes corporate ATS screeners for Software Engineering roles.</p>
+            </div>
+          </div>
+          <div class="keyword-section">
+            <p class="kw-label">✅ Matched Keywords</p>
+            <div class="kw-chips">
+              <span class="kw-chip green">Python</span>
+              <span class="kw-chip green">FastAPI</span>
+              <span class="kw-chip green">MongoDB</span>
+              <span class="kw-chip green">Git</span>
+              <span class="kw-chip green">DSA</span>
+            </div>
+            <p class="kw-label" style="margin-top:16px;">⚠️ Suggested Missing Keywords</p>
+            <div class="kw-chips">
+              <span class="kw-chip amber">Docker</span>
+              <span class="kw-chip amber">AWS</span>
+              <span class="kw-chip amber">Kubernetes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── JOBS & INTERNSHIPS TAB ──────────────────── -->
+    <div id="tab-jobs" class="tab-content screen" style="display:none;">
+      <div class="tab-topbar">
+        <div>
+          <h2 class="topbar-title">Verified Job & Internship Openings 💼</h2>
+          <p class="topbar-sub">Direct apply links to <b>official company career portals</b> (no third-party spam).</p>
+        </div>
+      </div>
+
+      <div class="job-search-strip">
+        <input type="text" id="job-search" placeholder="🔍 Search by role, company, or keyword..." onkeyup="filterJobs()" />
+        <div class="job-tabs">
+          <button class="j-tab active" onclick="toggleJobTab(this,'jobs')">Full-Time Jobs</button>
+          <button class="j-tab" onclick="toggleJobTab(this,'internships')">Internships</button>
+        </div>
+      </div>
+
+      <div id="jobs-container" class="web-jobs-grid"></div>
+      <div id="internships-container" class="web-jobs-grid" style="display:none;"></div>
+    </div>
+
+    <!-- ── MOCK INTERVIEW TAB ──────────────────────── -->
+    <div id="tab-interview" class="tab-content screen" style="display:none;">
+      <div class="tab-topbar">
+        <div>
+          <h2 class="topbar-title">AI Mock Interview Studio 🎙️</h2>
+          <p class="topbar-sub">Simulate technical, HR, and behavioral interviews with instant AI scoring.</p>
+        </div>
+      </div>
+
+      <!-- Setup -->
+      <div id="int-setup" class="glass-card max-width-card">
+        <h3 class="form-section-title">Configure Interview Session</h3>
+        <div class="int-type-row">
+          <button class="type-btn active" onclick="setIntType(this,'HR')">HR Interview</button>
+          <button class="type-btn" onclick="setIntType(this,'Technical')">Technical Round</button>
+          <button class="type-btn" onclick="setIntType(this,'Behavioral')">Behavioral Round</button>
+        </div>
+        <div class="form-grid" style="margin-top:16px;">
+          <div class="m-input">
+            <label>Target Role</label>
+            <input type="text" id="int-role" value="Software Developer" />
+          </div>
+          <div class="m-input">
+            <label>Company (Optional)</label>
+            <input type="text" id="int-company" placeholder="e.g. Google, TCS, Microsoft" />
+          </div>
+        </div>
+        <button class="m-btn-primary" onclick="startInterview()">Start AI Mock Interview Session</button>
+      </div>
+
+      <!-- Active Interview -->
+      <div id="int-active" style="display:none;" class="max-width-card">
+        <div class="q-header-bar glass-card">
+          <div class="q-meta">
+            <span id="q-num-label">Question 1 of 5</span>
+            <span class="diff-badge" id="q-diff-badge">Medium</span>
+          </div>
+          <div class="q-progress-bar"><div id="q-progress-fill" style="width:20%;"></div></div>
+        </div>
+        <div class="q-card glass-card">
+          <p id="q-text" class="q-text">"Explain the concept of RESTful APIs and the difference between stateless and stateful communication."</p>
+          <p class="tip-text" id="q-tip">💡 Mention HTTP methods (GET, POST, PUT, DELETE) and the role of status codes.</p>
+        </div>
+        <div class="glass-card">
+          <div class="m-input">
+            <label>Your Response</label>
+            <textarea id="user-answer" rows="4" placeholder="Type your answer here..."></textarea>
+          </div>
+          <button class="m-btn-primary" onclick="submitAnswer()">Submit for AI Analysis</button>
+        </div>
+        <div id="ai-feedback-box" style="display:none;" class="feedback-result glass-card">
+          <h4>AI Response Feedback</h4>
+          <div class="score-bars">
+            <div class="fb-row"><span>Technical Accuracy</span><div class="fb-bar"><div id="bar-tech" class="fb-fill" style="width:0%;background:var(--green);"></div></div><b id="lbl-tech">0%</b></div>
+            <div class="fb-row"><span>Communication</span><div class="fb-bar"><div id="bar-comm" class="fb-fill" style="width:0%;background:var(--cyan);"></div></div><b id="lbl-comm">0%</b></div>
+            <div class="fb-row"><span>Confidence</span><div class="fb-bar"><div id="bar-conf" class="fb-fill" style="width:0%;background:var(--purple);"></div></div><b id="lbl-conf">0%</b></div>
+          </div>
+          <p class="fb-comment" id="fb-comment"></p>
+          <button class="m-btn-secondary" onclick="nextQuestion()">Next Question →</button>
+        </div>
+      </div>
+
+      <!-- Past Sessions -->
+      <h3 class="section-title" style="margin-top:24px;">Recent Interview Reports</h3>
+      <div class="drives-grid">
+        <div class="session-card glass-card">
+          <div class="session-row">
+            <div>
+              <h4>Technical Interview – Google</h4>
+              <p>July 28, 2026 • 5 Questions</p>
+            </div>
+            <span class="score-badge green">85% Match</span>
+          </div>
+        </div>
+        <div class="session-card glass-card">
+          <div class="session-row">
+            <div>
+              <h4>HR Interview – TCS</h4>
+              <p>July 22, 2026 • 5 Questions</p>
+            </div>
+            <span class="score-badge amber">74% Match</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI LEARNING HUB TAB ─────────────────────── -->
+    <div id="tab-learning" class="tab-content screen" style="display:none;">
+      <div class="tab-topbar">
+        <div>
+          <h2 class="topbar-title">AI Learning Hub 📚</h2>
+          <p class="topbar-sub">Generate concise study notes, cheat sheets & practice quizzes.</p>
+        </div>
+      </div>
+
+      <div class="learn-tabs">
+        <button class="l-tab active" onclick="toggleLearnTab(this,'notes')">Study Notes & Cheat Sheets</button>
+        <button class="l-tab" onclick="toggleLearnTab(this,'quiz')">Practice MCQ Quiz</button>
+      </div>
+
+      <!-- NOTES -->
+      <div id="learn-notes">
+        <div class="glass-card">
+          <div class="form-grid">
+            <div class="m-input">
+              <label>Topic / Subject</label>
+              <input type="text" id="notes-topic" value="Data Structures & Algorithms" />
+            </div>
+            <div class="m-input">
+              <label>Difficulty Level</label>
+              <div class="level-row">
+                <button class="lvl-btn active" onclick="setLevel(this)">Beginner</button>
+                <button class="lvl-btn" onclick="setLevel(this)">Intermediate</button>
+                <button class="lvl-btn" onclick="setLevel(this)">Advanced</button>
+              </div>
+            </div>
+          </div>
+          <button class="m-btn-primary" style="margin-top:12px;" onclick="generateNotes()">✨ Generate AI Study Material</button>
+        </div>
+        <div id="notes-output" class="notes-content glass-card" style="margin-top:16px;">
+          <h4>Data Structures & Algorithms — Beginner Summary</h4>
+          <p><b>1. Time Complexity (Big-O):</b> Measures how algorithm runtime grows as input size N increases. O(1) is constant, O(N) linear, O(N²) quadratic.</p>
+          <p><b>2. Hash Tables:</b> Key-value store with O(1) average lookup. Python: dict. Java: HashMap.</p>
+          <p><b>3. Binary Search:</b> Divide-and-conquer on sorted arrays. Time: O(log N). Best for finding elements quickly.</p>
+          <p><b>4. Dynamic Programming:</b> Solve complex problems by breaking into overlapping subproblems. Key: memoization & tabulation.</p>
+          <div class="key-points">
+            <b>Key Takeaways for Interviews:</b>
+            <ul>
+              <li>Always start with brute force, then optimize.</li>
+              <li>Every Google/Amazon interview expects O(log N) or better.</li>
+              <li>Practice 2-3 LeetCode problems per day to build pattern recognition.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUIZ -->
+      <div id="learn-quiz" style="display:none;">
+        <div class="glass-card">
+          <div class="form-grid">
+            <div class="m-input">
+              <label>Quiz Topic</label>
+              <input type="text" id="quiz-topic" value="Data Structures" />
+            </div>
+            <div class="m-input">
+              <label>Quiz Type</label>
+              <div class="quiz-type-row">
+                <button class="qt-btn active" onclick="setQuizType(this)">MCQ</button>
+                <button class="qt-btn" onclick="setQuizType(this)">Aptitude</button>
+                <button class="qt-btn" onclick="setQuizType(this)">Reasoning</button>
+              </div>
+            </div>
+          </div>
+          <button class="m-btn-primary" style="margin-top:12px;" onclick="loadQuiz()">Generate Interactive Quiz</button>
+        </div>
+        <div id="quiz-container" style="margin-top:16px;"></div>
+      </div>
+    </div>
+
+    <!-- ── PROFILE TAB ─────────────────────────────── -->
+    <div id="tab-profile" class="tab-content screen" style="display:none;">
+      <div class="tab-topbar">
+        <h2 class="topbar-title">Student Account Profile 👤</h2>
+      </div>
+      
+      <div class="web-two-col">
+        <div>
+          <div class="profile-hero glass-card">
+            <div class="profile-avatar">AK</div>
+            <div class="profile-details">
+              <h3>Arun Kumar</h3>
+              <p>B.Sc Computer Science • 3rd Year</p>
+              <p>Tamil Nadu Engineering College, Chennai</p>
+            </div>
+          </div>
+
+          <div class="stats-grid" style="margin-top:16px;">
+            <div class="mini-stat glass-card"><strong>78%</strong><span>Readiness Index</span></div>
+            <div class="mini-stat glass-card"><strong>3</strong><span>Interviews Done</span></div>
+            <div class="mini-stat glass-card"><strong>8.5</strong><span>CGPA</span></div>
+            <div class="mini-stat glass-card"><strong>12</strong><span>Skills Tracked</span></div>
+          </div>
+        </div>
+
+        <div class="glass-card profile-info-card">
+          <h3>Account Information</h3>
+          <div class="info-row"><span>📧 Email</span><span>arun.kumar@gmail.com</span></div>
+          <div class="info-row"><span>📱 Mobile</span><span>+91 98765 43210</span></div>
+          <div class="info-row"><span>🎯 Goal</span><span>Full Stack Developer</span></div>
+          <div class="info-row"><span>📍 Location</span><span>Chennai, Tamil Nadu</span></div>
+          <div class="info-row"><span>🏷️ Placement Status</span><span class="status-pill">Seeking Opportunities</span></div>
+          
+          <button class="m-btn-secondary" style="margin-top:20px;" onclick="doLogout()">🚪 Sign Out of Account</button>
+        </div>
+      </div>
+    </div>
+
+  </main><!-- END main-app-container -->
+
+  <script src="script.js"></script>
+</body>
+</html>

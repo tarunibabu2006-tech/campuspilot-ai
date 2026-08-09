@@ -1,0 +1,48 @@
+{
+  "name": "CampusPilot AI",
+  "short_name": "CampusPilot",
+  "description": "India's AI-Powered Career Operating System — Career Navigator, ATS Resume, Verified Jobs, Mock Interview & Learning Hub",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020B14",
+  "theme_color": "#5BC4FF",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["education", "productivity", "career"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Find Jobs",
+      "short_name": "Jobs",
+      "description": "Browse verified job and internship openings",
+      "url": "/?tab=jobs"
+    },
+    {
+      "name": "Mock Interview",
+      "short_name": "Interview",
+      "description": "Start an AI mock interview session",
+      "url": "/?tab=interview"
+    },
+    {
+      "name": "ATS Resume Check",
+      "short_name": "Resume",
+      "description": "Analyze your resume ATS score",
+      "url": "/?tab=resume"
+    }
+  ]
+}
