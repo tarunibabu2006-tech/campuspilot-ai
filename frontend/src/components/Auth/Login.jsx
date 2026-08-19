@@ -19,16 +19,7 @@ function Login({ onSwitchToRegister }) {
   const [customEmail, setCustomEmail] = useState('')
   const { login } = useAuth()
 
-  // Detected Chrome/Device Google Profiles
-  const deviceProfiles = [
-    { name: 'S.Santhiya', email: 's.santhiyakasco@gmail.com', avatar: 'S', color: '#9333ea' },
-    { name: 'Jayyappan', email: 'sjayyappan79@gmail.com', avatar: 'J', color: '#2563eb' },
-    { name: 'Taruni Babu', email: 'tarunibabu1506@gmail.com', avatar: 'T', color: '#059669' },
-    { name: 'Kavi Babu', email: 'kavibabu@gmail.com', avatar: 'K', color: '#d97706' },
-    { name: 'Prawin Kumar', email: 'prawinkumar@gmail.com', avatar: 'P', color: '#dc2626' }
-  ]
-
-  // Sign in with selected or entered Google Account
+  // Sign in with entered Name & Google Account
   const handleGoogleSignIn = async (selectedName, selectedEmail) => {
     const finalEmail = (selectedEmail || customEmail).trim().toLowerCase()
     
