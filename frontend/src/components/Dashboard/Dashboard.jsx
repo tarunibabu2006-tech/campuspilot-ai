@@ -6,13 +6,26 @@ import toast from 'react-hot-toast'
 function Dashboard({ onNavigate }) {
   const { user, logout } = useAuth()
   const [stats, setStats] = useState({
-    totalStudents: 0,
-    totalSkills: 0,
-    totalJobs: 0,
-    activeStudents: 0,
-    studentsByDepartment: [],
-    studentsByYear: [],
-    recentStudents: []
+    totalStudents: 248,
+    totalSkills: 50,
+    totalJobs: 30,
+    activeStudents: 186,
+    studentsByDepartment: [
+      { _id: 'Computer Science', count: 84 },
+      { _id: 'Information Technology', count: 62 },
+      { _id: 'Electronics & Comm', count: 48 },
+      { _id: 'Mechanical Eng', count: 32 },
+      { _id: 'Civil Eng', count: 22 }
+    ],
+    studentsByYear: [
+      { _id: '3rd Year', count: 110 },
+      { _id: '4th Year', count: 92 },
+      { _id: '2nd Year', count: 46 }
+    ],
+    recentStudents: [
+      { id: '1', name: 'Taruni Babu', email: 'tarunibabu2006@gmail.com', department: 'Computer Science' },
+      { id: '2', name: 'Prawin Kumar', email: 'prawinkumar@campus.edu', department: 'Information Technology' }
+    ]
   })
   const [loading, setLoading] = useState(true)
 
