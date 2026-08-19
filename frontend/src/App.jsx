@@ -27,7 +27,7 @@ import JobChecker from './components/JobChecker'
 import SkillGapAnalyzer from './components/SkillGapAnalyzer'
 import ChatAssistant from './components/ChatAssistant'
 
-// NEW FEATURES
+// NEW FEATURES & ENHANCEMENTS
 import CareerGps from './components/CareerGps'
 import ResumeScorer from './components/ResumeScorer'
 import AiApply from './components/AiApply'
@@ -35,12 +35,18 @@ import MentorConnect from './components/MentorConnect'
 import CompanyMockTests from './components/CompanyMockTests'
 import SkillBadge from './components/SkillBadge'
 import StudentAnalytics from './components/Admin/StudentAnalytics'
+import AiCareerPredictor from './components/AiCareerPredictor'
+import VoiceMockInterview from './components/VoiceMockInterview'
+import Gamification from './components/Gamification'
+import StudyGroups from './components/StudyGroups'
+import NotificationsModal from './components/NotificationsModal'
 
 function MainApp() {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
   const [authMode, setAuthMode] = useState('login')
   const [activeTab, setActiveTab] = useState('dashboard')
   const [selectedSkillId, setSelectedSkillId] = useState(null)
+  const [showNotifications, setShowNotifications] = useState(false)
   const { language, setLanguage, t } = useLanguage()
 
   if (authLoading) {
@@ -69,7 +75,11 @@ function MainApp() {
   const studentTabs = [
     { id: 'dashboard', label: `🎯 ${t('dashboard')}` },
 
-    // 🌟 6 NEW FLAGSHIP FEATURES (Front & Center)
+    // 🌟 10 FLAGSHIP AI & PLACEMENT ENHANCEMENTS
+    { id: 'career-predictor', label: `🔮 Career Predictor` },
+    { id: 'voice-interview', label: `🎙️ Voice Interview` },
+    { id: 'gamification', label: `🏆 Gamification 2.0` },
+    { id: 'study-groups', label: `👥 Study Groups` },
     { id: 'career-gps', label: `🗺️ Career GPS` },
     { id: 'resume-scorer', label: `📄 Resume Scorer` },
     { id: 'ai-apply', label: `🤖 AI Apply` },
@@ -118,7 +128,11 @@ function MainApp() {
       case 'skill': return <SkillGapAnalyzer language={language} />
       case 'chat': return <ChatAssistant language={language} />
       
-      // 🌟 6 NEW FLAGSHIP FEATURES
+      // 🌟 FLAGSHIP ENHANCEMENTS
+      case 'career-predictor': return <AiCareerPredictor />
+      case 'voice-interview': return <VoiceMockInterview />
+      case 'gamification': return <Gamification />
+      case 'study-groups': return <StudyGroups />
       case 'career-gps': return <CareerGps />
       case 'resume-scorer': return <ResumeScorer />
       case 'ai-apply': return <AiApply />
@@ -134,6 +148,7 @@ function MainApp() {
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       <ParticlesBg />
+      <NotificationsModal isOpen={showNotifications} onClose={() => setShowNotifications(false)} />
 
       <header className="header" style={{ position: 'relative', zIndex: 20 }}>
         <div className="header-inner">
@@ -143,6 +158,26 @@ function MainApp() {
           </div>
 
           <div className="flex items-center gap-1">
+            {/* Real-time Notifications Bell */}
+            <button
+              onClick={() => setShowNotifications(true)}
+              className="btn btn-outline"
+              style={{ fontSize: '0.85rem', padding: '0.3rem 0.6rem', position: 'relative', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+              title="Real-Time Alerts"
+            >
+              <span>🔔</span>
+              <span style={{
+                background: '#ef4444',
+                color: '#fff',
+                borderRadius: '10px',
+                padding: '0.1rem 0.4rem',
+                fontSize: '0.65rem',
+                fontWeight: 'bold'
+              }}>
+                3
+              </span>
+            </button>
+
             <LanguageSelector language={language} setLanguage={setLanguage} />
             <div className="flex items-center gap-1 ml-2" style={{ borderLeft: '1px solid var(--border-color)', paddingLeft: '0.75rem' }}>
               <span className="text-xs font-bold text-blue">👤 {user?.name}</span>

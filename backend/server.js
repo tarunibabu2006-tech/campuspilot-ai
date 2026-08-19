@@ -29,6 +29,11 @@ import aiApplyRoutes from './routes/aiApply.js'
 import mentorRoutes from './routes/mentorConnect.js'
 import mockTestRoutes from './routes/mockTests.js'
 import skillBadgeRoutes from './routes/skillBadge.js'
+import careerPredictorRoutes from './routes/careerPredictor.js'
+import voiceInterviewRoutes from './routes/voiceInterview.js'
+import gamificationRoutes from './routes/gamification.js'
+import notificationRoutes from './routes/notifications.js'
+import groupRoutes from './routes/groups.js'
 import { trackActivity } from './middleware/trackActivity.js'
 
 dotenv.config()
@@ -138,6 +143,11 @@ app.use('/api/ai-apply', aiApplyRoutes)
 app.use('/api/mentors', mentorRoutes)
 app.use('/api/mock-tests', mockTestRoutes)
 app.use('/api/skill-badge', skillBadgeRoutes)
+app.use('/api/career-predictor', careerPredictorRoutes)
+app.use('/api/voice-interview', voiceInterviewRoutes)
+app.use('/api/gamification', gamificationRoutes)
+app.use('/api/notifications', notificationRoutes)
+app.use('/api/groups', groupRoutes)
 
 // Health Check with Database Status
 app.get('/api/health', (req, res) => {

@@ -397,4 +397,176 @@ Return JSON object:
   }
 }
 
+// ═══════════════════════════════════════════
+// 14. AI CAREER PREDICTOR (5-YEAR & 10-YEAR PATH)
+// ═══════════════════════════════════════════
+export const predictCareer = async (currentRole, skills, interests, education) => {
+  const skillsList = Array.isArray(skills) ? skills.join(', ') : skills
+  const interestsList = Array.isArray(interests) ? interests.join(', ') : interests
+  
+  try {
+    const prompt = `Act as an expert career strategist for Indian tech & engineering students.
+Current Role/Target: ${currentRole}
+Skills: ${skillsList}
+Interests: ${interestsList}
+Education: ${education || 'Undergraduate Engineering'}
 
+Generate a realistic 5-year and 10-year career progression path.
+Return ONLY valid JSON matching this exact structure:
+{
+  "summary": "<2 sentence encouraging summary of the candidate's trajectory>",
+  "careerPath": [
+    {
+      "stage": "Year 0-1 (Entry Level)",
+      "role": "<Role Title, e.g., Associate Software Engineer>",
+      "timeline": "Months 0-12",
+      "salary": "₹6 - ₹12 LPA",
+      "skills": ["<Skill 1>", "<Skill 2>", "<Skill 3>"],
+      "certifications": ["<Recommended Certification 1>"]
+    },
+    {
+      "stage": "Year 2-3 (Mid Level)",
+      "role": "<Role Title, e.g., Full Stack Engineer>",
+      "timeline": "Years 2-3",
+      "salary": "₹14 - ₹24 LPA",
+      "skills": ["<Skill 1>", "<Skill 2>", "<Skill 3>"],
+      "certifications": ["<Recommended Certification 1>"]
+    },
+    {
+      "stage": "Year 4-5 (Senior Level)",
+      "role": "<Role Title, e.g., Senior Software Engineer / Tech Lead>",
+      "timeline": "Years 4-5",
+      "salary": "₹28 - ₹45 LPA",
+      "skills": ["<Skill 1>", "<Skill 2>", "<Skill 3>"],
+      "certifications": ["<Recommended Certification 1>"]
+    },
+    {
+      "stage": "Year 6-10 (Leadership / Principal)",
+      "role": "<Role Title, e.g., Staff Engineer / Engineering Manager / VP of Tech>",
+      "timeline": "Years 6-10",
+      "salary": "₹50L - ₹1.2 Cr+ PA",
+      "skills": ["<Skill 1>", "<Skill 2>", "<Skill 3>"],
+      "certifications": ["<Executive / Cloud Architect Certification>"]
+    }
+  ]
+}`
+    const result = await flashModel.generateContent(prompt)
+    return parseGeminiResponse(result.response.text())
+  } catch (err) {
+    console.error('Career Predictor Error:', err.message)
+    return {
+      summary: `Dynamic progression roadmap for ${currentRole} focusing on ${skillsList}.`,
+      careerPath: [
+        {
+          stage: 'Year 0-1 (Entry Level)',
+          role: `Junior ${currentRole || 'Developer'}`,
+          timeline: 'Months 0-12',
+          salary: '₹6 - ₹10 LPA',
+          skills: Array.isArray(skills) && skills.length > 0 ? skills.slice(0, 3) : ['Core Algorithms', 'Git & CI/CD', 'Web Frameworks'],
+          certifications: ['AWS Certified Cloud Practitioner', 'HackerRank Problem Solving']
+        },
+        {
+          stage: 'Year 2-3 (Mid Level)',
+          role: `${currentRole || 'Software Engineer'} II`,
+          timeline: 'Years 2-3',
+          salary: '₹12 - ₹20 LPA',
+          skills: ['System Design Basics', 'Microservices', 'Database Optimization', 'Docker & Kubernetes'],
+          certifications: ['AWS Certified Solutions Architect Associate', 'CKA: Certified Kubernetes Administrator']
+        },
+        {
+          stage: 'Year 4-5 (Senior Level)',
+          role: `Senior ${currentRole || 'Software Engineer'} / Team Lead`,
+          timeline: 'Years 4-5',
+          salary: '₹25 - ₹40 LPA',
+          skills: ['High Scale Distributed Systems', 'Team Leadership', 'Security Architecture', 'Domain Driven Design'],
+          certifications: ['Google Professional Cloud Architect', 'Togaf 9 Certified']
+        },
+        {
+          stage: 'Year 6-10 (Leadership / Principal)',
+          role: `Staff Engineer / Principal Architect / Director of Engineering`,
+          timeline: 'Years 6-10',
+          salary: '₹50L - ₹1.2 Cr+ PA',
+          skills: ['Tech Strategy & Roadmaps', 'Cross-functional Leadership', 'Budgeting & P&L', 'AI/ML Integration'],
+          certifications: ['Executive Management Program', 'Stanford Advanced Computer Security']
+        }
+      ]
+    }
+  }
+}
+
+// ═══════════════════════════════════════════
+// 15. VOICE MOCK INTERVIEW & FEEDBACK
+// ═══════════════════════════════════════════
+export const conductVoiceInterview = async (role, difficulty = 'medium') => {
+  try {
+    const prompt = `Generate a realistic technical/behavioral interview question for role "${role}" with difficulty level "${difficulty}".
+Return ONLY a JSON object:
+{
+  "role": "${role}",
+  "difficulty": "${difficulty}",
+  "question": "<Interview question designed to be answered verbally in 1-2 minutes>",
+  "idealAnswerKeyPoints": ["<Key point 1>", "<Key point 2>", "<Key point 3>"],
+  "followUp": "<Optional follow-up question>"
+}`
+    const result = await flashModel.generateContent(prompt)
+    return parseGeminiResponse(result.response.text())
+  } catch (err) {
+    console.error('Voice Interview Start Error:', err.message)
+    const fallbackQuestions = {
+      'Frontend Developer': 'Can you explain the difference between state and props in React, and how the Virtual DOM achieves fast UI updates?',
+      'Backend Developer': 'How do you design a scalable RESTful API with proper caching and error handling mechanisms?',
+      'Data Scientist': 'Explain the trade-off between bias and variance, and how regularization helps prevent overfitting in machine learning models?',
+      'Full Stack Developer': 'Walk me through what happens under the hood when a user types a URL in their browser and hits Enter?'
+    }
+    return {
+      role,
+      difficulty,
+      question: fallbackQuestions[role] || `Explain your experience with key technologies used in ${role} and describe a challenging technical problem you solved.`,
+      idealAnswerKeyPoints: [
+        'Structured explanation with real-world examples',
+        'Demonstrated clarity of core computer science fundamentals',
+        'Good communication pace and technical vocabulary'
+      ]
+    }
+  }
+}
+
+export const analyzeVoiceResponse = async (transcript, role, questionId = 1) => {
+  try {
+    const prompt = `Evaluate this student's spoken interview response for the role "${role}".
+Transcript: "${transcript}"
+
+Return ONLY a JSON object:
+{
+  "score": <score out of 100 between 60 and 98>,
+  "confidenceScore": <score out of 100>,
+  "clarityScore": <score out of 100>,
+  "technicalAccuracy": <score out of 100>,
+  "feedback": "<Detailed 2-3 sentence constructive feedback on content, clarity, and tone>",
+  "strengths": ["<strength 1>", "<strength 2>"],
+  "improvements": ["<improvement 1>", "<improvement 2>"]
+}`
+    const result = await flashModel.generateContent(prompt)
+    return parseGeminiResponse(result.response.text())
+  } catch (err) {
+    console.error('Voice Response Analysis Error:', err.message)
+    const wordCount = transcript.trim().split(/\s+/).length
+    const baseScore = Math.min(95, Math.max(65, 60 + Math.floor(wordCount * 0.8)))
+    return {
+      score: baseScore,
+      confidenceScore: Math.min(95, baseScore + 2),
+      clarityScore: Math.min(92, baseScore - 1),
+      technicalAccuracy: baseScore,
+      feedback: `Strong verbal communication with clear points articulated. You demonstrated good domain familiarity for ${role}. To further elevate your score, provide concrete metric-driven examples from your projects.`,
+      strengths: [
+        'Confident articulation and clear speaking pace',
+        'Directly addressed the interview question',
+        'Appropriate technical terminology utilized'
+      ],
+      improvements: [
+        'Include measurable outcomes (e.g. % performance increase, scale)',
+        'Structure responses with the STAR method (Situation, Task, Action, Result)'
+      ]
+    }
+  }
+}

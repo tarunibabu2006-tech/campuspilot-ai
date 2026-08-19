@@ -44,12 +44,16 @@ function Dashboard({ onNavigate }) {
   }
 
   const flagshipFeatures = [
-    { icon: '🗺️', label: 'Career GPS', tab: 'career-gps', desc: 'AI Skill Gap Analyzer & Personalized Career Roadmap', color: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.05) 100%)', border: 'rgba(16,185,129,0.4)', tag: 'NEW 🚀' },
-    { icon: '📄', label: 'Resume Scorer', tab: 'resume-scorer', desc: 'Instant ATS 0-100 Score, Tailoring & Keywords', color: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)', border: 'rgba(59,130,246,0.4)', tag: 'AI ATS 📊' },
+    { icon: '🔮', label: 'Career Predictor', tab: 'career-predictor', desc: 'AI 5-Yr & 10-Yr Trajectory, Salaries & Roadmap', color: 'linear-gradient(135deg, rgba(147,51,234,0.2) 0%, rgba(147,51,234,0.05) 100%)', border: 'rgba(147,51,234,0.4)', tag: 'PREDICTOR 🔮' },
+    { icon: '🎙️', label: 'Voice Mock Interview', tab: 'voice-interview', desc: 'Real Speech-to-Text Practice with AI Evaluation', color: 'linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.05) 100%)', border: 'rgba(239,68,68,0.4)', tag: 'VOICE AI 🎙️' },
+    { icon: '🏆', label: 'Gamification 2.0', tab: 'gamification', desc: 'Earn Skill Badges, Streaks & XP Leaderboards', color: 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(245,158,11,0.05) 100%)', border: 'rgba(245,158,11,0.4)', tag: 'BADGES 🏆' },
+    { icon: '👥', label: 'Study Groups', tab: 'study-groups', desc: 'Peer Chat Rooms, Shared Notes & Doubt Support', color: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.05) 100%)', border: 'rgba(16,185,129,0.4)', tag: 'STUDY ROOMS 👥' },
+    { icon: '🗺️', label: 'Career GPS', tab: 'career-gps', desc: 'AI Skill Gap Analyzer & Personalized Learning Path', color: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)', border: 'rgba(59,130,246,0.4)', tag: 'CAREER GPS 🗺️' },
+    { icon: '📄', label: 'Resume Scorer', tab: 'resume-scorer', desc: 'Instant ATS 0-100 Score, Tailoring & Keywords', color: 'linear-gradient(135deg, rgba(6,182,212,0.2) 0%, rgba(6,182,212,0.05) 100%)', border: 'rgba(6,182,212,0.4)', tag: 'ATS SCORE 📊' },
     { icon: '🤖', label: 'AI Application Proxy', tab: 'ai-apply', desc: 'Automate job applications to matching vacancies', color: 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0.05) 100%)', border: 'rgba(139,92,246,0.4)', tag: 'AUTO APPLY ⚡' },
-    { icon: '🏷️', label: 'Verified Skill Badge', tab: 'skill-badge', desc: 'Student Trust Score & Target Career Fit Score', color: 'linear-gradient(135deg, rgba(6,182,212,0.2) 0%, rgba(6,182,212,0.05) 100%)', border: 'rgba(6,182,212,0.4)', tag: 'VERIFIED 🛡️' },
-    { icon: '👥', label: 'Mentor Connect', tab: 'mentors', desc: 'Connect with Google, Amazon, TCS Alumni Experts', color: 'linear-gradient(135deg, rgba(236,72,153,0.2) 0%, rgba(236,72,153,0.05) 100%)', border: 'rgba(236,72,153,0.4)', tag: 'ALUMNI 👥' },
-    { icon: '📝', label: 'Company Mock Tests', tab: 'mock-tests', desc: 'Practice TCS, Infosys, Google, Amazon Test Patterns', color: 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(245,158,11,0.05) 100%)', border: 'rgba(245,158,11,0.4)', tag: 'TEST PATTERNS 🎯' }
+    { icon: '🏷️', label: 'Verified Skill Badge', tab: 'skill-badge', desc: 'Student Trust Score & Target Career Fit Score', color: 'linear-gradient(135deg, rgba(236,72,153,0.2) 0%, rgba(236,72,153,0.05) 100%)', border: 'rgba(236,72,153,0.4)', tag: 'VERIFIED 🛡️' },
+    { icon: '👥', label: 'Mentor Connect', tab: 'mentors', desc: 'Connect with Google, Amazon, TCS Alumni Experts', color: 'linear-gradient(135deg, rgba(20,184,166,0.2) 0%, rgba(20,184,166,0.05) 100%)', border: 'rgba(20,184,166,0.4)', tag: 'ALUMNI 👥' },
+    { icon: '📝', label: 'Company Mock Tests', tab: 'mock-tests', desc: 'Practice TCS, Infosys, Google, Amazon Test Patterns', color: 'linear-gradient(135deg, rgba(249,115,22,0.2) 0%, rgba(249,115,22,0.05) 100%)', border: 'rgba(249,115,22,0.4)', tag: 'TESTS 🎯' }
   ]
 
   const studyTools = [
