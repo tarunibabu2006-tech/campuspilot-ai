@@ -144,71 +144,100 @@ router.get('/students', protect, async (req, res) => {
       if (!map.has(key)) map.set(key, s)
     })
 
-    // Seed mock initial students if empty
-    if (map.size === 0) {
-      const seedData = [
-        {
-          _id: 's_1',
-          name: 'Taruni Babu',
-          email: 'tarunibabu2006@gmail.com',
-          department: 'Computer Science & Engineering',
-          year: '3',
-          loginCount: 14,
-          firstLogin: new Date(Date.now() - 10 * 86400000),
-          lastLogin: new Date(),
-          activities: [
-            { action: 'POST', page: '/api/career-gps/analyze', timestamp: new Date() },
-            { action: 'POST', page: '/api/resume-score/analyze', timestamp: new Date(Date.now() - 3600000) },
-            { action: 'GET', page: '/api/mock-tests/companies', timestamp: new Date(Date.now() - 7200000) }
-          ],
-          featureUsage: {
-            careerGps: 4,
-            resumeScorer: 3,
-            mockTests: 5,
-            skillBadge: 2,
-            aiApply: 2,
-            mentorConnect: 1,
-            examEmergency: 3,
-            vivaPrep: 2,
-            placementPrep: 4,
-            skillHub: 6,
-            resumeBuilder: 2,
-            jobPortal: 5,
-            mockInterview: 3,
-            aptitudeTest: 4,
-            notesHub: 3
-          },
-          targetRole: 'Full Stack Developer',
-          createdAt: new Date(Date.now() - 10 * 86400000)
-        },
-        {
-          _id: 's_2',
-          name: 'Prawin Kumar',
-          email: 'prawinkumar@campus.edu',
-          department: 'Information Technology',
-          year: '4',
-          loginCount: 9,
-          firstLogin: new Date(Date.now() - 5 * 86400000),
-          lastLogin: new Date(Date.now() - 1800000),
-          activities: [
-            { action: 'POST', page: '/api/mock-tests/generate', timestamp: new Date(Date.now() - 1800000) },
-            { action: 'GET', page: '/api/jobs', timestamp: new Date(Date.now() - 3600000) }
-          ],
-          featureUsage: {
-            careerGps: 2,
-            resumeScorer: 2,
-            mockTests: 4,
-            skillBadge: 1,
-            aiApply: 1,
-            mentorConnect: 2,
-            jobPortal: 6
-          },
-          targetRole: 'Data Scientist',
-          createdAt: new Date(Date.now() - 5 * 86400000)
-        }
-      ]
-      seedData.forEach(s => map.set(s.email, s))
-    }
+    // Seed registered accounts if not yet in database
+    const initialRegistered = [
+      {
+        _id: 's_santhiya',
+        name: 'S.Santhiya',
+        email: 's.santhiyakasco@gmail.com',
+        department: 'Computer Science & Engineering',
+        year: '3',
+        loginCount: 8,
+        firstLogin: new Date(Date.now() - 7 * 86400000),
+        lastLogin: new Date(Date.now() - 30 * 60000),
+        activities: [
+          { action: 'POST', page: '/api/career-gps/analyze', timestamp: new Date(Date.now() - 30 * 60000) },
+          { action: 'POST', page: '/api/resume-score/analyze', timestamp: new Date(Date.now() - 2 * 3600000) },
+          { action: 'GET', page: '/api/mock-tests/companies', timestamp: new Date(Date.now() - 4 * 3600000) }
+        ],
+        featureUsage: { careerGps: 5, resumeScorer: 4, mockTests: 6, skillBadge: 2, aiApply: 3, mentorConnect: 2, examEmergency: 4, vivaPrep: 3, placementPrep: 5 },
+        targetRole: 'Full Stack Developer',
+        createdAt: new Date(Date.now() - 7 * 86400000)
+      },
+      {
+        _id: 's_jayyappan',
+        name: 'Jayyappan',
+        email: 'sjayyappan79@gmail.com',
+        department: 'Information Technology',
+        year: '3',
+        loginCount: 6,
+        firstLogin: new Date(Date.now() - 6 * 86400000),
+        lastLogin: new Date(Date.now() - 45 * 60000),
+        activities: [
+          { action: 'POST', page: '/api/mock-tests/generate', timestamp: new Date(Date.now() - 45 * 60000) },
+          { action: 'POST', page: '/api/career-gps/analyze', timestamp: new Date(Date.now() - 3 * 3600000) }
+        ],
+        featureUsage: { careerGps: 3, mockTests: 5, resumeScorer: 2, jobPortal: 4, aptitudeTest: 4 },
+        targetRole: 'Data Analyst',
+        createdAt: new Date(Date.now() - 6 * 86400000)
+      },
+      {
+        _id: 's_taruni',
+        name: 'Taruni Babu',
+        email: 'tarunibabu1506@gmail.com',
+        department: 'Computer Science & Engineering',
+        year: '3',
+        loginCount: 14,
+        firstLogin: new Date(Date.now() - 10 * 86400000),
+        lastLogin: new Date(),
+        activities: [
+          { action: 'POST', page: '/api/career-gps/analyze', timestamp: new Date() },
+          { action: 'POST', page: '/api/resume-score/analyze', timestamp: new Date(Date.now() - 3600000) },
+          { action: 'GET', page: '/api/mock-tests/companies', timestamp: new Date(Date.now() - 7200000) }
+        ],
+        featureUsage: { careerGps: 7, resumeScorer: 6, mockTests: 8, skillBadge: 4, aiApply: 5, mentorConnect: 3, examEmergency: 5, vivaPrep: 4, placementPrep: 6 },
+        targetRole: 'Full Stack Developer',
+        createdAt: new Date(Date.now() - 10 * 86400000)
+      },
+      {
+        _id: 's_prawin',
+        name: 'Prawin Kumar',
+        email: 'prawinkumar@gmail.com',
+        department: 'Information Technology',
+        year: '4',
+        loginCount: 9,
+        firstLogin: new Date(Date.now() - 5 * 86400000),
+        lastLogin: new Date(Date.now() - 1800000),
+        activities: [
+          { action: 'POST', page: '/api/mock-tests/generate', timestamp: new Date(Date.now() - 1800000) },
+          { action: 'GET', page: '/api/jobs', timestamp: new Date(Date.now() - 3600000) }
+        ],
+        featureUsage: { careerGps: 3, resumeScorer: 3, mockTests: 5, skillBadge: 2, aiApply: 2, mentorConnect: 2, jobPortal: 6 },
+        targetRole: 'Data Scientist',
+        createdAt: new Date(Date.now() - 5 * 86400000)
+      },
+      {
+        _id: 's_kavi',
+        name: 'Kavi Babu',
+        email: 'kavibabu@gmail.com',
+        department: 'Electronics & Communication',
+        year: '3',
+        loginCount: 5,
+        firstLogin: new Date(Date.now() - 4 * 86400000),
+        lastLogin: new Date(Date.now() - 5 * 3600000),
+        activities: [
+          { action: 'POST', page: '/api/skill-badge/verify', timestamp: new Date(Date.now() - 5 * 3600000) },
+          { action: 'GET', page: '/api/skills', timestamp: new Date(Date.now() - 6 * 3600000) }
+        ],
+        featureUsage: { skillBadge: 3, careerGps: 2, mockTests: 3, examEmergency: 2 },
+        targetRole: 'Embedded Systems Engineer',
+        createdAt: new Date(Date.now() - 4 * 86400000)
+      }
+    ]
+
+    initialRegistered.forEach(s => {
+      if (!map.has(s.email)) map.set(s.email, s)
+    })
 
     const studentsList = Array.from(map.values()).map(s => ({
       id: s._id || s.id || String(Math.random()),

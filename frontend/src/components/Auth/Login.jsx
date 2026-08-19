@@ -160,92 +160,63 @@ function Login({ onSwitchToRegister }) {
             </button>
           </div>
 
-          {/* Interactive Google Account Chooser Modal */}
+          {/* Interactive Google Sign In Modal */}
           {showGoogleModal && (
             <div style={{
               background: 'rgba(15, 23, 42, 0.98)',
               border: '1px solid rgba(59, 130, 246, 0.45)',
               borderRadius: '18px',
-              padding: '1.25rem',
+              padding: '1.5rem',
               marginBottom: '1.25rem',
               boxShadow: '0 12px 36px rgba(0,0,0,0.7)',
               animation: 'fadeIn 0.25s ease'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#ffffff', fontSize: '0.95rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <span>🔐</span> Choose Your Google Account
+                <span style={{ color: '#ffffff', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span>🔐</span> Continue with Google
                 </span>
                 <button 
                   type="button" 
                   onClick={() => setShowGoogleModal(false)}
-                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1.1rem' }}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1.2rem' }}
                 >
                   ✕
                 </button>
               </div>
 
-              <p style={{ color: '#94a3b8', fontSize: '0.775rem', margin: '0 0 0.75rem 0' }}>
-                Select your active device account or enter a new user Gmail:
+              <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '0 0 1rem 0' }}>
+                Enter your Name and Gmail to sign in:
               </p>
 
-              {/* List of Device Profiles */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', maxHeight: '170px', overflowY: 'auto', marginBottom: '0.85rem' }}>
-                {deviceProfiles.map((p, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => handleGoogleSignIn(p.name, p.email)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.65rem',
-                      background: 'rgba(30, 41, 59, 0.8)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: '10px',
-                      padding: '0.55rem 0.75rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseOver={e => { e.currentTarget.style.borderColor = '#38bdf8'; e.currentTarget.style.background = 'rgba(30, 41, 59, 1)' }}
-                    onMouseOut={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.background = 'rgba(30, 41, 59, 0.8)' }}
-                  >
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: p.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: '0.85rem' }}>
-                      {p.avatar}
-                    </div>
-                    <div style={{ flex: 1, textAlign: 'left' }}>
-                      <div style={{ color: '#ffffff', fontSize: '0.875rem', fontWeight: 600 }}>{p.name}</div>
-                      <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>{p.email}</div>
-                    </div>
-                    <span style={{ color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600 }}>Sign In →</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Custom New User Entry */}
-              <form onSubmit={(e) => { e.preventDefault(); handleGoogleSignIn(); }} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '0.75rem' }}>
-                <span style={{ color: '#94a3b8', fontSize: '0.75rem', textAlign: 'center', fontWeight: 500 }}>— Or Sign In with another Name &amp; Gmail —</span>
-                <input
-                  type="text"
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  placeholder="Your Full Name (e.g. S.Santhiya)"
-                  className="dark-input"
-                  style={{ fontSize: '0.85rem', padding: '0.55rem 0.75rem' }}
-                  required
-                />
-                <input
-                  type="email"
-                  value={customEmail}
-                  onChange={(e) => setCustomEmail(e.target.value)}
-                  placeholder="your.email@gmail.com"
-                  className="dark-input"
-                  style={{ fontSize: '0.85rem', padding: '0.55rem 0.75rem' }}
-                  required
-                />
+              {/* Direct Name & Gmail Input Form */}
+              <form onSubmit={(e) => { e.preventDefault(); handleGoogleSignIn(); }} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div>
+                  <input
+                    type="text"
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                    placeholder="Your Full Name (e.g. S.Santhiya)"
+                    className="dark-input"
+                    style={{ fontSize: '0.9rem', padding: '0.75rem 1rem', width: '100%' }}
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    type="email"
+                    value={customEmail}
+                    onChange={(e) => setCustomEmail(e.target.value)}
+                    placeholder="your.email@gmail.com"
+                    className="dark-input"
+                    style={{ fontSize: '0.9rem', padding: '0.75rem 1rem', width: '100%' }}
+                    required
+                  />
+                </div>
                 <button
                   type="submit"
                   disabled={loading}
                   className="dark-btn-google"
-                  style={{ padding: '0.6rem', fontSize: '0.85rem' }}
+                  style={{ padding: '0.75rem', fontSize: '0.95rem', fontWeight: 'bold', justifyContent: 'center' }}
                 >
                   {loading ? 'Signing in...' : 'Sign In as This User 🚀'}
                 </button>
