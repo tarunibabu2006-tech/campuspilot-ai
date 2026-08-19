@@ -1,0 +1,34 @@
+{
+  "roles": {
+    "frontend_developer": {
+      "title": "Frontend Developer",
+      "requiredSkills": ["HTML", "CSS", "JavaScript", "React", "Git"],
+      "niceToHave": ["TypeScript", "Next.js", "Testing", "Figma"],
+      "avgSalary": "4-12 LPA"
+    },
+    "backend_developer": {
+      "title": "Backend Developer",
+      "requiredSkills": ["Node.js", "Python", "SQL", "REST APIs", "Git"],
+      "niceToHave": ["Docker", "AWS", "Redis", "GraphQL"],
+      "avgSalary": "5-15 LPA"
+    },
+    "full_stack_developer": {
+      "title": "Full Stack Developer",
+      "requiredSkills": ["HTML", "CSS", "JavaScript", "React", "Node.js", "SQL", "Git"],
+      "niceToHave": ["TypeScript", "Docker", "AWS", "MongoDB"],
+      "avgSalary": "6-18 LPA"
+    },
+    "data_scientist": {
+      "title": "Data Scientist",
+      "requiredSkills": ["Python", "SQL", "Statistics", "Machine Learning", "Pandas"],
+      "niceToHave": ["Deep Learning", "TensorFlow", "Spark", "Tableau"],
+      "avgSalary": "6-20 LPA"
+    },
+    "devops_engineer": {
+      "title": "DevOps Engineer",
+      "requiredSkills": ["Linux", "Docker", "Kubernetes", "CI/CD", "AWS/GCP"],
+      "niceToHave": ["Terraform", "Ansible", "Monitoring", "Python"],
+      "avgSalary": "8-22 LPA"
+    }
+  }
+}

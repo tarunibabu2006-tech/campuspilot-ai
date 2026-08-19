@@ -1,0 +1,40 @@
+{
+  "attendanceRule": {
+    "minimumPercentage": 75,
+    "description": "Most Indian universities require 75% minimum attendance",
+    "consequences": ["Debarred from exams", "Year back", "Loss of scholarship"]
+  },
+  "examTypes": {
+    "semester": "End semester exams (typically 3 hours)",
+    "internal": "Internal assessment (continuous evaluation)",
+    "viva": "Oral examination by faculty panel",
+    "practical": "Lab examination with hands-on tasks"
+  },
+  "gradingSystems": {
+    "CGPA": "Cumulative Grade Point Average (10 scale)",
+    "percentage": "Percentage based grading",
+    "letterGrade": "A+, A, B+, B, C, D, F system"
+  },
+  "placementSeason": {
+    "timeline": "August to March (varies by college)",
+    "dreamCompanies": "Usually first to visit (July-September)",
+    "massRecruiters": "October-December (TCS, Infosys, Wipro)",
+    "offCampus": "Year-round opportunities"
+  },
+  "commonScamPatterns": [
+    "Asking for registration fees",
+    "Guaranteeing placement with money",
+    "No company website or LinkedIn",
+    "WhatsApp/Telegram only communication",
+    "Unrealistic salary promises",
+    "Asking for Aadhaar/PAN before joining",
+    "Work from home with no clear JD",
+    "Multi-level marketing disguised as jobs"
+  ],
+  "freeResources": {
+    "coding": ["LeetCode", "GeeksforGeeks", "HackerRank", "Codeforces", "CodeChef"],
+    "learning": ["FreeCodeCamp", "NPTEL", "Coursera (audit)", "MIT OCW", "Khan Academy"],
+    "placement": ["PrepInsta", "IndiaBix", "AmbitionBox", "Glassdoor"],
+    "projects": ["GitHub", "Kaggle", "DevPost", "Google Summer of Code"]
+  }
+}

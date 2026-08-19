@@ -1,0 +1,58 @@
+{
+  "companies": {
+    "TCS": {
+      "name": "Tata Consultancy Services",
+      "type": "Service",
+      "eligibility": "60% throughout, No backlogs",
+      "rounds": ["TCS NQT (Aptitude + Coding)", "Technical Interview", "HR Interview"],
+      "ctc": "3.36 - 7 LPA",
+      "dsaFocus": ["Arrays", "Strings", "Basic Sorting", "Simple DP"],
+      "tips": ["Focus on TCS NQT mock tests", "Practice verbal and quant"]
+    },
+    "Infosys": {
+      "name": "Infosys Limited",
+      "type": "Service",
+      "eligibility": "60% throughout, No backlogs",
+      "rounds": ["InfyTQ / HackWithInfy", "Technical Interview", "HR Interview"],
+      "ctc": "3.6 - 8 LPA (Power Programmer: 9.5 LPA)",
+      "dsaFocus": ["Arrays", "Strings", "Linked Lists", "Trees"],
+      "tips": ["Attempt HackWithInfy for higher package", "Learn Java or Python well"]
+    },
+    "Wipro": {
+      "name": "Wipro Limited",
+      "type": "Service",
+      "eligibility": "60% throughout, No backlogs",
+      "rounds": ["Online Test (Aptitude + Coding)", "Technical Interview", "HR Interview"],
+      "ctc": "3.5 - 6.5 LPA",
+      "dsaFocus": ["Arrays", "Strings", "Basic Math", "Pattern Problems"],
+      "tips": ["Practice on AMCAT/Cocubes patterns", "Focus on logical reasoning"]
+    },
+    "Amazon": {
+      "name": "Amazon",
+      "type": "Product",
+      "eligibility": "7+ CGPA preferred, Strong DSA",
+      "rounds": ["Online Assessment (2 coding)", "Phone Screen", "4-5 Onsite Rounds (LP + DSA)"],
+      "ctc": "18-30 LPA (SDE-1)",
+      "dsaFocus": ["Arrays", "Trees", "Graphs", "DP", "System Design"],
+      "tips": ["Master Leadership Principles", "Practice on LeetCode Medium/Hard"]
+    },
+    "Google": {
+      "name": "Google",
+      "type": "Product",
+      "eligibility": "Strong CS fundamentals, Competitive programming helps",
+      "rounds": ["Online Coding Round", "Phone Interview", "4-5 Onsite (Coding + System Design)"],
+      "ctc": "25-45 LPA (L3/L4)",
+      "dsaFocus": ["Graphs", "DP", "Trees", "String Algorithms", "System Design"],
+      "tips": ["Practice LeetCode Hard problems", "Read 'Cracking the Coding Interview'"]
+    },
+    "Microsoft": {
+      "name": "Microsoft",
+      "type": "Product",
+      "eligibility": "7+ CGPA, Strong CS fundamentals",
+      "rounds": ["Online Assessment", "Group Fly Round", "3-4 Technical Rounds"],
+      "ctc": "18-35 LPA",
+      "dsaFocus": ["Arrays", "Trees", "Graphs", "DP", "OOP"],
+      "tips": ["Strong in OOP concepts", "Practice design questions"]
+    }
+  }
+}
