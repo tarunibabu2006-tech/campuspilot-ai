@@ -29,6 +29,7 @@ import aiApplyRoutes from './routes/aiApply.js'
 import mentorRoutes from './routes/mentorConnect.js'
 import mockTestRoutes from './routes/mockTests.js'
 import skillBadgeRoutes from './routes/skillBadge.js'
+import { trackActivity } from './middleware/trackActivity.js'
 
 dotenv.config()
 
@@ -108,6 +109,9 @@ const limiter = rateLimit({
   message: { error: 'Too many requests, please try again in a minute.' }
 })
 app.use('/api/', limiter)
+
+// Student Activity & Login Tracker Middleware
+app.use(trackActivity)
 
 // API Routes
 app.use('/api/auth', authRoutes)

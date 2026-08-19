@@ -183,6 +183,9 @@ function Dashboard({ onNavigate }) {
               <button className="btn btn-primary btn-full" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }} onClick={() => onNavigate('admin')}>
                 Open Full Admin Console 👑
               </button>
+              <button className="btn btn-outline btn-full" style={{ fontSize: '0.8rem', marginTop: '0.4rem', border: '1px solid rgba(59,130,246,0.5)' }} onClick={() => onNavigate('student-analytics')}>
+                👥 View Student Activity & Logins
+              </button>
             </div>
           </div>
         )}

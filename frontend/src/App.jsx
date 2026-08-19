@@ -34,6 +34,7 @@ import AiApply from './components/AiApply'
 import MentorConnect from './components/MentorConnect'
 import CompanyMockTests from './components/CompanyMockTests'
 import SkillBadge from './components/SkillBadge'
+import StudentAnalytics from './components/Admin/StudentAnalytics'
 
 function MainApp() {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
@@ -124,6 +125,7 @@ function MainApp() {
       case 'skill-badge': return <SkillBadge />
       case 'mentors': return <MentorConnect />
       case 'mock-tests': return <CompanyMockTests />
+      case 'student-analytics': return <StudentAnalytics onBack={() => setActiveTab('admin')} />
       
       default: return <Dashboard onNavigate={(tab) => setActiveTab(tab)} />
     }

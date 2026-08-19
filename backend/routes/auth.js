@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import crypto from 'crypto'
 import mongoose from 'mongoose'
 import User from '../models/User.js'
+import Student from '../models/Student.js'
 import { protect } from '../middleware/auth.js'
 
 const router = express.Router()
@@ -80,7 +81,7 @@ router.post('/google', async (req, res) => {
       year: '3'
     }
 
-    // If MongoDB is connected, save or update user
+    // If MongoDB is connected, save or update user & student
     if (mongoose.connection.readyState === 1) {
       try {
         let user = await User.findOne({ email })
@@ -92,12 +93,43 @@ router.post('/google', async (req, res) => {
             role: 'student',
             loginMethod: 'google'
           })
-          console.log(`🆕 New student registered in MongoDB: ${email}`)
+          console.log(`🆕 New user registered in MongoDB: ${email}`)
         } else {
           user.lastLogin = new Date()
           user.isActive = true
           await user.save()
         }
+
+        let student = await Student.findOne({ email })
+        if (!student) {
+          student = new Student({
+            name: studentData.name,
+            email: studentData.email,
+            googleId: googleId || 'google_' + Date.now(),
+            department: user.department || 'Computer Science & Engineering',
+            year: user.year || '3',
+            firstLogin: new Date(),
+            lastLogin: new Date(),
+            loginCount: 1,
+            loginHistory: [{
+              date: new Date(),
+              ip: req.ip || req.headers['x-forwarded-for'] || '',
+              device: req.headers['user-agent'] || ''
+            }]
+          })
+          await student.save()
+          console.log(`🆕 New student record created in MongoDB: ${email}`)
+        } else {
+          student.loginCount = (student.loginCount || 0) + 1
+          student.lastLogin = new Date()
+          student.loginHistory.push({
+            date: new Date(),
+            ip: req.ip || req.headers['x-forwarded-for'] || '',
+            device: req.headers['user-agent'] || ''
+          })
+          await student.save()
+        }
+
         studentData = {
           id: user._id.toString(),
           name: user.name,

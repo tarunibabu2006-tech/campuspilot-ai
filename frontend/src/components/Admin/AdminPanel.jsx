@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
+import StudentAnalytics from './StudentAnalytics'
 
 function AdminPanel() {
   const [stats, setStats] = useState({
@@ -17,7 +18,7 @@ function AdminPanel() {
   const [students, setStudents] = useState([])
   const [jobs, setJobs] = useState([])
   const [skills, setSkills] = useState([])
-  const [activeTab, setActiveTab] = useState('stats')
+  const [activeTab, setActiveTab] = useState('analytics')
   const [loading, setLoading] = useState(false)
 
   const [newJob, setNewJob] = useState({ company: '', role: '', location: 'Pan India', salary: '4-8 LPA', applyLink: '', description: '' })
@@ -115,11 +116,14 @@ function AdminPanel() {
 
       {/* Admin Tabs */}
       <div className="flex flex-wrap gap-1 mb-3">
+        <button onClick={() => setActiveTab('analytics')} className={`nav-tab ${activeTab === 'analytics' ? 'active' : ''}`}>
+          👥 Student Activity Analytics
+        </button>
         <button onClick={() => setActiveTab('stats')} className={`nav-tab ${activeTab === 'stats' ? 'active' : ''}`}>
           📊 Dashboard Metrics
         </button>
         <button onClick={() => setActiveTab('students')} className={`nav-tab ${activeTab === 'students' ? 'active' : ''}`}>
-          👥 Registered Students ({students.length || stats.totalStudents})
+          🎓 Students Directory ({students.length || stats.totalStudents})
         </button>
         <button onClick={() => setActiveTab('jobs')} className={`nav-tab ${activeTab === 'jobs' ? 'active' : ''}`}>
           💼 Posted Job Vacancies ({jobs.length || stats.totalJobs})
@@ -136,6 +140,11 @@ function AdminPanel() {
         <div style={{ textAlign: 'center', padding: '2rem' }}>
           <span className="loading-spinner"></span> Loading Panel Data...
         </div>
+      )}
+
+      {/* Student Analytics Tab */}
+      {!loading && activeTab === 'analytics' && (
+        <StudentAnalytics />
       )}
 
       {/* Stats Tab */}
