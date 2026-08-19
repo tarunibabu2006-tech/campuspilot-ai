@@ -30,15 +30,22 @@ function Dashboard({ onNavigate }) {
     setLoading(false)
   }
 
-  const quickActions = [
-    { icon: '🗺️', label: 'Career GPS', tab: 'career-gps', desc: 'Skill gap analyzer & roadmap', color: 'rgba(16,185,129,0.1)' },
-    { icon: '📊', label: 'Resume Scorer', tab: 'resume-scorer', desc: 'AI 0-100 score & feedback', color: 'rgba(59,130,246,0.1)' },
-    { icon: '🤖', label: 'AI Apply', tab: 'ai-apply', desc: 'Auto-apply to matching jobs', color: 'rgba(139,92,246,0.1)' },
-    { icon: '👥', label: 'Mentors', tab: 'mentors', desc: 'Connect with experts', color: 'rgba(236,72,153,0.1)' },
-    { icon: '📝', label: 'Mock Tests', tab: 'mock-tests', desc: 'Company-specific practice', color: 'rgba(245,158,11,0.1)' },
-    { icon: '📚', label: 'Learn Skills', tab: 'skills', desc: 'Browse courses & notes', color: 'rgba(59,130,246,0.1)' },
-    { icon: '💼', label: 'Job Portal', tab: 'jobs', desc: 'Search & apply companies', color: 'rgba(245,158,11,0.1)' },
-    { icon: '🎯', label: 'Placement Prep', tab: 'placement', desc: 'Company target track', color: 'rgba(20,184,166,0.1)' }
+  const flagshipFeatures = [
+    { icon: '🗺️', label: 'Career GPS', tab: 'career-gps', desc: 'AI Skill Gap Analyzer & Personalized Career Roadmap', color: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.05) 100%)', border: 'rgba(16,185,129,0.4)', tag: 'NEW 🚀' },
+    { icon: '📄', label: 'Resume Scorer', tab: 'resume-scorer', desc: 'Instant ATS 0-100 Score, Tailoring & Keywords', color: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)', border: 'rgba(59,130,246,0.4)', tag: 'AI ATS 📊' },
+    { icon: '🤖', label: 'AI Application Proxy', tab: 'ai-apply', desc: 'Automate job applications to matching vacancies', color: 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0.05) 100%)', border: 'rgba(139,92,246,0.4)', tag: 'AUTO APPLY ⚡' },
+    { icon: '🏷️', label: 'Verified Skill Badge', tab: 'skill-badge', desc: 'Student Trust Score & Target Career Fit Score', color: 'linear-gradient(135deg, rgba(6,182,212,0.2) 0%, rgba(6,182,212,0.05) 100%)', border: 'rgba(6,182,212,0.4)', tag: 'VERIFIED 🛡️' },
+    { icon: '👥', label: 'Mentor Connect', tab: 'mentors', desc: 'Connect with Google, Amazon, TCS Alumni Experts', color: 'linear-gradient(135deg, rgba(236,72,153,0.2) 0%, rgba(236,72,153,0.05) 100%)', border: 'rgba(236,72,153,0.4)', tag: 'ALUMNI 👥' },
+    { icon: '📝', label: 'Company Mock Tests', tab: 'mock-tests', desc: 'Practice TCS, Infosys, Google, Amazon Test Patterns', color: 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(245,158,11,0.05) 100%)', border: 'rgba(245,158,11,0.4)', tag: 'TEST PATTERNS 🎯' }
+  ]
+
+  const studyTools = [
+    { icon: '📚', label: 'Learn Skills', tab: 'skills', desc: 'Explore tech roadmaps & notes' },
+    { icon: '🗺️', label: 'Role Paths', tab: 'role-learning', desc: 'Target 50+ roles' },
+    { icon: '💼', label: 'Job Portal', tab: 'jobs', desc: 'Browse verified campus jobs' },
+    { icon: '🎤', label: 'Mock Interview', tab: 'interview', desc: 'Practice with AI Interviewer' },
+    { icon: '🧠', label: 'Aptitude Test', tab: 'aptitude', desc: 'Test logic & quantitative skills' },
+    { icon: '📝', label: 'Notes Hub', tab: 'notes', desc: 'Access 1000+ peer notes' }
   ]
 
   return (
@@ -67,28 +74,83 @@ function Dashboard({ onNavigate }) {
         </div>
       </div>
 
-      {/* Main Grid: Student actions / Stats preview */}
+      {/* 🌟 6 NEW FLAGSHIP PLACEMENT FEATURES */}
+      <div className="card" style={{ background: 'linear-gradient(135deg, #0b0f19 0%, #16192b 100%)', border: '1px solid rgba(99,102,241,0.3)', padding: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>🌟</span> India's #1 AI Placement & Career Suite
+            </h3>
+            <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              6 New Revolutionary AI tools to guarantee dream job placement
+            </p>
+          </div>
+          <span style={{ background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.5)', color: '#a5b4fc', padding: '0.3rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+            ✨ 6 NEW MODULES
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+          {flagshipFeatures.map(f => (
+            <div
+              key={f.tab}
+              onClick={() => onNavigate(f.tab)}
+              style={{
+                background: f.color,
+                border: `1px solid ${f.border}`,
+                borderRadius: '12px',
+                padding: '1.25rem',
+                cursor: 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 24px ${f.border}33` }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '2rem' }}>{f.icon}</span>
+                  <span style={{ fontSize: '0.65rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.5rem', borderRadius: '10px', color: '#fff', fontWeight: 'bold' }}>{f.tag}</span>
+                </div>
+                <h4 style={{ margin: '0 0 0.4rem', color: '#fff', fontSize: '1.05rem' }}>{f.label}</h4>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{f.desc}</p>
+              </div>
+              <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', color: '#fff', fontWeight: 'bold' }}>
+                Open Feature →
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Grid: Additional study actions / Admin preview */}
       <div className="grid-2" style={{ gridTemplateColumns: user?.role === 'admin' ? '1.2fr 0.8fr' : '1fr' }}>
         <div>
-          <h3 className="result-title" style={{ marginTop: 0 }}>🚀 Quick Feature Cockpit</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-            {quickActions.map(action => (
+          <h3 className="result-title" style={{ marginTop: 0 }}>📚 Core Learning & Practice Tools</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+            {studyTools.map(action => (
               <div
                 key={action.tab}
                 className="result-item"
                 style={{
-                  background: action.color,
+                  background: 'rgba(255,255,255,0.03)',
                   cursor: 'pointer',
-                  padding: '1rem',
+                  padding: '0.85rem',
                   display: 'flex',
                   alignItems: 'center',
-                  border: '1px solid var(--border-color)'
+                  gap: '0.75rem',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px'
                 }}
                 onClick={() => onNavigate(action.tab)}
               >
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{action.icon}</div>
-                <div style={{ fontWeight: 'bold', marginBottom: '0.25rem', color: 'var(--text-primary)' }}>{action.label}</div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{action.desc}</div>
+                <div style={{ fontSize: '1.6rem' }}>{action.icon}</div>
+                <div>
+                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--text-primary)' }}>{action.label}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{action.desc}</div>
+                </div>
               </div>
             ))}
           </div>

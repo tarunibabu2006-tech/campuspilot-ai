@@ -28,6 +28,7 @@ import resumeScorerRoutes from './routes/resumeScorer.js'
 import aiApplyRoutes from './routes/aiApply.js'
 import mentorRoutes from './routes/mentorConnect.js'
 import mockTestRoutes from './routes/mockTests.js'
+import skillBadgeRoutes from './routes/skillBadge.js'
 
 dotenv.config()
 
@@ -132,6 +133,7 @@ app.use('/api/resume-score', resumeScorerRoutes)
 app.use('/api/ai-apply', aiApplyRoutes)
 app.use('/api/mentors', mentorRoutes)
 app.use('/api/mock-tests', mockTestRoutes)
+app.use('/api/skill-badge', skillBadgeRoutes)
 
 // Health Check with Database Status
 app.get('/api/health', (req, res) => {

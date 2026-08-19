@@ -33,6 +33,7 @@ import ResumeScorer from './components/ResumeScorer'
 import AiApply from './components/AiApply'
 import MentorConnect from './components/MentorConnect'
 import CompanyMockTests from './components/CompanyMockTests'
+import SkillBadge from './components/SkillBadge'
 
 function MainApp() {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
@@ -66,6 +67,16 @@ function MainApp() {
 
   const studentTabs = [
     { id: 'dashboard', label: `🎯 ${t('dashboard')}` },
+
+    // 🌟 6 NEW FLAGSHIP FEATURES (Front & Center)
+    { id: 'career-gps', label: `🗺️ Career GPS` },
+    { id: 'resume-scorer', label: `📄 Resume Scorer` },
+    { id: 'ai-apply', label: `🤖 AI Apply` },
+    { id: 'skill-badge', label: `🏷️ Skill Badge` },
+    { id: 'mentors', label: `👥 Mentors` },
+    { id: 'mock-tests', label: `📝 Mock Tests` },
+
+    // Core Study & Placement Hubs
     { id: 'skills', label: `📚 ${t('skills')}` },
     { id: 'role-learning', label: `🗺️ ${t('rolePath')}` },
     { id: 'resume', label: `📄 ${t('resume')}` },
@@ -79,14 +90,7 @@ function MainApp() {
     { id: 'bunk', label: `🏃 ${t('bunk')}` },
     { id: 'job', label: `🛡️ ${t('job')}` },
     { id: 'skill', label: `🗺️ ${t('skill')}` },
-    { id: 'chat', label: `🤖 ${t('chat')}` },
-    
-    // NEW PREMIUM FEATURES
-    { id: 'career-gps', label: `🗺️ Career GPS` },
-    { id: 'resume-scorer', label: `📊 CV Scorer` },
-    { id: 'ai-apply', label: `🤖 AI Apply` },
-    { id: 'mentors', label: `👥 Mentors` },
-    { id: 'mock-tests', label: `📝 Mock Tests` }
+    { id: 'chat', label: `🤖 ${t('chat')}` }
   ]
 
   if (user?.role === 'admin') {
@@ -113,10 +117,11 @@ function MainApp() {
       case 'skill': return <SkillGapAnalyzer language={language} />
       case 'chat': return <ChatAssistant language={language} />
       
-      // NEW PREMIUM FEATURES
+      // 🌟 6 NEW FLAGSHIP FEATURES
       case 'career-gps': return <CareerGps />
       case 'resume-scorer': return <ResumeScorer />
       case 'ai-apply': return <AiApply />
+      case 'skill-badge': return <SkillBadge />
       case 'mentors': return <MentorConnect />
       case 'mock-tests': return <CompanyMockTests />
       
