@@ -31,13 +31,13 @@ function Dashboard({ onNavigate }) {
   }
 
   const quickActions = [
+    { icon: '🗺️', label: 'Career GPS', tab: 'career-gps', desc: 'Skill gap analyzer & roadmap', color: 'rgba(16,185,129,0.1)' },
+    { icon: '📊', label: 'Resume Scorer', tab: 'resume-scorer', desc: 'AI 0-100 score & feedback', color: 'rgba(59,130,246,0.1)' },
+    { icon: '🤖', label: 'AI Apply', tab: 'ai-apply', desc: 'Auto-apply to matching jobs', color: 'rgba(139,92,246,0.1)' },
+    { icon: '👥', label: 'Mentors', tab: 'mentors', desc: 'Connect with experts', color: 'rgba(236,72,153,0.1)' },
+    { icon: '📝', label: 'Mock Tests', tab: 'mock-tests', desc: 'Company-specific practice', color: 'rgba(245,158,11,0.1)' },
     { icon: '📚', label: 'Learn Skills', tab: 'skills', desc: 'Browse courses & notes', color: 'rgba(59,130,246,0.1)' },
-    { icon: '🗺️', label: 'Role Path', tab: 'role-learning', desc: 'Step-by-step roadmaps', color: 'rgba(16,185,129,0.1)' },
-    { icon: '📄', label: 'Resume Builder', tab: 'resume', desc: 'Build premium resumes', color: 'rgba(139,92,246,0.1)' },
     { icon: '💼', label: 'Job Portal', tab: 'jobs', desc: 'Search & apply companies', color: 'rgba(245,158,11,0.1)' },
-    { icon: '🎤', label: 'Mock Interview', tab: 'interview', desc: 'Practice with AI', color: 'rgba(239,68,68,0.1)' },
-    { icon: '🧠', label: 'Aptitude Test', tab: 'aptitude', desc: 'Practice MCQ rounds', color: 'rgba(79,70,229,0.1)' },
-    { icon: '📚', label: 'Exam Emergency', tab: 'exam', desc: 'Last minute study plans', color: 'rgba(236,72,153,0.1)' },
     { icon: '🎯', label: 'Placement Prep', tab: 'placement', desc: 'Company target track', color: 'rgba(20,184,166,0.1)' }
   ]
 
@@ -82,19 +82,13 @@ function Dashboard({ onNavigate }) {
                   padding: '1rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '1rem',
-                  transition: 'transform 0.2s',
-                  border: '1px solid transparent'
+                  border: '1px solid var(--border-color)'
                 }}
                 onClick={() => onNavigate(action.tab)}
-                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                <div style={{ fontSize: '2rem' }}>{action.icon}</div>
-                <div>
-                  <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 'bold' }}>{action.label}</h4>
-                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>{action.desc}</p>
-                </div>
+                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{action.icon}</div>
+                <div style={{ fontWeight: 'bold', marginBottom: '0.25rem', color: 'var(--text-primary)' }}>{action.label}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{action.desc}</div>
               </div>
             ))}
           </div>

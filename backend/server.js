@@ -22,6 +22,13 @@ import jobCheckerRoutes from './routes/jobChecker.js'
 import skillGapRoutes from './routes/skillGap.js'
 import chatRoutes from './routes/chat.js'
 
+// NEW FEATURE ROUTES
+import careerGpsRoutes from './routes/careerGps.js'
+import resumeScorerRoutes from './routes/resumeScorer.js'
+import aiApplyRoutes from './routes/aiApply.js'
+import mentorRoutes from './routes/mentorConnect.js'
+import mockTestRoutes from './routes/mockTests.js'
+
 dotenv.config()
 
 const app = express()
@@ -119,6 +126,13 @@ app.use('/api/check-job', jobCheckerRoutes)
 app.use('/api/skill-gap', skillGapRoutes)
 app.use('/api/chat', chatRoutes)
 
+// NEW FEATURE ROUTES
+app.use('/api/career-gps', careerGpsRoutes)
+app.use('/api/resume-score', resumeScorerRoutes)
+app.use('/api/ai-apply', aiApplyRoutes)
+app.use('/api/mentors', mentorRoutes)
+app.use('/api/mock-tests', mockTestRoutes)
+
 // Health Check with Database Status
 app.get('/api/health', (req, res) => {
   const dbStates = ['disconnected', 'connected', 'connecting', 'disconnecting']
@@ -139,11 +153,16 @@ app.get('/api/health', (req, res) => {
       '📚 Exam Emergency (50+ subjects)',
       '🎤 Viva Prep (50+ subjects)',
       '💼 Placement Prep (50+ roles)',
-      '📝 Notes Hub (50+ notes)',
+      '📝 Notes Hub (1000+ notes)',
       '🏃 Bunk Planner',
       '🛡️ Job Checker',
       '🤖 Chat Assistant',
-      '👑 Admin Panel'
+      '👑 Admin Panel',
+      '🗺️ Career GPS (Skill Gap + Roadmap)',
+      '📊 Resume Scorer (AI 0-100 Score)',
+      '🤖 AI Application Proxy (Auto Apply)',
+      '👥 Mentor Connect (Industry Experts)',
+      '📝 Company Mock Tests (TCS/Amazon/Google)'
     ],
     admin: {
       email: process.env.ADMIN_EMAIL || 'tarunibabu2006@gmail.com'

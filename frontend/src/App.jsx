@@ -27,6 +27,13 @@ import JobChecker from './components/JobChecker'
 import SkillGapAnalyzer from './components/SkillGapAnalyzer'
 import ChatAssistant from './components/ChatAssistant'
 
+// NEW FEATURES
+import CareerGps from './components/CareerGps'
+import ResumeScorer from './components/ResumeScorer'
+import AiApply from './components/AiApply'
+import MentorConnect from './components/MentorConnect'
+import CompanyMockTests from './components/CompanyMockTests'
+
 function MainApp() {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
   const [authMode, setAuthMode] = useState('login')
@@ -72,7 +79,14 @@ function MainApp() {
     { id: 'bunk', label: `🏃 ${t('bunk')}` },
     { id: 'job', label: `🛡️ ${t('job')}` },
     { id: 'skill', label: `🗺️ ${t('skill')}` },
-    { id: 'chat', label: `🤖 ${t('chat')}` }
+    { id: 'chat', label: `🤖 ${t('chat')}` },
+    
+    // NEW PREMIUM FEATURES
+    { id: 'career-gps', label: `🗺️ Career GPS` },
+    { id: 'resume-scorer', label: `📊 CV Scorer` },
+    { id: 'ai-apply', label: `🤖 AI Apply` },
+    { id: 'mentors', label: `👥 Mentors` },
+    { id: 'mock-tests', label: `📝 Mock Tests` }
   ]
 
   if (user?.role === 'admin') {
@@ -98,6 +112,14 @@ function MainApp() {
       case 'job': return <JobChecker language={language} />
       case 'skill': return <SkillGapAnalyzer language={language} />
       case 'chat': return <ChatAssistant language={language} />
+      
+      // NEW PREMIUM FEATURES
+      case 'career-gps': return <CareerGps />
+      case 'resume-scorer': return <ResumeScorer />
+      case 'ai-apply': return <AiApply />
+      case 'mentors': return <MentorConnect />
+      case 'mock-tests': return <CompanyMockTests />
+      
       default: return <Dashboard onNavigate={(tab) => setActiveTab(tab)} />
     }
   }
