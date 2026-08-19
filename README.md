@@ -18,7 +18,7 @@
 
 ## 🚀 Live URL
 
-> **🔗 [https://campus-pilot-ai.vercel.app](https://campus-pilot-ai.vercel.app)**
+> **🔗 [https://campus-pilot-ai.vercel.app]( https://campus-pilot-ai-eta.vercel.app)**
 
 ---
 
