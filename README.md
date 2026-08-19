@@ -28,35 +28,44 @@ CampusPilot AI is a full-stack web platform built specifically for Indian colleg
 
 ---
 
-## ✨ Key Features
+## ✨ Key Features & Flagship AI Modules
 
 | Module | Description |
 |---|---|
-| 🔐 **Google One-Click Login** | Instant authentication using the device's Google account — no manual entry needed |
-| 🧠 **AI Chat Assistant** | Powered by Google Gemini — ask anything about academics, placements, or career |
-| 💼 **Job Portal** | 1000+ live job listings with smart search by role, domain, company & location |
-| 📚 **Notes Hub** | 1000+ curated academic notes across Engineering, Arts, Science & more — with AI Flashcards |
-| 🛠️ **Skill Hub** | Browse 1050+ industry skills categorised by domain with learning roadmaps |
-| 📊 **Skill Gap Analyzer** | Compare your current skills vs. target job requirements with AI-driven insights |
-| 🎤 **Mock Interview** | Role-specific AI mock interviews with real-time feedback |
-| 📝 **Aptitude Test** | 1000+ aptitude questions (Quantitative, Logical, Verbal) with timed practice |
-| 📄 **Resume Builder** | ATS-friendly resume generator with AI enhancement tips |
-| 🏛️ **Placements Tracker** | Track campus placement drives, company visits, and offer statistics |
-| 🚨 **Exam Emergency** | Last-minute revision planner with AI summaries and priority topics |
-| 📅 **Bunk Planner** | Smart attendance calculator — know exactly how many classes you can skip |
-| 🎓 **Viva Prep** | Subject-wise viva Q&A generator powered by AI |
-| 🔧 **Admin Panel** | Password-protected admin dashboard to manage content, notes, and users |
+| 🔮 **AI Career Predictor** | 5-Year & 10-Year career trajectory, salary projections (₹6 LPA - ₹1.2 Cr+), and certification roadmaps |
+| 🎙️ **AI Voice Mock Interview** | Real-time speech-to-text verbal practice with pronunciation, confidence, and STAR-method scoring |
+| 🏆 **Gamification 2.0** | Verified Skill Badges (React, Python, Cloud, DevOps), daily streak check-ins (+20 XP), and weekly challenges |
+| 👥 **Collaborative Study Groups** | Study rooms with real-time peer chat, shared formula cheat sheets, and doubt resolution |
+| 🔔 **Real-Time Notifications** | Instant alerts for job matches, scheduled interviews, and mentorship guidance |
+| 🗺️ **Career GPS** | AI skill gap analyzer & tailored roadmap generation for dream roles |
+| 📄 **AI Resume Scorer** | Instant ATS 0-100 score, tailored keyword recommendations, and formatting feedback |
+| 🤖 **AI Application Proxy** | Automatic vacancy matching and auto-apply pipeline |
+| 🏷️ **Verified Skill Badge** | Student Trust Score & Target Career Fit Score |
+| 👥 **Mentor Connect** | Direct 1-on-1 networking with alumni experts from Google, Microsoft, Amazon, and TCS |
+| 📝 **Company Mock Tests** | Practice real placement test patterns for TCS, Infosys, Google, and Amazon |
+| 🔐 **Google Authentication** | Clean and secure Google sign-in without hardcoded emails |
+| 🧠 **AI Chat Assistant** | Powered by Google Gemini — 24/7 academic and placement companion |
+| 💼 **Job Portal** | 1000+ live campus job vacancies with domain and location filters |
+| 📚 **Notes Hub** | 1000+ curated lecture notes across Engineering, Arts, and Sciences |
+| 🛠️ **Skill Learning Hub** | Interactive learning modules with roadmaps across 50+ career roles |
+| 📄 **Resume Builder** | ATS-compliant professional resume builder with 1-click PDF export |
+| 🚨 **Exam Emergency Mode** | Hourly exam study revision plan with high-weightage topics |
+| 🏃 **Safe Bunk Planner** | Smart 75% attendance calculator with risk warnings |
+| 🎤 **Viva Prep Center** | AI-generated viva Q&A across 50+ university subjects |
+| 👑 **Admin Console & Analytics** | 100% real live student activity logs, login counts, and department distributions |
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **React 18** + **Vite 4** — blazing-fast dev & build
-- **Vanilla CSS** — custom design system with glassmorphism & dark mode
-- **Lucide React** — icon library
-- **React Hot Toast** — elegant notifications
+- **React 18** + **Vite 4** — blazing-fast development & optimized production build
+- **Vanilla CSS Design System** — custom glassmorphism, responsive mobile layout & dark mode
+- **Web Speech API** — real-time speech recognition & speech synthesis audio reader
+- **Lucide React** — icons
+- **React Hot Toast** — toast notifications
 - **Axios** — HTTP client
+
 
 ### Backend
 - **Node.js** + **Express.js** — REST API server
