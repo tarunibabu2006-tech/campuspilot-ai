@@ -6,7 +6,7 @@
 
 **Your all-in-one AI-powered academic & career companion for Indian college students.**
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-campus--pilot--ai.vercel.app-6C63FF?style=for-the-badge)](https://campus-pilot-ai.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-campus--pilot--ai-eta.vercel.app-6C63FF?style=for-the-badge)](https://campus-pilot-ai-eta.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-tarunibabu2006--tech-181717?style=for-the-badge&logo=github)](https://github.com/tarunibabu2006-tech/campuspilot-ai)
 [![React](https://img.shields.io/badge/React-18.2-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
 [![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js)](https://nodejs.org)
@@ -18,7 +18,7 @@
 
 ## 🚀 Live URL
 
-> **🔗 [https://campus-pilot-ai.vercel.app]( https://campus-pilot-ai-eta.vercel.app)**
+> **🔗 [https://campus-pilot-ai-eta.vercel.app](https://campus-pilot-ai-eta.vercel.app)**
 
 ---
 
@@ -151,7 +151,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. 🎉
 
 The frontend is deployed on **[Vercel](https://vercel.com)**. Every push to the `main` branch triggers an automatic deployment.
 
-> **Live URL:** [https://campus-pilot-ai.vercel.app](https://campus-pilot-ai.vercel.app)
+> **Live URL:** [https://campus-pilot-ai-eta.vercel.app](https://campus-pilot-ai-eta.vercel.app)
 
 ---
 
