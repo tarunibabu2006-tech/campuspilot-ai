@@ -80,7 +80,7 @@ function Dashboard({ onNavigate }) {
         </div>
       </div>
 
-      {/* 🌟 6 NEW FLAGSHIP PLACEMENT FEATURES */}
+      {/* 🌟 10 FLAGSHIP PLACEMENT FEATURES */}
       <div className="card" style={{ background: 'linear-gradient(135deg, #0b0f19 0%, #16192b 100%)', border: '1px solid rgba(99,102,241,0.3)', padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
@@ -88,12 +88,9 @@ function Dashboard({ onNavigate }) {
               <span>🌟</span> India's #1 AI Placement & Career Suite
             </h3>
             <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              6 New Revolutionary AI tools to guarantee dream job placement
+              10 Revolutionary AI & Career tools to guarantee dream job placement
             </p>
           </div>
-          <span style={{ background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.5)', color: '#a5b4fc', padding: '0.3rem 0.75rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold' }}>
-            ✨ 6 NEW MODULES
-          </span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
