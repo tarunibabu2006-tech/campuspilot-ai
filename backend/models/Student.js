@@ -5,11 +5,11 @@ const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   googleId: { type: String },
-  department: { type: String, default: 'Computer Science & Engineering' },
-  year: { type: String, default: '3' },
+  department: { type: String, default: '' },
+  year: { type: String, default: '' },
   skills: [{ type: String }],
   targetRole: { type: String, default: '' },
-  
+
   // Login Tracking
   loginCount: { type: Number, default: 1 },
   firstLogin: { type: Date, default: Date.now },
@@ -20,7 +20,7 @@ const studentSchema = new mongoose.Schema({
     device: { type: String },
     browser: { type: String }
   }],
-  
+
   // Activity Tracking
   activities: [{
     action: { type: String },
@@ -28,7 +28,7 @@ const studentSchema = new mongoose.Schema({
     details: { type: Object },
     timestamp: { type: Date, default: Date.now }
   }],
-  
+
   // Feature Usage Counters
   examEmergency: { type: Number, default: 0 },
   vivaPrep: { type: Number, default: 0 },
@@ -49,7 +49,7 @@ const studentSchema = new mongoose.Schema({
   voiceInterview: { type: Number, default: 0 },
   gamification: { type: Number, default: 0 },
   studyGroups: { type: Number, default: 0 },
-  
+
   // Gamification 2.0
   xpPoints: { type: Number, default: 150 },
   badges: [{ type: String }],
@@ -61,7 +61,7 @@ const studentSchema = new mongoose.Schema({
     completed: { type: Boolean, default: false },
     date: { type: Date, default: Date.now }
   }],
-  
+
   // Career Predictor Data
   careerPath: [{
     stage: { type: String },
@@ -71,7 +71,7 @@ const studentSchema = new mongoose.Schema({
     salary: { type: String },
     timeline: { type: String }
   }],
-  
+
   // Voice Interview Data
   voiceInterviews: [{
     date: { type: Date, default: Date.now },
@@ -80,10 +80,10 @@ const studentSchema = new mongoose.Schema({
     feedback: { type: String },
     transcript: { type: String }
   }],
-  
+
   // Study Groups
   groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
-  
+
   createdAt: { type: Date, default: Date.now }
 })
 

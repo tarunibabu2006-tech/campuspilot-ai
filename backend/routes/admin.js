@@ -101,7 +101,7 @@ router.get('/dashboard', protect, async (req, res) => {
     // Dynamic Department breakdown from REAL students only
     const deptMap = {}
     students.forEach(s => {
-      const dept = s.department || 'Computer Science & Engineering'
+      const dept = s.department || 'Not Specified'
       deptMap[dept] = (deptMap[dept] || 0) + 1
     })
     const studentsByDepartment = Object.entries(deptMap).map(([_id, count]) => ({ _id, count }))
@@ -109,7 +109,7 @@ router.get('/dashboard', protect, async (req, res) => {
     // Dynamic Year breakdown from REAL students only
     const yearMap = {}
     students.forEach(s => {
-      const yr = s.year ? `${s.year} Year` : '3rd Year'
+      const yr = s.year ? `${s.year} Year` : 'Not Specified'
       yearMap[yr] = (yearMap[yr] || 0) + 1
     })
     const studentsByYear = Object.entries(yearMap).map(([_id, count]) => ({ _id, count }))
@@ -126,7 +126,7 @@ router.get('/dashboard', protect, async (req, res) => {
         id: s._id || s.id || s.email,
         name: s.name || s.email.split('@')[0],
         email: s.email,
-        department: s.department || 'Computer Science & Engineering',
+        department: s.department || '',
         role: 'student',
         loginCount: s.loginCount || 1,
         lastLogin: s.lastLogin || s.createdAt || new Date()
@@ -164,8 +164,8 @@ router.get('/students', protect, async (req, res) => {
       id: s._id || s.id || s.email,
       name: s.name || (s.email ? s.email.split('@')[0] : 'Student'),
       email: s.email || 'student@campus.edu',
-      department: s.department || 'Computer Science & Engineering',
-      year: s.year || '3',
+      department: s.department || '',
+      year: s.year || '',
       loginCount: s.loginCount || 1,
       firstLogin: s.firstLogin || s.createdAt || new Date(),
       lastLogin: s.lastLogin || new Date(),
@@ -192,7 +192,7 @@ router.get('/students', protect, async (req, res) => {
         studyGroups: s.studyGroups || s.featureUsage?.studyGroups || 0
       },
       totalActivities: (s.activities || []).length || 0,
-      targetRole: s.targetRole || 'Full Stack Developer',
+      targetRole: s.targetRole || '',
       joined: s.createdAt || s.firstLogin || new Date()
     }))
 

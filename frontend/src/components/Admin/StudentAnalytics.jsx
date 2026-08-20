@@ -210,8 +210,8 @@ function StudentAnalytics({ onBack }) {
                   <div style={{ fontWeight: 'bold', fontSize: '1.05rem', color: 'var(--text-primary)' }}>{student.name}</div>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>{student.email}</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.35rem', fontSize: '0.78rem' }}>
-                    <span style={{ color: 'var(--blue)' }}>🎓 {student.department}</span>
-                    <span style={{ color: 'var(--text-muted)' }}>• Year {student.year}</span>
+                    <span style={{ color: 'var(--blue)' }}>🎓 {student.department || 'Not Specified'}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>• {student.year ? `Year ${student.year}` : 'Year: Not Specified'}</span>
                     <span style={{ color: 'var(--green)' }}>• 🔑 {student.loginCount || 1} logins</span>
                     <span style={{ color: '#f59e0b' }}>• ⚡ {student.totalActivities || 0} activities</span>
                   </div>
@@ -291,11 +291,11 @@ function StudentAnalytics({ onBack }) {
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Department</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#fff' }}>{selectedStudent.department || 'CSE'}</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#fff' }}>{selectedStudent.department || 'Not Specified'}</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Target Role</div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--green)' }}>{selectedStudent.targetRole || 'Full Stack'}</div>
+                <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: selectedStudent.targetRole ? 'var(--green)' : 'var(--text-muted)' }}>{selectedStudent.targetRole || 'Not Set'}</div>
               </div>
               <div style={{ background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Last Active</div>

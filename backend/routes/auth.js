@@ -77,8 +77,8 @@ router.post('/google', async (req, res) => {
       name: name || email.split('@')[0],
       email: email,
       role: 'student',
-      department: 'Computer Science & Engineering',
-      year: '3'
+      department: '',
+      year: ''
     }
 
     // If MongoDB is connected, save or update user & student
@@ -106,8 +106,8 @@ router.post('/google', async (req, res) => {
             name: studentData.name,
             email: studentData.email,
             googleId: googleId || 'google_' + Date.now(),
-            department: user.department || 'Computer Science & Engineering',
-            year: user.year || '3',
+            department: user.department || '',
+            year: user.year || '',
             firstLogin: new Date(),
             lastLogin: new Date(),
             loginCount: 1,
@@ -135,8 +135,8 @@ router.post('/google', async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role || 'student',
-          department: user.department || 'Computer Science & Engineering',
-          year: user.year || '3'
+          department: user.department || '',
+          year: user.year || ''
         }
       } catch (dbErr) {
         console.warn('⚠️ DB query skipped, proceeding with resilient session:', dbErr.message)

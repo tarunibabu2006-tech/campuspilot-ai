@@ -12,7 +12,7 @@ function Login({ onSwitchToRegister }) {
   const [loading, setLoading] = useState(false)
   const [showForgot, setShowForgot] = useState(false)
   const [resetEmail, setResetEmail] = useState('')
-  
+
   // Google Account Selector States
   const [showGoogleModal, setShowGoogleModal] = useState(false)
   const [customName, setCustomName] = useState('')
@@ -22,7 +22,7 @@ function Login({ onSwitchToRegister }) {
   // Sign in with entered Name & Google Account
   const handleGoogleSignIn = async (selectedName, selectedEmail) => {
     const finalEmail = (selectedEmail || customEmail).trim().toLowerCase()
-    
+
     // Determine accurate student name from input or email
     let finalName = selectedName || customName.trim()
     if (!finalName && finalEmail) {
@@ -56,8 +56,8 @@ function Login({ onSwitchToRegister }) {
           name: finalName || 'Student',
           email: finalEmail,
           role: 'student',
-          department: 'Computer Science & Engineering',
-          year: '3'
+          department: '',
+          year: ''
         }
         login(mockToken, mockUser)
       }
@@ -78,10 +78,10 @@ function Login({ onSwitchToRegister }) {
 
     setLoading(true)
     try {
-      const response = await axios.post('/api/auth/login', { 
-        email: email.trim(), 
-        password: password.trim(), 
-        remember 
+      const response = await axios.post('/api/auth/login', {
+        email: email.trim(),
+        password: password.trim(),
+        remember
       })
       login(response.data.token, response.data.user)
       toast.success('Welcome Admin! 👑')
@@ -94,14 +94,14 @@ function Login({ onSwitchToRegister }) {
   return (
     <div className="dark-portal-wrapper">
       <div className="dark-portal-card">
-        
+
         {/* LEFT SIDE - Brand Section */}
         <div className="dark-left-brand">
           <div className="dark-brand-inner">
             <div className="dark-brand-emoji">🎓</div>
             <h1 className="dark-brand-title">CampusPilot</h1>
             <p className="dark-brand-subtitle">Your AI-Powered Career OS</p>
-            
+
             <div className="dark-tags-row">
               <span className="dark-neon-tag">📚 Learn</span>
               <span className="dark-neon-tag">💼 Grow</span>
@@ -135,7 +135,7 @@ function Login({ onSwitchToRegister }) {
           <div className="dark-box dark-box-student">
             <h3 className="dark-box-title text-blue">🎓 Student Login</h3>
             <p className="dark-box-desc">Enter your Name &amp; Gmail to enter placement dashboard</p>
-            
+
             <form onSubmit={(e) => { e.preventDefault(); handleGoogleSignIn(); }} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
               <div>
                 <input
@@ -187,7 +187,7 @@ function Login({ onSwitchToRegister }) {
                   placeholder="admin@email.com"
                   required
                 />
-                
+
                 <div className="dark-password-wrapper">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -211,26 +211,26 @@ function Login({ onSwitchToRegister }) {
 
                 <div className="dark-form-footer">
                   <label className="dark-remember-label">
-                    <input 
-                      type="checkbox" 
-                      checked={remember} 
-                      onChange={(e) => setRemember(e.target.checked)} 
+                    <input
+                      type="checkbox"
+                      checked={remember}
+                      onChange={(e) => setRemember(e.target.checked)}
                       className="dark-checkbox"
                     />
                     <span>Remember me</span>
                   </label>
-                  <button 
-                    type="button" 
-                    onClick={() => setShowForgot(true)} 
+                  <button
+                    type="button"
+                    onClick={() => setShowForgot(true)}
                     className="dark-forgot-link"
                   >
                     Forgot password?
                   </button>
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={loading} 
+                <button
+                  type="submit"
+                  disabled={loading}
                   className="dark-btn-admin"
                 >
                   {loading ? 'Verifying...' : 'Admin Login'}
@@ -246,14 +246,14 @@ function Login({ onSwitchToRegister }) {
                   placeholder="Enter admin email"
                   required
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => { toast.success('Password reset link sent! 📧'); setShowForgot(false); }}
                   className="dark-btn-admin"
                 >
                   Send Reset Link 📧
                 </button>
-                <button 
+                <button
                   type="button"
                   onClick={() => setShowForgot(false)}
                   className="dark-back-btn"
