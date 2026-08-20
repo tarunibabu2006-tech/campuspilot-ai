@@ -5,6 +5,8 @@ import mongoose from 'mongoose'
 import User from '../models/User.js'
 import Student from '../models/Student.js'
 import { protect } from '../middleware/auth.js'
+import { validateRequest } from '../middleware/validateRequest.js'
+import { authSchemas } from '../utils/validators.js'
 
 const router = express.Router()
 
@@ -19,7 +21,35 @@ let adminResetExpires = null
 // ═══════════════════════════════════════════════
 // ADMIN LOGIN - Only admin can login with email/password
 // ═══════════════════════════════════════════════
-router.post('/login', async (req, res) => {
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Admin login with email and password
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AuthLoginRequest'
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       400:
+ *         description: Validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Invalid credentials
+ */
+router.post('/login', validateRequest(authSchemas.login), async (req, res) => {
   try {
     const { email, password, remember } = req.body
 

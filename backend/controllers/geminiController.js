@@ -1,5 +1,9 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import dotenv from 'dotenv'
+import logger from '../utils/logger.js'
+import { getCache, setCache } from '../utils/redis.js'
+import { searchSimilarChunks } from '../utils/VectorStore.js'
+import { aiQueue, aiQueueEvents } from '../queues/aiQueue.js'
 import {
   EXAM_PLAN_PROMPT,
   VIVA_PROMPT,
@@ -33,7 +37,7 @@ export const generateExamPlan = async (subject, examDate, topics, language) => {
     const result = await proModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Exam Plan Error:', err.message)
+    logger.error('Exam Plan Error:', err.message)
     const hoursLeft = Math.max(1, Math.ceil((new Date(examDate) - new Date()) / (1000 * 60 * 60)))
     return {
       hourlyPlan: [
@@ -64,7 +68,7 @@ export const conductViva = async (subject, difficulty, question, history, langua
     const result = await flashModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Viva Error:', err.message)
+    logger.error('Viva Error:', err.message)
     return {
       question: `Explain the fundamental concepts of ${subject} and their real-world applications.`,
       difficulty: difficulty,
@@ -81,12 +85,24 @@ export const conductViva = async (subject, difficulty, question, history, langua
 // 3. CODING & PLACEMENTS
 // ═══════════════════════════════════════════
 export const getPlacementRoadmap = async (company, role, currentSkills, language) => {
+  const cacheKey = `placement_${company}_${role}_${language}`
   try {
+    const cached = await getCache(cacheKey)
+    if (cached) {
+      logger.info(`⚡ Cache hit for placement roadmap: ${cacheKey}`)
+      return cached
+    }
+
     const prompt = PLACEMENT_PROMPT(language, company, role, currentSkills)
     const result = await proModel.generateContent(prompt)
-    return parseGeminiResponse(result.response.text())
+    const parsedData = parseGeminiResponse(result.response.text())
+    
+    // Cache for 24 hours (86400 seconds) since roadmaps don't change often
+    await setCache(cacheKey, parsedData, 86400)
+    
+    return parsedData
   } catch (err) {
-    console.error('Placement Error:', err.message)
+    logger.error('Placement Error:', err.message)
     return {
       company: company,
       role: role || 'Software Engineer',
@@ -130,7 +146,7 @@ export const processNotes = async (notes, title, language) => {
     const result = await proModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Notes Error:', err.message)
+    logger.error(`Notes Error: ${err.message}`)
     return {
       title: title || 'Study Notes',
       summary: 'Notes processed. Key concepts extracted.',
@@ -144,13 +160,53 @@ export const processNotes = async (notes, title, language) => {
   }
 }
 
+// ═══════════════════════════════════════════
+// 4.1 RAG (Retrieval-Augmented Generation) CHAT
+// ═══════════════════════════════════════════
+export const ragChatWithNotes = async (documentNamespace, userQuestion, language = 'English') => {
+  try {
+    // 1. Retrieve the most relevant chunks from the Vector Store
+    const relevantChunks = await searchSimilarChunks(documentNamespace, userQuestion, 3)
+    
+    let contextText = ''
+    if (relevantChunks.length > 0) {
+      contextText = relevantChunks.map((c, i) => `[Excerpt ${i + 1}]: ${c.text}`).join('\n\n')
+    } else {
+      contextText = "No relevant specific excerpts found in the provided notes."
+    }
+
+    // 2. Augment the prompt with the retrieved context
+    const prompt = `You are a highly knowledgeable academic tutor. 
+The student has asked a question based on their uploaded class notes.
+
+Here is the exact context retrieved from their notes:
+${contextText}
+
+Question: ${userQuestion}
+
+Instructions:
+1. Answer the question strictly using the provided context excerpts.
+2. If the context does not contain the answer, politely inform the student that the uploaded notes do not cover this topic, rather than making up an answer (hallucinating).
+3. Respond in ${language}.
+4. Be encouraging and clear. Format the response nicely using markdown.
+
+Answer:`
+
+    const result = await flashModel.generateContent(prompt)
+    return result.response.text()
+  } catch (error) {
+    logger.error(`RAG Chat Error: ${error.message}`)
+    return "I'm having trouble analyzing your notes right now. Please try again later."
+  }
+}
+
 export const generateFlashcards = async (content, language) => {
   try {
     const prompt = FLASHCARD_PROMPT(language, content)
     const result = await flashModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Flashcard Error:', err.message)
+    logger.error('Flashcard Error:', err.message)
     return {
       flashcards: [
         { id: 1, front: 'What is the main concept?', back: 'Review your notes for the definition.', difficulty: 'easy' },
@@ -167,11 +223,20 @@ export const generateFlashcards = async (content, language) => {
 // ═══════════════════════════════════════════
 export const calculateBunks = async (totalClasses, attended, language) => {
   try {
-    const prompt = BUNK_PLANNER_PROMPT(language, totalClasses, attended)
-    const result = await flashModel.generateContent(prompt)
-    return parseGeminiResponse(result.response.text())
+    logger.info(`Adding Bunk Calculation job to the AI Queue...`)
+    
+    // Dispatch job to Redis Queue (non-blocking)
+    const job = await aiQueue.add('calculate-bunks', { totalClasses, attended, language }, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 2000 },
+      removeOnComplete: true
+    })
+
+    // Wait for the background worker to finish
+    const result = await job.waitUntilFinished(aiQueueEvents)
+    return result
   } catch (err) {
-    console.error('Bunk Planner Error:', err.message)
+    logger.error('Bunk Planner Error:', err.message)
     const pct = ((attended / totalClasses) * 100).toFixed(2)
     const isSafe = pct >= 75
     const canBunk = isSafe ? Math.floor(attended / 0.75 - totalClasses) : 0
@@ -205,7 +270,7 @@ export const checkJob = async (jobDescription, language) => {
     const result = await proModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Job Check Error:', err.message)
+    logger.error('Job Check Error:', err.message)
     return {
       status: 'UNKNOWN',
       confidence: 50,
@@ -234,7 +299,7 @@ export const analyzeSkillGap = async (currentSkills, targetRole, language) => {
     const result = await proModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Skill Gap Error:', err.message)
+    logger.error('Skill Gap Error:', err.message)
     return {
       targetRole: targetRole,
       currentSkills: Array.isArray(currentSkills) ? currentSkills : [currentSkills],
@@ -266,7 +331,7 @@ export const chatWithAI = async (message, language) => {
     const result = await flashModel.generateContent(prompt)
     return { response: result.response.text(), language }
   } catch (err) {
-    console.error('Chat Error:', err.message)
+    logger.error('Chat Error:', err.message)
     return {
       response: 'Hello! I am your CampusPilot AI assistant. 🎓 How can I help you with your studies or career today?',
     }
@@ -294,7 +359,7 @@ Evaluate the response. Return a JSON object with:
     const result = await flashModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Interview evaluation error:', err.message)
+    logger.error('Interview evaluation error:', err.message)
     throw err
   }
 }
@@ -304,23 +369,20 @@ Evaluate the response. Return a JSON object with:
 // ═══════════════════════════════════════════
 export const scoreResume = async (resumeText, targetRole) => {
   try {
-    const prompt = `You are an expert ATS resume reviewer and HR manager.
-Resume Content:
-${resumeText}
+    logger.info(`Adding Resume Scoring job to the AI Queue...`)
+    
+    // Dispatch job to Redis Queue
+    const job = await aiQueue.add('score-resume', { resumeText, targetRole }, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 2000 },
+      removeOnComplete: true
+    })
 
-Target Role: ${targetRole || 'General Engineering/Fresher'}
-
-Analyze the resume and return a JSON object:
-{
-  "score": <number 0-100>,
-  "grade": "<A+/A/B+/B/C/D>",
-  "suggestions": ["<suggestion 1>", "<suggestion 2>", "<suggestion 3>"],
-  "optimizedResume": "<optimized summary of resume with high-impact action verbs and keywords>"
-}`
-    const result = await proModel.generateContent(prompt)
-    return parseGeminiResponse(result.response.text())
+    // Wait for the background worker to finish it
+    const result = await job.waitUntilFinished(aiQueueEvents)
+    return result
   } catch (err) {
-    console.error('Resume scoring error:', err.message)
+    logger.error('Resume scoring error:', err.message)
     return {
       score: 75,
       grade: 'B+',
@@ -383,7 +445,7 @@ Return JSON object:
     const result = await flashModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Mock test error:', err.message)
+    logger.error('Mock test error:', err.message)
     return {
       company,
       role: role || 'General',
@@ -404,7 +466,15 @@ export const predictCareer = async (currentRole, skills, interests, education) =
   const skillsList = Array.isArray(skills) ? skills.join(', ') : skills
   const interestsList = Array.isArray(interests) ? interests.join(', ') : interests
   
+  const cacheKey = `career_predict_${currentRole.replace(/\s+/g, '_')}_${skillsList.length}`
+  
   try {
+    const cached = await getCache(cacheKey)
+    if (cached) {
+      logger.info(`⚡ Cache hit for career predictor: ${cacheKey}`)
+      return cached
+    }
+
     const prompt = `Act as an expert career strategist for Indian tech & engineering students.
 Current Role/Target: ${currentRole}
 Skills: ${skillsList}
@@ -451,9 +521,14 @@ Return ONLY valid JSON matching this exact structure:
   ]
 }`
     const result = await flashModel.generateContent(prompt)
-    return parseGeminiResponse(result.response.text())
+    const parsedData = parseGeminiResponse(result.response.text())
+    
+    // Cache for 30 days
+    await setCache(cacheKey, parsedData, 2592000)
+    
+    return parsedData
   } catch (err) {
-    console.error('Career Predictor Error:', err.message)
+    logger.error('Career Predictor Error:', err.message)
     return {
       summary: `Dynamic progression roadmap for ${currentRole} focusing on ${skillsList}.`,
       careerPath: [
@@ -511,7 +586,7 @@ Return ONLY a JSON object:
     const result = await flashModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Voice Interview Start Error:', err.message)
+    logger.error('Voice Interview Start Error:', err.message)
     const fallbackQuestions = {
       'Frontend Developer': 'Can you explain the difference between state and props in React, and how the Virtual DOM achieves fast UI updates?',
       'Backend Developer': 'How do you design a scalable RESTful API with proper caching and error handling mechanisms?',
@@ -549,7 +624,7 @@ Return ONLY a JSON object:
     const result = await flashModel.generateContent(prompt)
     return parseGeminiResponse(result.response.text())
   } catch (err) {
-    console.error('Voice Response Analysis Error:', err.message)
+    logger.error('Voice Response Analysis Error:', err.message)
     const wordCount = transcript.trim().split(/\s+/).length
     const baseScore = Math.min(95, Math.max(65, 60 + Math.floor(wordCount * 0.8)))
     return {

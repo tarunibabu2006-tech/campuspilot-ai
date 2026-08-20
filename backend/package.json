@@ -3,23 +3,42 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js"
+    "dev": "tsx watch server.js",
+    "start": "tsx server.js",
+    "test": "vitest run"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "@google/generative-ai": "^0.1.0",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "bcryptjs": "^2.4.3",
+    "bullmq": "^6.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "bcryptjs": "^2.4.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.10.0",
+    "express-session": "^1.17.3",
+    "helmet": "^7.0.0",
+    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.0",
-    "@google/generative-ai": "^0.1.0",
-    "express-rate-limit": "^6.10.0",
-    "helmet": "^7.0.0",
-    "express-session": "^1.17.3",
-    "nodemailer": "^6.9.0"
+    "nodemailer": "^6.9.0",
+    "redis": "^6.2.1",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^26.2.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
   }
 }

@@ -6,3 +6,6 @@ coverage/
 .vercel/
 .vercel
 .env*
+
+# Internal tooling
+.jetro/

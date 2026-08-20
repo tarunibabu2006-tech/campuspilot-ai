@@ -2,6 +2,9 @@ import express from 'express'
 import { predictCareer } from '../controllers/geminiController.js'
 import Student from '../models/Student.js'
 import mongoose from 'mongoose'
+import logger from '../utils/logger.js'
+import { validateRequest } from '../middleware/validateRequest.js'
+import { aiSchemas } from '../utils/validators.js'
 
 const router = express.Router()
 
@@ -9,13 +12,9 @@ const router = express.Router()
 const memoryCareerPaths = new Map()
 
 // POST /api/career-predictor/predict
-router.post('/predict', async (req, res) => {
+router.post('/predict', validateRequest(aiSchemas.careerPredictor), async (req, res, next) => {
   try {
     const { currentRole, skills, interests, education } = req.body
-    
-    if (!currentRole || !skills) {
-      return res.status(400).json({ error: 'Current role and skills are required' })
-    }
 
     const result = await predictCareer(currentRole, skills, interests, education)
     
@@ -29,15 +28,14 @@ router.post('/predict', async (req, res) => {
           await student.save()
         }
       } catch (dbErr) {
-        console.warn('DB save careerPath error:', dbErr.message)
+        logger.warn(`DB save careerPath error: ${dbErr.message}`)
       }
     }
 
     memoryCareerPaths.set(userId, result.careerPath)
     res.json(result)
   } catch (error) {
-    console.error('Career Predictor Route Error:', error)
-    res.status(500).json({ error: error.message })
+    next(error)
   }
 })
 
@@ -53,14 +51,14 @@ router.get('/path', async (req, res) => {
           return res.json({ careerPath: student.careerPath })
         }
       } catch (dbErr) {
-        console.warn('DB get careerPath error:', dbErr.message)
+        logger.warn(`DB get careerPath error: ${dbErr.message}`)
       }
     }
 
     const saved = memoryCareerPaths.get(userId) || []
     res.json({ careerPath: saved })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    next(error)
   }
 })
 

@@ -6,6 +6,10 @@ import mongoose from 'mongoose'
 import session from 'express-session'
 import rateLimit from 'express-rate-limit'
 
+import logger from './utils/logger.js'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './utils/swagger.js'
+
 import authRoutes from './routes/auth.js'
 import skillRoutes from './routes/skills.js'
 import jobRoutes from './routes/jobs.js'
@@ -35,6 +39,7 @@ import gamificationRoutes from './routes/gamification.js'
 import notificationRoutes from './routes/notifications.js'
 import groupRoutes from './routes/groups.js'
 import { trackActivity } from './middleware/trackActivity.js'
+import { connectRedis } from './utils/redis.js'
 
 dotenv.config()
 
@@ -57,28 +62,29 @@ const connectDB = async () => {
       connectTimeoutMS: 5000,
       family: 4 // Use IPv4
     })
-    console.log('✅ MongoDB connected successfully!')
-    console.log('📊 Database:', mongoose.connection.name)
+    logger.info('✅ MongoDB connected successfully!')
+    logger.info(`📊 Database: ${mongoose.connection.name}`)
   } catch (err) {
-    console.warn('⚠️ MongoDB connection not available:', err.message)
-    console.log('💡 CampusPilot is running in Resilient Hybrid Mode (Authentication & Features work seamlessly!)')
+    logger.warn(`⚠️ MongoDB connection not available: ${err.message}`)
+    logger.info('💡 CampusPilot is running in Resilient Hybrid Mode (Authentication & Features work seamlessly!)')
   }
 }
 
 // Handle MongoDB connection events
 mongoose.connection.on('connected', () => {
-  console.log('📡 MongoDB connection established')
+  logger.info('📡 MongoDB connection established')
 })
 
 mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err.message)
+  logger.error(`❌ MongoDB connection error: ${err.message}`)
 })
 
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️  MongoDB disconnected')
+  logger.warn('⚠️ MongoDB disconnected')
 })
 
-// Connect to MongoDB
+// Connect to MongoDB & Redis
+connectRedis()
 connectDB()
 
 // Security & CORS
@@ -94,6 +100,21 @@ app.use(cors({
 }))
 
 app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true }))
+
+// ═══════════════════════════════════════════
+// 📖 Swagger API Docs (available at /api-docs)
+// ═══════════════════════════════════════════
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { background-color: #1a1f35; }',
+  customSiteTitle: 'CampusPilot AI - API Docs',
+  customfavIcon: '/favicon.ico'
+}))
+// JSON endpoint for external tools (Postman, Insomnia)
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.send(swaggerSpec)
+})
 app.use(express.urlencoded({ extended: true }))
 
 // Session
@@ -194,10 +215,16 @@ app.use((req, res) => {
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.stack)
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: err.message
+  logger.error(`❌ Error: ${err.stack}`)
+  
+  const statusCode = err.statusCode || 500
+  const status = err.status || 'error'
+
+  res.status(statusCode).json({
+    status,
+    error: err.name || 'Internal Server Error',
+    message: err.message,
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   })
 })
 
@@ -205,14 +232,12 @@ app.use((err, req, res, next) => {
 export default app
 
 // Start server (local development)
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
-    console.log('')
-    console.log('═══════════════════════════════════════════')
-    console.log(`✅ CampusPilot Backend: http://localhost:${PORT}`)
-    console.log(`📡 Health Check: http://localhost:${PORT}/api/health`)
-    console.log(`🔑 Admin: ${process.env.ADMIN_EMAIL || 'tarunibabu2006@gmail.com'}`)
-    console.log('═══════════════════════════════════════════')
-    console.log('')
+    logger.info('═══════════════════════════════════════════')
+    logger.info(`✅ CampusPilot Backend: http://localhost:${PORT}`)
+    logger.info(`📡 Health Check: http://localhost:${PORT}/api/health`)
+    logger.info(`🔑 Admin: ${process.env.ADMIN_EMAIL || 'tarunibabu2006@gmail.com'}`)
+    logger.info('═══════════════════════════════════════════')
   })
 }

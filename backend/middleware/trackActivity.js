@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import Student from '../models/Student.js'
+import logger from '../utils/logger.js'
 
 // In-memory activity store when MongoDB is in fallback mode
 export const memoryStudentStore = new Map()
@@ -11,7 +12,7 @@ export const trackActivity = async (req, res, next) => {
     // Fire and forget tracking so response is never blocked
     setImmediate(() => {
       trackStudentActivity(req, res).catch(err => {
-        console.error('Activity tracker warning:', err.message)
+        logger.error(`Activity tracker warning: ${err.message}`)
       })
     })
     return originalSend.call(this, data)
@@ -165,6 +166,6 @@ const trackStudentActivity = async (req, res) => {
       await student.save()
     }
   } catch (error) {
-    console.error('Activity tracking error:', error.message)
+    logger.error(`Activity tracking error: ${error.message}`)
   }
 }

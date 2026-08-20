@@ -9,11 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.101.4",
+    "@tanstack/react-query-devtools": "^5.101.4",
+    "axios": "^1.6.0",
+    "lucide-react": "^0.294.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "axios": "^1.6.0",
     "react-hot-toast": "^2.4.1",
-    "lucide-react": "^0.294.0"
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",

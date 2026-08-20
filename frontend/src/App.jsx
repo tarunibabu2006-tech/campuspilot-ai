@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import ParticlesBg from './components/Background/ParticlesBg'
 import LanguageSelector from './components/LanguageSelector'
 import useLanguage from './hooks/useLanguage'
+import { useAppStore } from './store/appStore'
 
 import Login from './components/Auth/Login'
 import Register from './components/Auth/Register'
@@ -44,9 +45,14 @@ import NotificationsModal from './components/NotificationsModal'
 function MainApp() {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
   const [authMode, setAuthMode] = useState('login')
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const [selectedSkillId, setSelectedSkillId] = useState(null)
-  const [showNotifications, setShowNotifications] = useState(false)
+  
+  const { 
+    activeTab, setActiveTab, 
+    selectedSkillId, setSelectedSkillId,
+    showNotifications, setShowNotifications,
+    notificationCount
+  } = useAppStore()
+
   const { language, setLanguage, t } = useLanguage()
 
   if (authLoading) {
@@ -174,7 +180,7 @@ function MainApp() {
                 fontSize: '0.65rem',
                 fontWeight: 'bold'
               }}>
-                3
+                {notificationCount}
               </span>
             </button>
 

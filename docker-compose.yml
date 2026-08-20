@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: campuspilot-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/campuspilot
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=development
+      # Note: Make sure to pass your actual .env variables here or use env_file
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - campuspilot-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: campuspilot-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - campuspilot-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  mongo:
+    image: mongo:6.0
+    container_name: campuspilot-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - campuspilot-network
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: campuspilot-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - campuspilot-network
+
+networks:
+  campuspilot-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+  redis_data:
