@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import Autocomplete from './Common/Autocomplete'
+import { masterRoles, masterLocations } from '../data/masterData'
 
 const STATUS_STYLES = {
   'Applied': { bg: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.3)', color: '#818cf8' },
@@ -22,10 +24,10 @@ function AiApply() {
   }, [])
 
   const fetchStatus = async () => {
-    try { const r = await api.get('/ai-apply/status'); setStatus(r.data); setIsActive(r.data.status === 'active') } catch {}
+    try { const r = await api.get('/ai-apply/status'); setStatus(r.data); setIsActive(r.data.status === 'active') } catch { }
   }
   const fetchMatches = async () => {
-    try { const r = await api.get('/ai-apply/matches'); setMatches(r.data.matches || []) } catch {}
+    try { const r = await api.get('/ai-apply/matches'); setMatches(r.data.matches || []) } catch { }
   }
 
   const setupProxy = async () => {
@@ -60,11 +62,25 @@ function AiApply() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <div>
               <label className="form-label">🎯 Target Roles <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>(comma separated)</span></label>
-              <input className="form-input" placeholder="Software Developer, Data Analyst, HR Executive..." value={preferences.roles} onChange={e => setPreferences({ ...preferences, roles: e.target.value })} />
+              <Autocomplete
+                value={preferences.roles}
+                onChange={val => setPreferences({ ...preferences, roles: val })}
+                options={masterRoles}
+                multiSelect={true}
+                placeholder="Search target roles (Software Developer, Data Analyst, HR)..."
+                icon="🎯"
+              />
             </div>
             <div>
               <label className="form-label">📍 Preferred Locations</label>
-              <input className="form-input" placeholder="Chennai, Bangalore, Hyderabad, Remote..." value={preferences.locations} onChange={e => setPreferences({ ...preferences, locations: e.target.value })} />
+              <Autocomplete
+                value={preferences.locations}
+                onChange={val => setPreferences({ ...preferences, locations: val })}
+                options={masterLocations}
+                multiSelect={true}
+                placeholder="Search locations (Chennai, Bangalore, Hyderabad, Remote)..."
+                icon="📍"
+              />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <div>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import Autocomplete from './Common/Autocomplete'
+import { masterRoles } from '../data/masterData'
 
 const GRADE_COLORS = { 'A+': '#10b981', 'A': '#34d399', 'B+': '#3b82f6', 'B': '#60a5fa', 'C': '#f59e0b', 'D': '#ef4444' }
 
@@ -79,7 +81,13 @@ function ResumeScorer() {
             </div>
             <div>
               <label className="form-label">🎯 Target Role <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>(optional — for tailored analysis)</span></label>
-              <input className="form-input" value={targetRole} onChange={e => setTargetRole(e.target.value)} placeholder="e.g. Data Scientist, Full Stack Developer, HR Manager..." />
+              <Autocomplete
+                value={targetRole}
+                onChange={setTargetRole}
+                options={masterRoles}
+                placeholder="Search target role (Data Scientist, Mechanical Engineer, Product Manager)..."
+                icon="🎯"
+              />
             </div>
             <button className="btn btn-primary" onClick={analyze} disabled={loading} style={{ width: '100%', padding: '0.85rem' }}>
               {loading ? <span><span className="loading-spinner" /> Analyzing Resume...</span> : '🔍 Score My Resume'}

@@ -1,18 +1,17 @@
 import React, { useState } from 'react'
 import { analyzeSkillGap } from '../services/api'
 import toast from 'react-hot-toast'
-
-const rolesList = ['Full Stack Developer', 'Frontend Developer', 'Backend Developer', 'Data Scientist', 'DevOps Engineer']
+import Autocomplete from './Common/Autocomplete'
+import { masterRoles, masterSkills } from '../data/masterData'
 
 function SkillGapAnalyzer({ language }) {
   const [currentSkills, setCurrentSkills] = useState('HTML, CSS, JavaScript')
   const [targetRole, setTargetRole] = useState('Full Stack Developer')
-  const [customRole, setCustomRole] = useState('')
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
 
   const handleAnalyze = async () => {
-    const role = targetRole === 'Other' ? customRole : targetRole
+    const role = targetRole.trim()
     if (!currentSkills.trim() || !role) {
       toast.error('Please enter your skills and target role!')
       return
@@ -35,53 +34,29 @@ function SkillGapAnalyzer({ language }) {
 
   return (
     <div className="card">
-      <h2 className="card-title">🗺️ Skill Gap Analyzer & Roadmap</h2>
+      <h2 className="card-title">🗺️ Skill Gap Analyzer &amp; Roadmap</h2>
       <p className="card-subtitle">Compare your current skills against your dream job role and get a 3-month personalized learning roadmap!</p>
 
       <div className="form-group">
-        <label className="form-label">Target Role</label>
-        <div className="flex flex-wrap gap-1 mb-1">
-          {rolesList.map(r => (
-            <button
-              key={r}
-              type="button"
-              className={`nav-tab ${targetRole === r ? 'active' : ''}`}
-              onClick={() => { setTargetRole(r); setCustomRole('') }}
-            >
-              {r}
-            </button>
-          ))}
-          <button
-            type="button"
-            className={`nav-tab ${targetRole === 'Other' ? 'active' : ''}`}
-            onClick={() => setTargetRole('Other')}
-          >
-            ✏️ Other
-          </button>
-        </div>
+        <label className="form-label">🎯 Search Target Role (All Domains)</label>
+        <Autocomplete
+          value={targetRole}
+          onChange={setTargetRole}
+          options={masterRoles}
+          placeholder="Search target role (Full Stack, Data Scientist, Mechanical, Corporate Lawyer)..."
+          icon="🎯"
+        />
       </div>
 
-      {targetRole === 'Other' && (
-        <div className="form-group">
-          <label className="form-label">Custom Role</label>
-          <input
-            type="text"
-            className="form-input"
-            value={customRole}
-            onChange={e => setCustomRole(e.target.value)}
-            placeholder="e.g., Cloud Architect, AI/ML Engineer"
-          />
-        </div>
-      )}
-
       <div className="form-group">
-        <label className="form-label">Your Current Skills (Comma Separated)</label>
-        <input
-          type="text"
-          className="form-input"
+        <label className="form-label">🛠️ Your Current Skills (Comma Separated)</label>
+        <Autocomplete
           value={currentSkills}
-          onChange={e => setCurrentSkills(e.target.value)}
-          placeholder="e.g., HTML, CSS, JavaScript, React, Python"
+          onChange={setCurrentSkills}
+          options={masterSkills}
+          multiSelect={true}
+          placeholder="Search skills (HTML, CSS, JavaScript, React, Python, AutoCAD)..."
+          icon="🛠️"
         />
       </div>
 

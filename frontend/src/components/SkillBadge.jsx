@@ -2,13 +2,15 @@ import React, { useState } from 'react'
 import api from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
+import Autocomplete from './Common/Autocomplete'
+import { masterRoles, masterSkills, masterDegrees, masterBranches, masterColleges } from '../data/masterData'
 
 function SkillBadge() {
   const { user } = useAuth()
   const [formData, setFormData] = useState({
     studentName: user?.name || '',
-    college: user?.college || 'Anna University / VTU / JNTU Affiliated',
-    degree: user?.degree || 'B.Tech / B.E Computer Science',
+    college: user?.college || 'Anna University / VIT Chennai',
+    degree: user?.degree || 'B.Tech Computer Science & Engineering',
     skills: 'React, Node.js, Python, SQL, Git',
     projects: 'E-commerce MERN App\nAI Study Copilot\nPlacement Management System',
     targetRole: 'Full Stack Developer',
@@ -17,11 +19,7 @@ function SkillBadge() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const roles = [
-    'Full Stack Developer', 'Frontend Developer', 'Backend Developer',
-    'Data Scientist', 'ML Engineer', 'DevOps Engineer', 'Cloud Engineer',
-    'Cybersecurity Analyst', 'Mobile Developer', 'Product Manager'
-  ]
+  const degreeAndBranchOptions = [...masterDegrees, ...masterBranches]
 
   const handleVerify = async () => {
     if (!formData.skills.trim()) {
@@ -102,11 +100,12 @@ function SkillBadge() {
               </div>
               <div>
                 <label className="form-label">College / University</label>
-                <input
-                  className="form-input"
+                <Autocomplete
                   value={formData.college}
-                  onChange={e => setFormData({ ...formData, college: e.target.value })}
-                  placeholder="e.g. VIT Chennai / Anna University"
+                  onChange={val => setFormData({ ...formData, college: val })}
+                  options={masterColleges}
+                  placeholder="Search college (IIT, Anna University, VIT, SRM, PSG)..."
+                  icon="🏛️"
                 />
               </div>
             </div>
@@ -114,32 +113,35 @@ function SkillBadge() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
               <div>
                 <label className="form-label">Degree & Branch</label>
-                <input
-                  className="form-input"
+                <Autocomplete
                   value={formData.degree}
-                  onChange={e => setFormData({ ...formData, degree: e.target.value })}
-                  placeholder="e.g. B.Tech Computer Science"
+                  onChange={val => setFormData({ ...formData, degree: val })}
+                  options={degreeAndBranchOptions}
+                  placeholder="Search degree/branch (B.Tech CSE, Mechanical, MBA)..."
+                  icon="🎓"
                 />
               </div>
               <div>
                 <label className="form-label">Target Placement Role</label>
-                <select
-                  className="form-input"
+                <Autocomplete
                   value={formData.targetRole}
-                  onChange={e => setFormData({ ...formData, targetRole: e.target.value })}
-                >
-                  {roles.map((r, i) => <option key={i} value={r}>{r}</option>)}
-                </select>
+                  onChange={val => setFormData({ ...formData, targetRole: val })}
+                  options={masterRoles}
+                  placeholder="Search target role (Full Stack, Data Scientist, Mechanical)..."
+                  icon="🎯"
+                />
               </div>
             </div>
 
             <div>
               <label className="form-label">Skills for Verification (comma separated)</label>
-              <input
-                className="form-input"
+              <Autocomplete
                 value={formData.skills}
-                onChange={e => setFormData({ ...formData, skills: e.target.value })}
-                placeholder="Python, React, Node.js, SQL, Machine Learning..."
+                onChange={val => setFormData({ ...formData, skills: val })}
+                options={masterSkills}
+                multiSelect={true}
+                placeholder="Search skills (React, Python, AutoCAD, SQL)..."
+                icon="🛠️"
               />
             </div>
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import Autocomplete from './Common/Autocomplete'
+import { masterRoles, masterSkills, masterDegrees } from '../data/masterData'
 
 function AiCareerPredictor() {
   const [currentRole, setCurrentRole] = useState('Frontend Developer')
@@ -16,7 +18,14 @@ function AiCareerPredictor() {
     { title: 'Backend Developer', skills: 'Node.js, Express, MongoDB, PostgreSQL, Docker', interests: 'Microservices, Distributed Systems, Cloud' },
     { title: 'AI & Data Scientist', skills: 'Python, PyTorch, Scikit-learn, SQL, Pandas', interests: 'LLMs, Computer Vision, MLOps' },
     { title: 'Cloud & DevOps Engineer', skills: 'AWS, Kubernetes, Docker, Terraform, CI/CD', interests: 'Site Reliability, Infrastructure as Code' },
-    { title: 'Cybersecurity Analyst', skills: 'Network Security, Ethical Hacking, Linux, Cryptography', interests: 'Penetration Testing, SOC Analysis' }
+    { title: 'Cybersecurity Analyst', skills: 'Network Security, Ethical Hacking, Linux, Cryptography', interests: 'Penetration Testing, SOC Analysis' },
+    { title: 'Mechanical Design Engineer', skills: 'AutoCAD, SolidWorks, CATIA, ANSYS FEA, MATLAB', interests: 'Robotics, Thermal Engineering, Automotive' },
+    { title: 'Civil & Structural Engineer', skills: 'ETABS, STAAD.Pro, AutoCAD, Revit BIM, Surveying', interests: 'Infrastructure, Smart Cities, Geotechnical' },
+    { title: 'Product Manager', skills: 'Agile, Scrum, Wireframing, Data Analytics, Roadmapping', interests: 'B2B SaaS, User Growth, Product Strategy' },
+    { title: 'Investment Banker', skills: 'Financial Modeling, DCF Valuation, Corporate Finance, Excel', interests: 'M&A, Private Equity, Asset Management' },
+    { title: 'Clinical Pharmacist', skills: 'Pharmacology, Clinical Diagnosis, Patient Assessment, Pathology', interests: 'Healthcare Admin, Clinical Research' },
+    { title: 'Corporate Lawyer', skills: 'Contract Drafting, IP Rights, Litigation, Corporate Governance', interests: 'M&A Legal, Cyber Law, GDPR' },
+    { title: 'UI/UX Designer', skills: 'Figma, Wireframing, Prototyping, Adobe Creative Suite, Design Systems', interests: 'Mobile Apps, Product Design, Interaction' }
   ]
 
   useEffect(() => {
@@ -104,45 +113,47 @@ function AiCareerPredictor() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
               <label className="form-label">🎯 Current Role / Aspirations</label>
-              <input
-                type="text"
-                className="form-input"
+              <Autocomplete
                 value={currentRole}
-                onChange={(e) => setCurrentRole(e.target.value)}
-                placeholder="e.g. Frontend Developer, Data Engineer"
+                onChange={setCurrentRole}
+                options={masterRoles}
+                placeholder="Search or enter role (e.g. Mechanical Engineer, Data Scientist)..."
+                icon="🎯"
               />
             </div>
 
             <div>
               <label className="form-label">🛠️ Current Skills <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>(comma separated)</span></label>
-              <input
-                type="text"
-                className="form-input"
+              <Autocomplete
                 value={skills}
-                onChange={(e) => setSkills(e.target.value)}
-                placeholder="React, JavaScript, Python, SQL"
+                onChange={setSkills}
+                options={masterSkills}
+                multiSelect={true}
+                placeholder="Search skills (e.g. Python, AutoCAD, React, SQL)..."
+                icon="🛠️"
               />
             </div>
 
             <div>
               <label className="form-label">💡 Career Interests &amp; Domains</label>
-              <input
-                type="text"
-                className="form-input"
+              <Autocomplete
                 value={interests}
-                onChange={(e) => setInterests(e.target.value)}
-                placeholder="Cloud, System Design, Generative AI, Leadership"
+                onChange={setInterests}
+                options={masterRoles}
+                multiSelect={true}
+                placeholder="Search interests (e.g. AI Integration, Microservices, Valuation)..."
+                icon="💡"
               />
             </div>
 
             <div>
               <label className="form-label">🎓 Current Education / Year</label>
-              <input
-                type="text"
-                className="form-input"
+              <Autocomplete
                 value={education}
-                onChange={(e) => setEducation(e.target.value)}
-                placeholder="B.Tech Computer Science (3rd Year)"
+                onChange={setEducation}
+                options={masterDegrees}
+                placeholder="Search degree/stream (e.g. B.Tech Computer Science)..."
+                icon="🎓"
               />
             </div>
 

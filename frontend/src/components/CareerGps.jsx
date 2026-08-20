@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import Autocomplete from './Common/Autocomplete'
+import { masterRoles, masterSkills, masterDegrees } from '../data/masterData'
 
 function CareerGps() {
   const [currentSkills, setCurrentSkills] = useState('')
@@ -13,7 +15,7 @@ function CareerGps() {
   const [step, setStep] = useState(1)
 
   useEffect(() => {
-    api.get('/career-gps/roles').then(r => setRoles(r.data.roles || [])).catch(() => {})
+    api.get('/career-gps/roles').then(r => setRoles(r.data.roles || [])).catch(() => { })
   }, [])
 
   const analyze = async () => {
@@ -55,30 +57,44 @@ function CareerGps() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
               <label className="form-label">🛠️ Current Skills <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>(comma separated)</span></label>
-              <input
-                className="form-input"
+              <Autocomplete
                 value={currentSkills}
-                onChange={e => setCurrentSkills(e.target.value)}
-                placeholder="Python, SQL, React, Node.js, Excel..."
+                onChange={setCurrentSkills}
+                options={masterSkills}
+                multiSelect={true}
+                placeholder="Search & select your skills (Python, SQL, React, AutoCAD)..."
+                icon="🛠️"
               />
             </div>
             <div>
               <label className="form-label">🎯 Target Role</label>
-              <select className="form-input" value={targetRole} onChange={e => setTargetRole(e.target.value)}>
-                <option value="">Select your dream role...</option>
-                {roles.map((r, i) => <option key={i} value={r}>{r}</option>)}
-              </select>
+              <Autocomplete
+                value={targetRole}
+                onChange={setTargetRole}
+                options={masterRoles.length > 0 ? masterRoles : roles}
+                placeholder="Search target role (Full Stack, Mechanical Engineer, Data Scientist)..."
+                icon="🎯"
+              />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label className="form-label">📅 Experience (years)</label>
                 <select className="form-input" value={experience} onChange={e => setExperience(e.target.value)}>
-                  {['0', '1', '2', '3', '4', '5+'].map(y => <option key={y} value={y}>{y === '0' ? 'Fresher' : `${y} years`}</option>)}
+                  <option value="0">Student / Fresher</option>
+                  <option value="1">1 Year</option>
+                  <option value="2">2 Years</option>
+                  <option value="3">3+ Years</option>
                 </select>
               </div>
               <div>
-                <label className="form-label">🎓 Education</label>
-                <input className="form-input" value={education} onChange={e => setEducation(e.target.value)} placeholder="B.Tech CSE, B.Sc Physics..." />
+                <label className="form-label">🎓 Education / Degree</label>
+                <Autocomplete
+                  value={education}
+                  onChange={setEducation}
+                  options={masterDegrees}
+                  placeholder="Degree (e.g. B.Tech Computer Science)"
+                  icon="🎓"
+                />
               </div>
             </div>
             <button className="btn btn-primary" onClick={analyze} disabled={loading} style={{ width: '100%', padding: '0.85rem' }}>

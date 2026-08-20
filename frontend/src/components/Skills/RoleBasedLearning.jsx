@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { getAllRoles, getSkills } from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
+import Autocomplete from '../Common/Autocomplete'
+import { masterRoles } from '../../data/masterData'
 
 function RoleBasedLearning({ onSelectSkill }) {
   const { user, updateUser } = useAuth()
@@ -42,13 +44,13 @@ function RoleBasedLearning({ onSelectSkill }) {
         const skillsFiltered = allSkillsList.filter(s =>
           matchedRole.skills.some(skillName => s.name.toLowerCase().includes(skillName.toLowerCase()))
         )
-        setRequiredSkills(skillsFiltered)
+        setRequiredSkills(skillsFiltered.length > 0 ? skillsFiltered : allSkillsList.slice(0, 12))
       } else {
         // Fallback filter
         const fallbackSkills = allSkillsList.filter(s =>
           s.requiredForRoles?.some(r => r.toLowerCase().includes(roleName.toLowerCase()))
         )
-        setRequiredSkills(fallbackSkills)
+        setRequiredSkills(fallbackSkills.length > 0 ? fallbackSkills : allSkillsList.slice(0, 12))
       }
     } catch (err) {
       toast.error('Failed to load role modules')
@@ -69,18 +71,27 @@ function RoleBasedLearning({ onSelectSkill }) {
       <h2 className="card-title">🗺️ Role-Based Structured Learning Path</h2>
       <p className="card-subtitle">Pick your dream job role from Tech, Non-Tech, Medical, Law, or Arts and start learning!</p>
 
-      {/* Target Role Selector */}
+      {/* Target Role Selector & Autocomplete */}
       <div className="mb-3">
-        <label className="form-label">Select Your Target Career Role</label>
+        <label className="form-label">Search or Select Your Target Career Role (All Domains)</label>
+        <div style={{ marginBottom: '0.85rem' }}>
+          <Autocomplete
+            value={targetRole}
+            onChange={handleRoleSelect}
+            options={masterRoles}
+            placeholder="Type or search any role (e.g. Data Scientist, Mechanical Engineer, Corporate Lawyer)..."
+            icon="🎯"
+          />
+        </div>
         <div style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.5rem', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)' }}>
-          {roles.map(r => (
+          {masterRoles.slice(0, 30).map(r => (
             <button
-              key={r.name}
-              onClick={() => handleRoleSelect(r.name)}
-              className={`nav-tab ${targetRole === r.name ? 'active' : ''}`}
+              key={r}
+              onClick={() => handleRoleSelect(r)}
+              className={`nav-tab ${targetRole === r ? 'active' : ''}`}
               style={{ fontSize: '0.8rem', padding: '0.35rem 0.6rem' }}
             >
-              🎯 {r.name} ({r.domain})
+              🎯 {r}
             </button>
           ))}
         </div>

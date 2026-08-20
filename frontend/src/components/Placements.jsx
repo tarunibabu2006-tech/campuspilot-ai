@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import Autocomplete from './Common/Autocomplete'
+import { masterRoles, masterSkills } from '../data/masterData'
 
 const domains = [
   'Engineering & Tech', 'Management & Business', 'Design & Creative', 
@@ -98,11 +100,11 @@ function Placements({ language }) {
 
   return (
     <div className="card">
-      <h2 className="card-title">💼 Coding & Placements Center</h2>
-      <p className="card-subtitle">50+ Target Roles • Company-Specific Prep • DSA & Domain Roadmaps • Mock Questions</p>
+      <h2 className="card-title">💼 Coding &amp; Placements Center</h2>
+      <p className="card-subtitle">50+ Target Roles • Company-Specific Prep • DSA &amp; Domain Roadmaps • Mock Questions</p>
 
       <div className="form-group" style={{ marginTop: '1.5rem' }}>
-        <label className="form-label">1. Choose Domain & Target Role</label>
+        <label className="form-label">1. Choose Domain &amp; Search Target Role</label>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
           {domains.map(d => (
             <button
@@ -120,19 +122,16 @@ function Placements({ language }) {
           ))}
         </div>
 
-        <select
-          className="form-input"
+        <Autocomplete
           value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)}
-          style={{ marginBottom: '1rem' }}
-        >
-          {rolesByDomain[selectedDomain]?.map(r => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
+          onChange={setSelectedRole}
+          options={masterRoles}
+          placeholder="Search target role (Full Stack, Mechanical, Investment Banker)..."
+          icon="🎯"
+        />
       </div>
 
-      <div className="form-group">
+      <div className="form-group" style={{ marginTop: '1rem' }}>
         <label className="form-label">2. Target Company</label>
         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
           {topCompanies.map(c => (
@@ -161,12 +160,13 @@ function Placements({ language }) {
 
       <div className="form-group">
         <label className="form-label">3. Your Current Skills / Tech Stack (comma separated)</label>
-        <input
-          type="text"
-          className="form-input"
-          placeholder="e.g. JavaScript, React, Python, SQL, Communication..."
+        <Autocomplete
           value={currentSkills}
-          onChange={(e) => setCurrentSkills(e.target.value)}
+          onChange={setCurrentSkills}
+          options={masterSkills}
+          multiSelect={true}
+          placeholder="Search skills (React, JavaScript, Python, AutoCAD, SQL)..."
+          icon="🛠️"
         />
       </div>
 

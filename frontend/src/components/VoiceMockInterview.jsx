@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react'
 import api from '../services/api'
 import toast from 'react-hot-toast'
+import Autocomplete from './Common/Autocomplete'
+import { masterRoles } from '../data/masterData'
 
 function VoiceMockInterview() {
   const [role, setRole] = useState('Full Stack Developer')
@@ -20,6 +22,14 @@ function VoiceMockInterview() {
     'Full Stack Developer',
     'Data Scientist & ML Engineer',
     'Cloud / DevOps Engineer',
+    'Mechanical Design Engineer',
+    'Civil & Structural Engineer',
+    'VLSI & Embedded Systems Engineer',
+    'Product Manager',
+    'Financial Analyst / Investment Banker',
+    'Clinical Pharmacist / Healthcare',
+    'Corporate Law Specialist',
+    'UI/UX Designer',
     'HR / Behavioral Round'
   ]
 
@@ -39,7 +49,7 @@ function VoiceMockInterview() {
       })
       setQuestionData(response.data)
       toast.success('Interview question ready! 🎙️')
-      
+
       // Auto-read question aloud if speech synthesis is supported
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel()
@@ -164,16 +174,16 @@ function VoiceMockInterview() {
       {/* Role Selection Card */}
       <div className="card">
         <h3 style={{ color: 'var(--text-primary)', marginTop: 0 }}>⚙️ Configure Interview Round</h3>
-        
+
         <div className="grid grid-3" style={{ gap: '1rem', marginTop: '1rem' }}>
           <div>
             <label className="form-label">🎯 Target Role</label>
-            <input
-              type="text"
-              className="form-input"
+            <Autocomplete
               value={role}
-              onChange={(e) => setRole(e.target.value)}
-              placeholder="e.g. Full Stack Developer"
+              onChange={setRole}
+              options={masterRoles}
+              placeholder="Search target role (e.g. Mechanical Engineer, Data Scientist)..."
+              icon="🎯"
             />
           </div>
 

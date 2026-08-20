@@ -146,7 +146,7 @@ router.get('/students', protect, async (req, res) => {
     if (mongoose.connection.readyState === 1) {
       try {
         dbStudents = await Student.find().sort({ createdAt: -1 }).lean()
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const memStudents = Array.from(memoryStudentStore.values())
@@ -225,7 +225,7 @@ router.get('/students/:id', protect, async (req, res) => {
     if (mongoose.connection.readyState === 1) {
       try {
         student = await Student.findById(id).lean()
-      } catch (e) {}
+      } catch (e) { }
     }
 
     if (!student) {
