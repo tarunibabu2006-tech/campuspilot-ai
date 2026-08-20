@@ -57,9 +57,10 @@ function Autocomplete({
       return
     }
 
+    const searchLower = searchToken.toLowerCase()
     const matches = options.filter(opt =>
-      opt.toLowerCase().includes(searchToken.toLowerCase())
-    ).slice(0, 20)
+      opt.toLowerCase().includes(searchLower)
+    ).slice(0, 50)
 
     setFilteredOptions(matches)
     setIsOpen(true)
@@ -83,9 +84,10 @@ function Autocomplete({
       const parts = inputValue.split(',')
       searchToken = parts[parts.length - 1].trim()
     }
+    const searchLower = searchToken.toLowerCase()
     const matches = searchToken
-      ? options.filter(opt => opt.toLowerCase().includes(searchToken.toLowerCase())).slice(0, 20)
-      : options.slice(0, 15)
+      ? options.filter(opt => opt.toLowerCase().includes(searchLower)).slice(0, 50)
+      : options.slice(0, 25)
 
     setFilteredOptions(matches)
     setIsOpen(true)
