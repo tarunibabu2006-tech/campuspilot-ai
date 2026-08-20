@@ -42,6 +42,12 @@ import Gamification from './components/Gamification'
 import StudyGroups from './components/StudyGroups'
 import NotificationsModal from './components/NotificationsModal'
 
+// BRAND NEW ENTERPRISE PAGES
+import UserProfile from './components/UserProfile'
+import CompanyArchives from './components/CompanyArchives'
+import AlumniNetwork from './components/AlumniNetwork'
+import Leaderboard from './components/Leaderboard'
+
 function MainApp() {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
   const [authMode, setAuthMode] = useState('login')
@@ -82,6 +88,10 @@ function MainApp() {
     { id: 'dashboard', label: `🎯 ${t('dashboard')}` },
 
     // 🌟 10 FLAGSHIP AI & PLACEMENT ENHANCEMENTS
+    { id: 'profile', label: `👤 Profile` },
+    { id: 'leaderboard', label: `🏆 Leaderboard` },
+    { id: 'company-archives', label: `🏛️ Archives` },
+    { id: 'alumni-network', label: `🤝 Alumni` },
     { id: 'career-predictor', label: `🔮 Career Predictor` },
     { id: 'voice-interview', label: `🎙️ Voice Interview` },
     { id: 'gamification', label: `🏆 Gamification 2.0` },
@@ -135,6 +145,10 @@ function MainApp() {
       case 'chat': return <ChatAssistant language={language} />
       
       // 🌟 FLAGSHIP ENHANCEMENTS
+      case 'profile': return <UserProfile />
+      case 'leaderboard': return <Leaderboard />
+      case 'company-archives': return <CompanyArchives />
+      case 'alumni-network': return <AlumniNetwork />
       case 'career-predictor': return <AiCareerPredictor />
       case 'voice-interview': return <VoiceMockInterview />
       case 'gamification': return <Gamification />
