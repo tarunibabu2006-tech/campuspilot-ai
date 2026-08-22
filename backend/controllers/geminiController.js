@@ -23,7 +23,7 @@ const proModel = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
 const flashModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
 // Helper: Clean and parse JSON from Gemini response
-function parseGeminiResponse(text) {
+export function parseGeminiResponse(text) {
   const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
   return JSON.parse(cleaned)
 }
