@@ -1,16 +1,38 @@
 import React, { useState, useEffect } from 'react'
-import { allSkills } from '../../data/allSkills'
+import axios from 'axios'
 import toast from 'react-hot-toast'
 
 function SkillHub({ onSelectSkill }) {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedDomain, setSelectedDomain] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
-  const [filteredSkills, setFilteredSkills] = useState(allSkills)
+  const [allSkills, setAllSkills] = useState([])
+  const [filteredSkills, setFilteredSkills] = useState([])
+  const [categories, setCategories] = useState(['all'])
+  const [domains, setDomains] = useState(['all'])
   const [visibleCount, setVisibleCount] = useState(24)
+  const [loading, setLoading] = useState(true)
 
-  const categories = ['all', ...new Set(allSkills.map(s => s.category))]
-  const domains = ['all', ...new Set(allSkills.map(s => s.domain))]
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const res = await axios.get('/api/skills')
+        const skillsList = res.data.skills || []
+        setAllSkills(skillsList)
+        setFilteredSkills(skillsList)
+        
+        // Dynamically extract categories and domains
+        setCategories(['all', ...new Set(skillsList.map(s => s.category).filter(Boolean))])
+        setDomains(['all', ...new Set(skillsList.map(s => s.domain).filter(Boolean))])
+      } catch (err) {
+        console.error('Error fetching skills:', err)
+        toast.error('Failed to load skills from database')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchSkills()
+  }, [])
 
   useEffect(() => {
     let list = allSkills
@@ -18,10 +40,10 @@ function SkillHub({ onSelectSkill }) {
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase()
       list = list.filter(s =>
-        s.name.toLowerCase().includes(q) ||
-        s.category.toLowerCase().includes(q) ||
-        s.domain.toLowerCase().includes(q) ||
-        s.description.toLowerCase().includes(q)
+        (s.name && s.name.toLowerCase().includes(q)) ||
+        (s.category && s.category.toLowerCase().includes(q)) ||
+        (s.domain && s.domain.toLowerCase().includes(q)) ||
+        (s.description && s.description.toLowerCase().includes(q))
       )
     }
 
@@ -35,7 +57,7 @@ function SkillHub({ onSelectSkill }) {
 
     setFilteredSkills(list)
     setVisibleCount(24)
-  }, [selectedCategory, selectedDomain, searchTerm])
+  }, [selectedCategory, selectedDomain, searchTerm, allSkills])
 
   return (
     <div className="card">

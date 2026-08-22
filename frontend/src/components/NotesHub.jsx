@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { allNotes } from '../data/allNotes'
 
 const categories = ['All', 'Engineering', 'Arts', 'Science', 'Commerce', 'Management', 'Medical']
 
 function NotesHub({ language }) {
   const [activeCategory, setActiveCategory] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
-  const [notesList, setNotesList] = useState(allNotes)
-  const [selectedNote, setSelectedNote] = useState(allNotes[0] || null)
+  const [notesList, setNotesList] = useState([])
+  const [selectedNote, setSelectedNote] = useState(null)
+  const [isFetchingNotes, setIsFetchingNotes] = useState(true)
   
   // AI Results
   const [aiAnalysis, setAiAnalysis] = useState(null)
@@ -18,6 +18,25 @@ function NotesHub({ language }) {
   const [xp, setXp] = useState(150)
   const [loading, setLoading] = useState(false)
   const [loadingCards, setLoadingCards] = useState(false)
+
+  // Fetch Notes from Database
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const res = await axios.get('/api/notes-hub')
+        setNotesList(res.data || [])
+        if (res.data && res.data.length > 0) {
+          handleSelectNote(res.data[0])
+        }
+      } catch (err) {
+        console.error('Error fetching notes:', err)
+        toast.error('Failed to load notes from database')
+      } finally {
+        setIsFetchingNotes(false)
+      }
+    }
+    fetchNotes()
+  }, [])
 
   // Filter notes strictly based on active category & search query
   const filteredNotes = notesList.filter(note => {
@@ -49,13 +68,6 @@ function NotesHub({ language }) {
       handleSelectNote(matching[0])
     }
   }
-
-  // Auto load initial note flashcards on mount
-  useEffect(() => {
-    if (allNotes.length > 0) {
-      handleSelectNote(allNotes[0])
-    }
-  }, [])
 
   const handleSelectNote = async (note) => {
     if (!note) return

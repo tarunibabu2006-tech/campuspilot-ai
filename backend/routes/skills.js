@@ -1,42 +1,51 @@
 import express from 'express'
 import { protect } from '../middleware/auth.js'
-import { allSkills, allRoles } from '../data/allSkills.js'
+import Skill from '../models/Skill.js'
+import { allRoles } from '../data/allSkills.js' // Keep roles as they might not have a model yet
 
 const router = express.Router()
 
-// Get all skills
-router.get('/', (req, res) => {
-  const { category, domain, search } = req.query
-  let skillsList = Object.entries(allSkills).map(([name, data], index) => ({
-    _id: String(index + 1),
-    name,
-    ...data
-  }))
+// Get all skills from MongoDB
+router.get('/', async (req, res) => {
+  try {
+    const { category, domain, search } = req.query
+    let query = {}
 
-  if (category && category !== 'all') {
-    skillsList = skillsList.filter(s => s.category === category)
-  }
-  if (domain && domain !== 'all') {
-    skillsList = skillsList.filter(s => s.domain === domain)
-  }
-  if (search) {
-    const q = search.toLowerCase()
-    skillsList = skillsList.filter(s =>
-      s.name.toLowerCase().includes(q) ||
-      s.category.toLowerCase().includes(q) ||
-      s.domain.toLowerCase().includes(q)
-    )
-  }
+    if (category && category !== 'all') {
+      query.category = { $regex: category, $options: 'i' }
+    }
+    if (domain && domain !== 'all') {
+      query.domain = { $regex: domain, $options: 'i' }
+    }
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } },
+        { domain: { $regex: search, $options: 'i' } }
+      ]
+    }
 
-  const categories = [...new Set(Object.values(allSkills).map(s => s.category))]
-  const domains = [...new Set(Object.values(allSkills).map(s => s.domain))]
+    const skillsList = await Skill.find(query).sort({ createdAt: -1 })
+    
+    // Get unique categories and domains from all skills for UI filters
+    const allSkills = await Skill.find({}, { category: 1, domain: 1 })
+    const categories = [...new Set(allSkills.map(s => s.category))]
+    const domains = [...new Set(allSkills.map(s => s.domain))]
 
-  res.json({ skills: skillsList, categories, domains, count: skillsList.length })
+    res.json({ skills: skillsList, categories, domains, count: skillsList.length })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
 })
 
 // Get stats
-router.get('/stats', (req, res) => {
-  res.json({ count: Object.keys(allSkills).length })
+router.get('/stats', async (req, res) => {
+  try {
+    const count = await Skill.countDocuments()
+    res.json({ count })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
 })
 
 // Get skill by ID

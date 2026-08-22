@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { allJobs } from '../../data/allJobs'
+import axios from 'axios'
 import toast from 'react-hot-toast'
+import { motion } from 'framer-motion'
 
 function JobPortal() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -9,10 +10,28 @@ function JobPortal() {
   const [selectedCompany, setSelectedCompany] = useState('all')
   const [savedJobs, setSavedJobs] = useState({})
   const [appliedJobs, setAppliedJobs] = useState({})
-  const [filteredJobs, setFilteredJobs] = useState(allJobs)
+  const [allJobs, setAllJobs] = useState([])
+  const [filteredJobs, setFilteredJobs] = useState([])
   const [visibleCount, setVisibleCount] = useState(24)
+  const [loading, setLoading] = useState(true)
 
-  // Extract unique filter options
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await axios.get('/api/jobs')
+        setAllJobs(res.data.jobs || [])
+        setFilteredJobs(res.data.jobs || [])
+      } catch (err) {
+        console.error('Error fetching jobs:', err)
+        toast.error('Failed to load jobs from database')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchJobs()
+  }, [])
+
+  // Extract unique filter options dynamically from MongoDB data
   const locations = ['all', ...new Set(allJobs.map(j => j.location))].slice(0, 12)
   const roleTypes = ['all', 'Tech / Software', 'Non-Tech / Business', 'Healthcare & Clinical', 'Legal & Regulatory', 'Design & Media']
   const companies = ['all', ...new Set(allJobs.map(j => j.company))].slice(0, 15)
@@ -127,7 +146,9 @@ function JobPortal() {
         </span>
       </div>
 
-      {filteredJobs.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-10"><span className="loading-spinner"></span> Loading Live Jobs from Database...</div>
+      ) : filteredJobs.length === 0 ? (
         <div className="result-item" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>No vacancies found matching your search query.</p>
           <button 

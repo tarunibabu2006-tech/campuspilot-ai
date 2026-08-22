@@ -1,5 +1,5 @@
 import express from 'express'
-import { sampleNotes } from '../data/sampleNotes.js'
+import Note from '../models/Note.js'
 import { protect } from '../middleware/auth.js'
 import { processNotes, generateFlashcards, ragChatWithNotes } from '../controllers/geminiController.js'
 import { addDocumentToVectorStore } from '../utils/VectorStore.js'
@@ -7,24 +7,29 @@ import logger from '../utils/logger.js'
 
 const router = express.Router()
 
-// Get all notes with categories
-router.get('/', (req, res) => {
-  const { category, search } = req.query
-  let notes = [...sampleNotes]
+// Get all notes with categories from MongoDB
+router.get('/', async (req, res) => {
+  try {
+    const { category, search } = req.query
+    let query = {}
 
-  if (category && category !== 'All') {
-    notes = notes.filter(n => n.category.toLowerCase() === category.toLowerCase())
+    if (category && category !== 'All') {
+      query.category = { $regex: category, $options: 'i' }
+    }
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } },
+        { subject: { $regex: search, $options: 'i' } }
+      ]
+    }
+
+    const notes = await Note.find(query).sort({ createdAt: -1 })
+    res.json(notes)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
   }
-
-  if (search) {
-    const q = search.toLowerCase()
-    notes = notes.filter(n => 
-      n.title.toLowerCase().includes(q) || 
-      n.content.toLowerCase().includes(q)
-    )
-  }
-
-  res.json(notes)
 })
 
 // Process summary (with Gemini or fallback)
