@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 import StudentAnalytics from './StudentAnalytics'
+import BulkDataHandler from '../BulkDataHandler'
 
 function AdminPanel() {
   const [stats, setStats] = useState({
@@ -133,6 +134,9 @@ function AdminPanel() {
         </button>
         <button onClick={() => setActiveTab('notes')} className={`nav-tab ${activeTab === 'notes' ? 'active' : ''}`}>
           ✏️ Custom Study Notes
+        </button>
+        <button onClick={() => setActiveTab('bulk')} className={`nav-tab ${activeTab === 'bulk' ? 'active' : ''}`}>
+          📦 Bulk Data Manager
         </button>
       </div>
 
@@ -378,6 +382,26 @@ function AdminPanel() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Bulk Data Tab */}
+      {!loading && activeTab === 'bulk' && (
+        <div className="result-section animate-float">
+          <BulkDataHandler 
+            title="Bulk Job & Skill Importer"
+            exportData={jobs}
+            exportFilename="jobs_export.csv"
+            templateData={[
+              { company: 'Google', role: 'SWE', location: 'Remote', salary: '12 LPA', applyLink: 'https://...', description: '...' },
+              { company: 'Microsoft', role: 'SDE', location: 'Bangalore', salary: '10 LPA', applyLink: 'https://...', description: '...' }
+            ]}
+            onImport={(data) => {
+              toast.success(`Successfully parsed ${data.length} records! Ready for API sync.`)
+              console.log('Bulk Data:', data)
+              // This is where we would call API to bulk create
+            }}
+          />
         </div>
       )}
     </div>
