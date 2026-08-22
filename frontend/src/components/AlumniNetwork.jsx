@@ -1,12 +1,23 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 export default function AlumniNetwork() {
-  const alumni = [
-    { id: 1, name: 'Rahul Sharma', company: 'Amazon', role: 'SDE-1', batch: '2023', img: 'R' },
-    { id: 2, name: 'Priya Patel', company: 'Microsoft', role: 'Software Engineer', batch: '2022', img: 'P' },
-    { id: 3, name: 'Karthik N', company: 'Zoho', role: 'MTS', batch: '2024', img: 'K' },
-    { id: 4, name: 'Sneha Reddy', company: 'TCS Digital', role: 'System Engineer', batch: '2024', img: 'S' }
-  ]
+  const [alumni, setAlumni] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchAlumni = async () => {
+      try {
+        const res = await axios.get('/api/alumni')
+        setAlumni(res.data)
+      } catch (err) {
+        console.error('Error fetching alumni:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchAlumni()
+  }, [])
 
   return (
     <div className="p-6 max-w-6xl mx-auto">

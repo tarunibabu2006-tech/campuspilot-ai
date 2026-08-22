@@ -126,4 +126,29 @@ router.get('/challenges', async (req, res) => {
   res.json({ challenges: memoryGamification.weeklyChallenges })
 })
 
+// GET /api/gamification/leaderboard
+router.get('/leaderboard', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ error: 'Database not connected' })
+    }
+    const topStudents = await Student.find()
+      .sort({ xpPoints: -1 })
+      .limit(10)
+      .select('name department xpPoints badges')
+    
+    const leaderboard = topStudents.map((s, index) => ({
+      rank: index + 1,
+      name: s.name,
+      dept: s.department || 'N/A',
+      badges: s.badges?.length || 0,
+      score: s.xpPoints || 0
+    }))
+    
+    res.json(leaderboard)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
 export default router

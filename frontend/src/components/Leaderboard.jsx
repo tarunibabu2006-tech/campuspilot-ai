@@ -1,13 +1,23 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 export default function Leaderboard() {
-  const leaders = [
-    { rank: 1, name: 'S.Santhiya', score: 9850, badges: 12, dept: 'CSE' },
-    { rank: 2, name: 'Rahul M', score: 9200, badges: 10, dept: 'IT' },
-    { rank: 3, name: 'Anita K', score: 8950, badges: 9, dept: 'ECE' },
-    { rank: 4, name: 'John Doe', score: 8100, badges: 7, dept: 'CSE' },
-    { rank: 5, name: 'Priya S', score: 7800, badges: 6, dept: 'MECH' }
-  ]
+  const [leaders, setLeaders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const res = await axios.get('/api/gamification/leaderboard')
+        setLeaders(res.data)
+      } catch (err) {
+        console.error('Error fetching leaderboard:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchLeaderboard()
+  }, [])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

@@ -1,14 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 export default function CompanyArchives() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [companies, setCompanies] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const companies = [
-    { id: 1, name: 'TCS Digital', ctc: '7.0 LPA', role: 'System Engineer', tags: ['Java', 'SQL', 'Aptitude'] },
-    { id: 2, name: 'Zoho', ctc: '8.5 LPA', role: 'Member Technical Staff', tags: ['C/C++', 'DS & Algo', 'Advanced Programming'] },
-    { id: 3, name: 'Amazon', ctc: '44.0 LPA', role: 'SDE-1', tags: ['System Design', 'Graphs', 'Dynamic Programming'] },
-    { id: 4, name: 'Cognizant GenC Next', ctc: '6.75 LPA', role: 'Developer', tags: ['Python', 'DBMS', 'Logical'] }
-  ]
+  useEffect(() => {
+    const fetchArchives = async () => {
+      try {
+        const res = await axios.get('/api/company-archives')
+        setCompanies(res.data)
+      } catch (err) {
+        console.error('Error fetching archives:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchArchives()
+  }, [])
 
   const filtered = companies.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
