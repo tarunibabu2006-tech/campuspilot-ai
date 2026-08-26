@@ -4,7 +4,30 @@ import toast from 'react-hot-toast'
 import Autocomplete from './Common/Autocomplete'
 import { masterRoles } from '../data/masterData'
 
-function VoiceMockInterview() {
+const SAMPLE_ROLES = [
+  'Full Stack Developer',
+  'Frontend Developer (React/Vue)',
+  'Backend Developer (Node/Python/Java)',
+  'Data Scientist & ML Engineer',
+  'Data Analyst / Business Analyst',
+  'Cloud & DevOps Engineer',
+  'Cybersecurity Analyst',
+  'Mechanical Design Engineer',
+  'Civil & Structural Engineer',
+  'Electrical & Electronics Engineer (EEE)',
+  'Electronics & Communication Engineer (ECE)',
+  'VLSI & Embedded Systems Engineer',
+  'Product Manager',
+  'Financial Analyst / Investment Banker',
+  'Clinical Pharmacist / Healthcare Lead',
+  'Corporate Law Specialist',
+  'UI/UX Designer',
+  'Digital Marketing Specialist',
+  'HR / Behavioral Interview Round',
+  'Government Exam / Civil Services Interview'
+]
+
+export default function VoiceMockInterview() {
   const [role, setRole] = useState('Full Stack Developer')
   const [difficulty, setDifficulty] = useState('medium')
   const [voiceLang, setVoiceLang] = useState('en-IN')
@@ -15,23 +38,6 @@ function VoiceMockInterview() {
   const [loading, setLoading] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const recognitionRef = useRef(null)
-
-  const sampleRoles = [
-    'Frontend Developer (React)',
-    'Backend Developer (Node.js)',
-    'Full Stack Developer',
-    'Data Scientist & ML Engineer',
-    'Cloud / DevOps Engineer',
-    'Mechanical Design Engineer',
-    'Civil & Structural Engineer',
-    'VLSI & Embedded Systems Engineer',
-    'Product Manager',
-    'Financial Analyst / Investment Banker',
-    'Clinical Pharmacist / Healthcare',
-    'Corporate Law Specialist',
-    'UI/UX Designer',
-    'HR / Behavioral Round'
-  ]
 
   const startInterview = async () => {
     if (!role.trim()) {
@@ -50,7 +56,6 @@ function VoiceMockInterview() {
       setQuestionData(response.data)
       toast.success('Interview question ready! 🎙️')
 
-      // Auto-read question aloud if speech synthesis is supported
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel()
         const utterance = new SpeechSynthesisUtterance(response.data.question)
@@ -58,387 +63,232 @@ function VoiceMockInterview() {
         window.speechSynthesis.speak(utterance)
       }
     } catch (error) {
-      toast.error('Failed to generate interview question.')
-    }
-    setLoading(false)
-  }
-
-  const speakQuestionAgain = () => {
-    if (questionData?.question && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(questionData.question)
-      utterance.rate = 0.95
-      window.speechSynthesis.speak(utterance)
-      toast.info('Reading question aloud... 🔊')
+      toast.error(error.response?.data?.error || 'Failed to generate interview question.')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const startRecording = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      toast.error('Speech recognition not supported in this browser. Please type your answer or use Google Chrome!')
-      return
-    }
-
-    const recognition = new SpeechRecognition()
-    recognition.lang = voiceLang
-    recognition.continuous = true
-    recognition.interimResults = true
-
-    recognition.onstart = () => {
-      setIsRecording(true)
-      toast.info('Recording... Speak into your microphone 🎙️')
-    }
-
-    recognition.onresult = (event) => {
-      let finalStr = ''
-      for (let i = 0; i < event.results.length; i++) {
-        finalStr += event.results[i][0].transcript + ' '
+  const toggleRecording = () => {
+    if (isRecording) {
+      if (recognitionRef.current) recognitionRef.current.stop()
+      setIsRecording(false)
+      toast.success('Audio recording stopped.')
+    } else {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      if (!SpeechRecognition) {
+        toast.error('Speech recognition not supported in this browser. Please type your answer below!')
+        return
       }
-      setTranscript(finalStr)
-    }
 
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error)
-      if (event.error !== 'no-speech') {
-        toast.error(`Mic error: ${event.error}`)
+      const recognition = new SpeechRecognition()
+      recognition.continuous = true
+      recognition.interimResults = true
+      recognition.lang = voiceLang
+
+      recognition.onstart = () => {
+        setIsRecording(true)
+        toast.success('Listening... Speak your answer clearly 🎙️')
       }
-      setIsRecording(false)
-    }
 
-    recognition.onend = () => {
-      setIsRecording(false)
-    }
+      recognition.onresult = (event) => {
+        let currentTranscript = ''
+        for (let i = 0; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript + ' '
+        }
+        setTranscript(currentTranscript)
+      }
 
-    recognitionRef.current = recognition
-    recognition.start()
+      recognition.onerror = (err) => {
+        console.error('Speech error:', err)
+        toast.error('Voice input error. You can type your answer manually.')
+        setIsRecording(false)
+      }
+
+      recognition.onend = () => {
+        setIsRecording(false)
+      }
+
+      recognitionRef.current = recognition
+      recognition.start()
+    }
   }
 
-  const stopRecording = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop()
-      setIsRecording(false)
-      toast.success('Audio captured! Click "Evaluate Verbal Response" below.')
-    }
-  }
-
-  const submitVoiceResponse = async () => {
+  const submitAnswer = async () => {
     if (!transcript.trim()) {
-      toast.error('Please record or type your response before submitting!')
+      toast.error('Please record or type your answer before submitting!')
       return
     }
 
     setAnalyzing(true)
     try {
-      const response = await api.post('/voice-interview/submit', {
-        transcript: transcript.trim(),
+      const response = await api.post('/voice-interview/evaluate', {
         role: role.trim(),
-        questionId: 1
+        question: questionData.question,
+        userAnswer: transcript.trim()
       })
       setResult(response.data)
-      toast.success('Voice Evaluation Completed! 📊')
+      toast.success('AI Evaluation Complete! 🎉')
     } catch (error) {
-      toast.error('Evaluation failed. Please try again.')
+      toast.error(error.response?.data?.error || 'Failed to evaluate answer.')
+    } finally {
+      setAnalyzing(false)
     }
-    setAnalyzing(false)
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Header Banner */}
-      <div className="card" style={{
-        background: 'linear-gradient(135deg, #450a0a 0%, #1f1224 50%, #0f172a 100%)',
-        border: '1px solid rgba(239, 68, 68, 0.4)',
-        boxShadow: '0 8px 32px rgba(239, 68, 68, 0.15)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ fontSize: '2.8rem' }}>🎙️</span>
-            <div>
-              <h2 style={{ margin: 0, fontSize: '1.75rem', color: '#fff', fontWeight: 800 }}>
-                AI Voice Mock Interview
-              </h2>
-              <p style={{ margin: '0.25rem 0 0', color: '#fca5a5', fontSize: '0.95rem' }}>
-                Speech-to-Text Verbal Practice • Confidence &amp; Clarity Scoring • Real-Time AI Feedback
-              </p>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <span className="badge badge-danger">🗣️ Speech-to-Text</span>
-            <span className="badge badge-info">🇮🇳 Multilingual Accents</span>
-            <span className="badge badge-success">📊 Verbal Clarity Score</span>
-          </div>
-        </div>
+    <div style={{ padding: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ background: 'linear-gradient(135deg, #1e1b4b, #312e81, #1e293b)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(139,92,246,0.3)' }}>
+        <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          🎙️ Voice AI Mock Interview
+        </h1>
+        <p style={{ color: '#c4b5fd' }}>
+          Practice real speech-to-text interviews with AI-evaluated feedback for all Indian student job roles.
+        </p>
       </div>
 
-      {/* Role Selection Card */}
-      <div className="card">
-        <h3 style={{ color: 'var(--text-primary)', marginTop: 0 }}>⚙️ Configure Interview Round</h3>
+      {/* Configuration Card */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>⚙️ Setup Your Interview</h3>
 
-        <div className="grid grid-3" style={{ gap: '1rem', marginTop: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
           <div>
-            <label className="form-label">🎯 Target Role</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Target Job Role</label>
             <Autocomplete
               value={role}
               onChange={setRole}
               options={masterRoles}
-              placeholder="Search target role (e.g. Mechanical Engineer, Data Scientist)..."
-              icon="🎯"
+              placeholder="Search target role (e.g. Data Analyst, TCS Engineer)..."
             />
           </div>
 
           <div>
-            <label className="form-label">📈 Difficulty Level</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Difficulty Level</label>
             <select
-              className="form-select"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
+              value={difficulty} onChange={e => setDifficulty(e.target.value)}
+              style={{ width: '100%', background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
             >
-              <option value="easy">🟢 Easy (Internship / Fresher)</option>
-              <option value="medium">🟡 Medium (0-2 Years Exp)</option>
-              <option value="hard">🔴 Hard (Product Company / FAANG)</option>
+              <option value="easy">🟢 Easy (Fresher / Foundational)</option>
+              <option value="medium">🟡 Medium (Standard Placement Round)</option>
+              <option value="hard">🔴 Hard (Advanced Technical / Product)</option>
             </select>
           </div>
 
           <div>
-            <label className="form-label">🗣️ Voice Language &amp; Accent</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Voice Recognition Accent</label>
             <select
-              className="form-select"
-              value={voiceLang}
-              onChange={(e) => setVoiceLang(e.target.value)}
+              value={voiceLang} onChange={e => setVoiceLang(e.target.value)}
+              style={{ width: '100%', background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
             >
-              <option value="en-IN">🇮🇳 English (Indian Accent)</option>
-              <option value="ta-IN">🇮🇳 Tamil (தமிழ்)</option>
-              <option value="hi-IN">🇮🇳 Hindi (हिन्दी)</option>
-              <option value="te-IN">🇮🇳 Telugu (తెలుగు)</option>
+              <option value="en-IN">🇮🇳 English (India)</option>
+              <option value="en-US">🇺🇸 English (US)</option>
+              <option value="en-GB">🇬🇧 English (UK)</option>
             </select>
           </div>
         </div>
 
-        {/* Quick Role Buttons */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem' }}>
-          {sampleRoles.map((r, i) => (
-            <button
-              key={i}
-              onClick={() => setRole(r)}
-              className={`btn btn-outline ${role === r ? 'btn-primary' : ''}`}
-              style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}
-            >
-              {r}
-            </button>
-          ))}
+        {/* Preset Roles Quick Select */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <label style={{ display: 'block', fontSize: '0.78rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: '600' }}>Popular Roles Presets:</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+            {SAMPLE_ROLES.slice(0, 10).map(r => (
+              <button
+                key={r} type="button" onClick={() => setRole(r)}
+                style={{
+                  padding: '0.2rem 0.6rem', borderRadius: '0.5rem', fontSize: '0.75rem', cursor: 'pointer',
+                  background: role === r ? 'rgba(124,58,237,0.3)' : 'rgba(255,255,255,0.05)',
+                  color: role === r ? '#c4b5fd' : '#94a3b8',
+                  border: `1px solid ${role === r ? 'rgba(124,58,237,0.5)' : 'rgba(255,255,255,0.1)'}`
+                }}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
 
         <button
-          onClick={startInterview}
-          disabled={loading}
-          className="btn btn-primary"
-          style={{
-            background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
-            padding: '0.85rem',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            marginTop: '1.25rem',
-            width: '100%',
-            boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)'
-          }}
+          onClick={startInterview} disabled={loading}
+          style={{ width: '100%', padding: '0.85rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: 'white', fontWeight: '700', fontSize: '1rem', border: 'none', cursor: 'pointer' }}
         >
-          {loading ? '🎙️ Preparing AI Interviewer...' : 'Start Voice Interview 🎙️'}
+          {loading ? '⏳ Generating Question...' : '🚀 Start Voice Interview'}
         </button>
       </div>
 
-      {/* Spoken Question & Voice Recording Area */}
+      {/* Question & Audio Recording Area */}
       {questionData && (
-        <div className="card" style={{ border: '1px solid rgba(239, 68, 68, 0.4)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
-            <span className="badge badge-danger">
-              ❓ Question for {questionData.role || role} ({difficulty.toUpperCase()})
-            </span>
+        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+          <div style={{ color: '#fbbf24', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.4rem' }}>❓ Question for {questionData.role}:</div>
+          <h3 style={{ color: 'white', fontWeight: '700', fontSize: '1.2rem', marginBottom: '1.25rem', lineHeight: 1.4 }}>{questionData.question}</h3>
+
+          {/* Voice Record / Transcript Controls */}
+          <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '1rem', padding: '1.25rem', marginBottom: '1.25rem', textAlign: 'center' }}>
             <button
-              onClick={speakQuestionAgain}
-              className="btn btn-outline"
-              style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem', gap: '0.3rem' }}
+              onClick={toggleRecording}
+              style={{
+                width: '70px', height: '70px', borderRadius: '50%', border: 'none', cursor: 'pointer', fontSize: '2rem',
+                background: isRecording ? '#ef4444' : 'linear-gradient(135deg, #7c3aed, #2563eb)',
+                color: 'white', boxShadow: isRecording ? '0 0 30px rgba(239,68,68,0.6)' : '0 0 20px rgba(124,58,237,0.4)',
+                transition: 'all 0.3s', margin: '0 auto 0.75rem'
+              }}
             >
-              🔊 Read Aloud
+              {isRecording ? '⏹️' : '🎙️'}
             </button>
-          </div>
-
-          <div style={{
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--border-color)',
-            borderRadius: 'var(--radius-md)',
-            padding: '1.25rem',
-            fontSize: '1.15rem',
-            lineHeight: '1.6',
-            color: '#fff',
-            fontWeight: 600,
-            marginBottom: '1.5rem'
-          }}>
-            "{questionData.question}"
-          </div>
-
-          {/* Ideal points to cover */}
-          {questionData.idealAnswerKeyPoints && (
-            <div style={{ marginBottom: '1.5rem', padding: '0.75rem 1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#60a5fa' }}>💡 Key Concepts to Mention:</span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.35rem' }}>
-                {questionData.idealAnswerKeyPoints.map((pt, idx) => (
-                  <span key={idx} style={{ fontSize: '0.75rem', color: '#93c5fd' }}>• {pt}</span>
-                ))}
-              </div>
+            <div style={{ color: isRecording ? '#ef4444' : '#94a3b8', fontWeight: '700', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+              {isRecording ? '🔴 Listening... Speak now!' : 'Click Microphone to Start Speaking'}
             </div>
-          )}
 
-          {/* Recording Controls */}
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-            {!isRecording ? (
-              <button
-                onClick={startRecording}
-                className="btn btn-primary"
-                style={{
-                  flex: 1,
-                  background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
-                  padding: '0.9rem',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                <span style={{ fontSize: '1.2rem' }}>🔴</span> Click to Start Speaking
-              </button>
-            ) : (
-              <button
-                onClick={stopRecording}
-                className="btn btn-danger"
-                style={{
-                  flex: 1,
-                  padding: '0.9rem',
-                  fontSize: '1rem',
-                  fontWeight: 700,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  animation: 'pulse 1.5s infinite'
-                }}
-              >
-                <span>⏹️</span> Stop Recording (Listening...)
-              </button>
-            )}
-          </div>
-
-          {/* Transcript Preview & Manual Edit */}
-          <div>
-            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>📝 Live Speech Transcript (You can also type/edit):</span>
-              {isRecording && <span style={{ color: '#ef4444', fontWeight: 'bold' }}>● Recording Live Voice</span>}
-            </label>
             <textarea
-              className="form-input"
               rows={4}
               value={transcript}
-              onChange={(e) => setTranscript(e.target.value)}
-              placeholder="Your spoken response will appear here in real-time. You can also edit or type manually..."
-              style={{ lineHeight: '1.5', fontSize: '0.95rem' }}
+              onChange={e => setTranscript(e.target.value)}
+              placeholder="Your transcript will appear here automatically while speaking, or type your answer manually..."
+              style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.75rem', padding: '0.75rem 1rem', color: 'white', fontSize: '0.9rem', outline: 'none', resize: 'vertical' }}
             />
           </div>
 
           <button
-            onClick={submitVoiceResponse}
-            disabled={analyzing || !transcript.trim()}
-            className="btn btn-primary"
-            style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              padding: '0.85rem',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              marginTop: '1rem',
-              width: '100%'
-            }}
+            onClick={submitAnswer} disabled={analyzing}
+            style={{ width: '100%', padding: '0.85rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', fontWeight: '800', fontSize: '1rem', border: 'none', cursor: 'pointer' }}
           >
-            {analyzing ? '📊 Analyzing Voice, Clarity & Technical Depth...' : 'Evaluate Verbal Response 📤'}
+            {analyzing ? '🤖 Evaluating your response...' : '✨ Submit Answer for AI Evaluation'}
           </button>
         </div>
       )}
 
-      {/* Feedback & Scores Breakdown */}
+      {/* AI Evaluation Results */}
       {result && (
-        <div className="card" style={{ border: '1px solid rgba(16, 185, 129, 0.4)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div>
-              <h3 style={{ margin: 0, color: '#10b981', fontSize: '1.4rem', fontWeight: 700 }}>
-                📊 Interview Evaluation &amp; Speech Metrics
-              </h3>
-              <p style={{ margin: '0.25rem 0 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                AI Speech &amp; Technical Accuracy Score Card
-              </p>
+        <div style={{ background: 'linear-gradient(135deg, #0f172a, #1e1b4b)', border: '1px solid rgba(52,211,153,0.4)', borderRadius: '1.25rem', padding: '1.5rem' }}>
+          <h3 style={{ color: '#34d399', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>🎉 AI Evaluation & Feedback</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: '0.75rem', textAlign: 'center' }}>
+              <div style={{ color: '#fbbf24', fontWeight: '900', fontSize: '1.3rem' }}>{result.score}/100</div>
+              <div style={{ color: '#64748b', fontSize: '0.72rem' }}>Overall Score</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', background: 'rgba(16, 185, 129, 0.15)', padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-              <span style={{ fontSize: '2rem', fontWeight: 800, color: '#34d399' }}>{result.score}</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>/100</span>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: '0.75rem', textAlign: 'center' }}>
+              <div style={{ color: '#60a5fa', fontWeight: '900', fontSize: '1.3rem' }}>{result.clarity}/10</div>
+              <div style={{ color: '#64748b', fontSize: '0.72rem' }}>Clarity</div>
             </div>
-          </div>
-
-          {/* Metric Badges */}
-          <div className="grid grid-3" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
-            <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Confidence Metric</div>
-              <div style={{ color: '#60a5fa', fontSize: '1.4rem', fontWeight: 700, marginTop: '0.25rem' }}>
-                {result.confidenceScore || 88}%
-              </div>
-            </div>
-            <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Clarity &amp; Flow</div>
-              <div style={{ color: '#34d399', fontSize: '1.4rem', fontWeight: 700, marginTop: '0.25rem' }}>
-                {result.clarityScore || 90}%
-              </div>
-            </div>
-            <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Technical Accuracy</div>
-              <div style={{ color: '#c084fc', fontSize: '1.4rem', fontWeight: 700, marginTop: '0.25rem' }}>
-                {result.technicalAccuracy || result.score}%
-              </div>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: '0.75rem', textAlign: 'center' }}>
+              <div style={{ color: '#c084fc', fontWeight: '900', fontSize: '1.3rem' }}>{result.technicalAccuracy}/10</div>
+              <div style={{ color: '#64748b', fontSize: '0.72rem' }}>Tech Accuracy</div>
             </div>
           </div>
 
-          {/* Feedback Text */}
-          <div style={{ background: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', marginBottom: '1rem' }}>
-            <p style={{ margin: 0, color: '#f0f2f8', fontSize: '0.95rem', lineHeight: '1.6' }}>
-              {result.feedback}
-            </p>
+          <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '0.75rem', marginBottom: '1rem' }}>
+            <div style={{ color: '#34d399', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.3rem' }}>💡 Detailed Feedback:</div>
+            <p style={{ color: '#cbd5e1', fontSize: '0.88rem', margin: 0, lineHeight: 1.5 }}>{result.feedback}</p>
           </div>
 
-          {/* Strengths & Improvements */}
-          <div className="grid grid-2" style={{ gap: '1rem' }}>
-            {result.strengths && (
-              <div style={{ background: 'rgba(16, 185, 129, 0.08)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <h4 style={{ color: '#34d399', margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>✅ Key Strengths</h4>
-                <ul style={{ margin: 0, paddingLeft: '1.2rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  {result.strengths.map((s, i) => (
-                    <li key={i} style={{ marginBottom: '0.25rem' }}>{s}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {result.improvements && (
-              <div style={{ background: 'rgba(245, 158, 11, 0.08)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                <h4 style={{ color: '#fbbf24', margin: '0 0 0.5rem 0', fontSize: '0.9rem' }}>🎯 Improvement Tips</h4>
-                <ul style={{ margin: 0, paddingLeft: '1.2rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  {result.improvements.map((imp, i) => (
-                    <li key={i} style={{ marginBottom: '0.25rem' }}>{imp}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+          {result.modelAnswer && (
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '0.75rem' }}>
+              <div style={{ color: '#fbbf24', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.3rem' }}>🌟 Model Answer:</div>
+              <p style={{ color: '#cbd5e1', fontSize: '0.88rem', margin: 0, lineHeight: 1.5 }}>{result.modelAnswer}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
   )
 }
-
-export default VoiceMockInterview
