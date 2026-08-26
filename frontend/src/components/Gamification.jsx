@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -53,10 +54,10 @@ const XP_TABLE = [
 ]
 
 const WEEKLY_CHALLENGES = [
-  { id: 1, title: 'Complete 3 quizzes', xp: 75, completed: true, icon: '📝' },
+  { id: 1, title: 'Complete 3 quizzes', xp: 75, completed: false, icon: '📝' },
   { id: 2, title: 'Finish 1 mock interview', xp: 100, completed: false, icon: '🎤' },
   { id: 3, title: 'Maintain 7-day streak', xp: 150, completed: false, icon: '🔥' },
-  { id: 4, title: 'Complete one skill assessment', xp: 50, completed: true, icon: '💡' },
+  { id: 4, title: 'Complete one skill assessment', xp: 50, completed: false, icon: '💡' },
   { id: 5, title: 'Apply to 3 jobs via AI Apply', xp: 60, completed: false, icon: '💼' }
 ]
 
@@ -70,19 +71,20 @@ const REWARDS = [
 ]
 
 const SKILL_BADGES = [
-  { skill: 'Python', pct: 82, color: '#4ade80', badge: 'Python Explorer', threshold: 80, unlocked: true },
-  { skill: 'SQL', pct: 65, color: '#60a5fa', badge: 'SQL Master', threshold: 80, unlocked: false },
-  { skill: 'Java', pct: 55, color: '#fbbf24', badge: 'Java Pro', threshold: 75, unlocked: false },
-  { skill: 'Data Analytics', pct: 70, color: '#c084fc', badge: 'Analytics Expert', threshold: 80, unlocked: false },
-  { skill: 'AI/ML', pct: 45, color: '#f472b6', badge: 'AI Pioneer', threshold: 70, unlocked: false },
-  { skill: 'React', pct: 90, color: '#34d399', badge: 'React Master', threshold: 85, unlocked: true }
+  { skill: 'Python', pct: 0, color: '#4ade80', badge: 'Python Explorer', threshold: 80, unlocked: false },
+  { skill: 'SQL', pct: 0, color: '#60a5fa', badge: 'SQL Master', threshold: 80, unlocked: false },
+  { skill: 'Java', pct: 0, color: '#fbbf24', badge: 'Java Pro', threshold: 75, unlocked: false },
+  { skill: 'Data Analytics', pct: 0, color: '#c084fc', badge: 'Analytics Expert', threshold: 80, unlocked: false },
+  { skill: 'AI/ML', pct: 0, color: '#f472b6', badge: 'AI Pioneer', threshold: 70, unlocked: false },
+  { skill: 'React', pct: 0, color: '#34d399', badge: 'React Master', threshold: 85, unlocked: false }
 ]
 
 export default function Gamification() {
-  const [unlockedBadges, setUnlockedBadges] = useState(['python', 'interview', 'resume'])
-  const [xp, setXp] = useState(240)
-  const [streak, setStreak] = useState(5)
-  const [longestStreak, setLongestStreak] = useState(18)
+  const { user } = useAuth()
+  const [unlockedBadges, setUnlockedBadges] = useState(user?.badges || [])
+  const [xp, setXp] = useState(user?.xp || 0)
+  const [streak, setStreak] = useState(user?.streak || 1)
+  const [longestStreak, setLongestStreak] = useState(user?.streak || 1)
   const [challenges, setChallenges] = useState(WEEKLY_CHALLENGES)
   const [activeTab, setActiveTab] = useState('overview')
   const [loading, setLoading] = useState(false)

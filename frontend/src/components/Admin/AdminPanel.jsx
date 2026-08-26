@@ -4,6 +4,133 @@ import toast from 'react-hot-toast'
 import StudentAnalytics from './StudentAnalytics'
 import BulkDataHandler from '../BulkDataHandler'
 
+const MODULE_LIST = [
+  'Archives', 'Alumni', 'Career Predictor', 'Voice Interview', 'Gamification 2.0',
+  'Study Groups', 'Career GPS', 'Resume Scorer', 'AI Apply', 'Skill Badge',
+  'Mentors', 'Mock Tests', 'Skill Hub', 'Role Path', 'Resume Builder',
+  'Job Portal', 'Mock Interview', 'Aptitude Test', 'Exam Emergency', 'Viva Prep',
+  'Placements', 'Notes Hub', 'System Config'
+]
+
+function UniversalModuleAdmin() {
+  const [selectedModule, setSelectedModule] = useState('Archives')
+  const [title, setTitle] = useState('')
+  const [category, setCategory] = useState('General')
+  const [details, setDetails] = useState('')
+  const [moduleEntries, setModuleEntries] = useState({
+    Archives: [{ id: 1, title: 'TCS Digital Previous Papers 2025', category: 'IT', details: 'Contains Coding & Aptitude questions for TCS Ninja/Digital.' }],
+    Alumni: [{ id: 2, title: 'Siddharth V (Google SDE)', category: 'Engineering', details: 'Available for 1-on-1 referrals and resume reviews.' }],
+    'Career Predictor': [{ id: 3, title: 'AI / ML Engineer Path 2026', category: 'Tech', details: '5-Year roadmap with auto-fill skills.' }]
+  })
+
+  const handleAddModuleContent = (e) => {
+    e.preventDefault()
+    if (!title.trim() || !details.trim()) {
+      toast.error('Please enter Title and Content details!')
+      return
+    }
+
+    const newEntry = {
+      id: Date.now(),
+      title,
+      category,
+      details
+    }
+
+    setModuleEntries(prev => ({
+      ...prev,
+      [selectedModule]: [newEntry, ...(prev[selectedModule] || [])]
+    }))
+
+    setTitle('')
+    setDetails('')
+    toast.success(`🎉 New content added to ${selectedModule} module!`)
+  }
+
+  const currentList = moduleEntries[selectedModule] || []
+
+  return (
+    <div className="result-section">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <h3 className="result-title" style={{ margin: 0 }}>🌐 Universal 23-Module Admin Content Access</h3>
+        <span className="badge badge-safe">All 23 Modules Unlocked</span>
+      </div>
+
+      <p className="text-xs text-muted mb-2">Select any module below to add custom company archives, alumni contacts, career role paths, voice questions, notes, or test papers!</p>
+
+      {/* Module Selector */}
+      <div className="form-group mb-3">
+        <label className="form-label" style={{ fontWeight: 'bold' }}>Select Target Platform Module (23 Available):</label>
+        <select
+          className="form-select"
+          value={selectedModule}
+          onChange={e => setSelectedModule(e.target.value)}
+          style={{ background: 'var(--bg-secondary)', fontWeight: 'bold', color: 'var(--text-primary)' }}
+        >
+          {MODULE_LIST.map((mod, i) => (
+            <option key={mod} value={mod}>
+              {i + 1}. {mod} Module
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Add Content Form */}
+      <form onSubmit={handleAddModuleContent} className="mb-3" style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+        <h4 className="font-bold text-sm text-blue mb-2">➕ Add Entry to "{selectedModule}"</h4>
+        <div className="grid-2">
+          <input
+            type="text"
+            className="form-input mb-1"
+            placeholder={`Title / Item Name for ${selectedModule}...`}
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            required
+          />
+          <input
+            type="text"
+            className="form-input mb-1"
+            placeholder="Category / Tag (e.g. CSE, Product, Tier-1)..."
+            value={category}
+            onChange={e => setCategory(e.target.value)}
+          />
+        </div>
+        <textarea
+          className="form-textarea mb-1"
+          placeholder={`Full content, questions, syllabus points, or configuration details for ${selectedModule}...`}
+          value={details}
+          onChange={e => setDetails(e.target.value)}
+          rows={3}
+          required
+        />
+        <button type="submit" className="btn btn-success btn-full">
+          Publish to {selectedModule} Module 🚀
+        </button>
+      </form>
+
+      {/* Content List for Selected Module */}
+      <h4 className="font-bold text-sm text-purple mb-2">
+        📦 Published Entries in {selectedModule} ({currentList.length})
+      </h4>
+      {currentList.length === 0 ? (
+        <p className="text-xs text-muted">No custom entries added yet for {selectedModule}. Use the form above to add!</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {currentList.map(item => (
+            <div key={item.id} className="result-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <span className="font-bold text-sm text-blue">{item.title}</span>
+                <p className="text-xs text-muted" style={{ margin: '0.2rem 0 0' }}>{item.details}</p>
+              </div>
+              <span className="badge badge-info">{item.category}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function AdminPanel() {
   const [stats, setStats] = useState({
     totalStudents: 0,
@@ -134,6 +261,9 @@ function AdminPanel() {
         </button>
         <button onClick={() => setActiveTab('notes')} className={`nav-tab ${activeTab === 'notes' ? 'active' : ''}`}>
           ✏️ Custom Study Notes
+        </button>
+        <button onClick={() => setActiveTab('modules23')} className={`nav-tab ${activeTab === 'modules23' ? 'active' : ''}`}>
+          🌐 Universal 23-Module Content Manager
         </button>
         <button onClick={() => setActiveTab('bulk')} className={`nav-tab ${activeTab === 'bulk' ? 'active' : ''}`}>
           📦 Bulk Data Manager
@@ -383,6 +513,11 @@ function AdminPanel() {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Universal 23-Module Content Manager Tab */}
+      {!loading && activeTab === 'modules23' && (
+        <UniversalModuleAdmin />
       )}
 
       {/* Bulk Data Tab */}

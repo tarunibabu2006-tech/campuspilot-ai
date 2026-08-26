@@ -56,12 +56,12 @@ export default function UserProfile() {
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null)
   const fileRef = useRef()
 
-  // Live Stats State
+  // Live Stats State (Real User Data Only)
   const [liveStats, setLiveStats] = useState({
-    xp: user?.xp || 240,
-    badgesCount: user?.badgesCount || 3,
-    rank: user?.rank || 12,
-    streak: user?.streak || 5
+    xp: user?.xp || 0,
+    badgesCount: user?.badgesCount || (user?.badges ? user.badges.length : 0),
+    rank: user?.rank ? `#${user.rank}` : 'Unranked',
+    streak: user?.streak || 1
   })
 
   // Fetch live stats from gamification API
@@ -69,18 +69,19 @@ export default function UserProfile() {
     const fetchLiveGamificationStats = async () => {
       try {
         const [badgeRes, streakRes] = await Promise.all([
-          api.get('/gamification/badges').catch(() => ({ data: { badges: ['react', 'python', 'frontend'], xpPoints: user?.xp || 240 } })),
-          api.get('/gamification/streak').catch(() => ({ data: { streak: user?.streak || 5, xpPoints: user?.xp || 240 } }))
+          api.get('/gamification/badges').catch(() => ({ data: { badges: user?.badges || [], xpPoints: user?.xp || 0 } })),
+          api.get('/gamification/streak').catch(() => ({ data: { streak: user?.streak || 1, xpPoints: user?.xp || 0 } }))
         ])
 
-        const liveXp = badgeRes.data.xpPoints || streakRes.data.xpPoints || user?.xp || 240
-        const liveBadges = badgeRes.data.badges ? badgeRes.data.badges.length : (user?.badgesCount || 3)
-        const liveStreak = streakRes.data.streak || user?.streak || 5
+        const liveXp = badgeRes.data.xpPoints ?? streakRes.data.xpPoints ?? user?.xp ?? 0
+        const liveBadges = badgeRes.data.badges ? badgeRes.data.badges.length : (user?.badgesCount || (user?.badges ? user.badges.length : 0))
+        const liveStreak = streakRes.data.streak ?? user?.streak ?? 1
+        const liveRank = user?.rank ? `#${user.rank}` : 'Unranked'
 
         setLiveStats({
           xp: liveXp,
           badgesCount: liveBadges,
-          rank: user?.rank || 12,
+          rank: liveRank,
           streak: liveStreak
         })
       } catch (err) {

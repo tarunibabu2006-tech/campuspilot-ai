@@ -1,48 +1,66 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { CAREER_ROLE_PRESETS, ROLE_CATEGORIES } from '../data/seedRoles'
+import { useAuth } from '../context/AuthContext'
+import { CAREER_ROLE_PRESETS } from '../data/seedRoles'
 
-// Convert seed roles into full predictor preset objects
-const PRESETS = CAREER_ROLE_PRESETS.map(r => ({
-  id: r.id,
-  title: r.title,
-  category: r.category,
-  role: r.title,
-  skills: r.skills,
-  interests: r.interests,
-  education: r.education,
-  matchPct: Math.floor(Math.random() * 25) + 70,
-  whyExplanation: r.skills.split(', ').slice(0, 4).map(s => `${s} ✅`),
-  roadmap: [
-    { year: '2026', title: `Student / Trainee`, exp: '0 Yrs', salary: 'Stipend ₹15k–35k/mo', skills: r.skills.split(', ').slice(0, 3).join(', '), cert: `${r.title.split(' ')[0]} Certification` },
-    { year: '2027', title: `${r.title}`, exp: '1 Yr', salary: '₹4.5–8.0 LPA', skills: r.skills, cert: 'Professional Level Cert' },
-    { year: '2029', title: `Senior ${r.title}`, exp: '3 Yrs', salary: '₹9.0–16.0 LPA', skills: `Advanced ${r.skills.split(', ')[0]}, Leadership`, cert: 'Advanced Specialist Cert' },
-    { year: '2031', title: `${r.title} Lead / Manager`, exp: '5 Yrs', salary: '₹18.0–28.0 LPA', skills: 'Management, Architecture, Strategy', cert: 'Executive Leadership Cert' },
-    { year: '2036', title: `Director / Principal ${r.title}`, exp: '10 Yrs', salary: '₹30.0–60.0+ LPA', skills: 'Enterprise Strategy & Governance', cert: 'Industry Fellow' }
-  ],
-  skillGaps: r.skills.split(', ').slice(0, 4).map((sk, i) => ({
-    skill: sk,
-    current: 40 + i * 15,
-    required: 80 + i * 5
-  })),
-  salaryGrowth: [
-    { stage: 'Entry Level (0-1 Yr)', range: '₹4.5 – 8.0 LPA' },
-    { stage: '3 Years Experience', range: '₹9.0 – 16.0 LPA' },
-    { stage: '5 Years Experience', range: '₹18.0 – 28.0 LPA' },
-    { stage: '10+ Years Experience', range: '₹30.0 – 60.0+ LPA' }
-  ]
-}))
+// Helper function to calculate real dynamic match % and skill gaps
+const computeRoleAnalysis = (roleObj, userSkillsString) => {
+  const userSkillList = userSkillsString
+    ? userSkillsString.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+    : []
 
+  const roleSkillList = roleObj.skills
+    ? roleObj.skills.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+    : []
 
+  if (userSkillList.length === 0 || roleSkillList.length === 0) {
+    return {
+      matchPct: 0,
+      whyExplanation: ['No matching skills recorded yet ⚠️'],
+      skillGaps: roleSkillList.slice(0, 4).map(sk => ({
+        skill: sk.toUpperCase(),
+        current: 0,
+        required: 80,
+        status: 'Not Started'
+      }))
+    }
+  }
+
+  let matchedCount = 0
+  const whyArr = []
+  const gapsArr = []
+
+  roleSkillList.forEach(rSkill => {
+    const hasSkill = userSkillList.some(uSkill => uSkill.includes(rSkill) || rSkill.includes(uSkill))
+    if (hasSkill) {
+      matchedCount++
+      whyArr.push(`${rSkill.toUpperCase()} ✅`)
+      gapsArr.push({ skill: rSkill.toUpperCase(), current: 80, required: 85, status: 'Proficient' })
+    } else {
+      gapsArr.push({ skill: rSkill.toUpperCase(), current: 0, required: 85, status: 'Needs Learning' })
+    }
+  })
+
+  const matchPct = Math.min(100, Math.round((matchedCount / roleSkillList.length) * 100))
+
+  return {
+    matchPct,
+    whyExplanation: whyArr.length > 0 ? whyArr : ['Target role requires additional core skills ⚠️'],
+    skillGaps: gapsArr.slice(0, 5)
+  }
+}
 
 export default function AiCareerPredictor() {
-  const [currentRole, setCurrentRole] = useState('Software Developer')
-  const [skills, setSkills] = useState('React, JavaScript, Python, SQL, Git')
-  const [interests, setInterests] = useState('Full Stack Development, Web Apps')
-  const [education, setEducation] = useState('B.Tech Computer Science (3rd Year)')
+  const { user } = useAuth()
 
-  const [activePreset, setActivePreset] = useState(PRESETS[0])
+  const initialUserSkills = user?.skills && user.skills.length > 0 ? user.skills.join(', ') : ''
+  const [currentRole, setCurrentRole] = useState('Software Developer')
+  const [skills, setSkills] = useState(initialUserSkills)
+  const [interests, setInterests] = useState('Full Stack Development, Web Apps')
+  const [education, setEducation] = useState(user?.department ? `${user.department} (${user.year || 'Student'})` : '')
+
+  const [activePreset, setActivePreset] = useState(CAREER_ROLE_PRESETS[0])
   const [isPredicted, setIsPredicted] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -52,11 +70,11 @@ export default function AiCareerPredictor() {
 
   const loadPreset = (preset) => {
     setActivePreset(preset)
-    setCurrentRole(preset.role)
+    setCurrentRole(preset.title)
     setSkills(preset.skills)
-    setInterests(preset.interests)
-    setEducation(preset.education)
-    setIsPredicted(false)
+    setInterests(preset.interests || 'Tech')
+    setEducation(preset.education || 'Engineering')
+    setIsPredicted(true)
     toast.success(`Loaded ${preset.title} profile preset!`)
   }
 
@@ -181,100 +199,127 @@ export default function AiCareerPredictor() {
       </div>
 
       {/* PREDICTION RESULTS */}
-      {(isPredicted || activePreset) && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          {/* 📊 Career Probability Matches */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>📊 Multi-Path Career Probability</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
-              {PRESETS.map(p => (
-                <div key={p.title} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.9rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div style={{ color: 'white', fontWeight: '700', fontSize: '0.95rem' }}>{p.role}</div>
-                  <div style={{ color: p.matchPct >= 85 ? '#4ade80' : '#fbbf24', fontWeight: '900', fontSize: '1.3rem', marginTop: '0.2rem' }}>
-                    {p.matchPct}% Match {p.matchPct >= 85 ? '🟢' : '🟡'}
+      {(isPredicted || activePreset) && (() => {
+        const currentAnalysis = computeRoleAnalysis(activePreset, skills)
+        const multiPathMatches = CAREER_ROLE_PRESETS.slice(0, 10).map(r => ({
+          role: r.title,
+          ...computeRoleAnalysis(r, skills)
+        }))
+
+        return (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            {/* Zero Skills Notice */}
+            {(!skills || !skills.trim()) && (
+              <div style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '1.25rem', padding: '1.25rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ fontSize: '2rem' }}>⚠️</div>
+                <div>
+                  <div style={{ color: '#ef4444', fontWeight: '800', fontSize: '1rem' }}>No Skills Found in Profile</div>
+                  <div style={{ color: '#cbd5e1', fontSize: '0.85rem' }}>
+                    Match percentage is currently 0%. Add your technical & soft skills above or click a 1-Click Role Preset to see real skill gap analysis!
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            )}
 
-          {/* 🧠 Why This Career? */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.75rem' }}>🧠 "Why This Career?" AI Explanation</h3>
-            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-              {activePreset.whyExplanation.map(reason => (
-                <span key={reason} style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', padding: '0.4rem 0.8rem', borderRadius: '0.6rem', fontWeight: '700', fontSize: '0.85rem' }}>
-                  {reason}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* 📈 5-Year & 10-Year Roadmap Stepper */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1.25rem' }}>📈 5-Year & 10-Year Career Milestone Roadmap</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {activePreset.roadmap.map((stage, idx) => (
-                <div key={stage.year} style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '4px solid #7c3aed', borderRadius: '0.9rem', padding: '1.25rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                      <span style={{ background: '#7c3aed', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '0.4rem', fontWeight: '800', fontSize: '0.8rem' }}>{stage.year}</span>
-                      <span style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem' }}>{stage.title}</span>
+            {/* 📊 Career Probability Matches */}
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>📊 Multi-Path Career Probability (Calculated from Profile Skills)</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+                {multiPathMatches.map(p => (
+                  <div key={p.role} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.9rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ color: 'white', fontWeight: '700', fontSize: '0.95rem' }}>{p.role}</div>
+                    <div style={{ color: p.matchPct >= 70 ? '#4ade80' : p.matchPct > 0 ? '#fbbf24' : '#64748b', fontWeight: '900', fontSize: '1.3rem', marginTop: '0.2rem' }}>
+                      {p.matchPct}% Match {p.matchPct >= 70 ? '🟢' : p.matchPct > 0 ? '🟡' : '⚪'}
                     </div>
-                    <span style={{ color: '#4ade80', fontWeight: '800', fontSize: '0.9rem' }}>💰 {stage.salary}</span>
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.82rem', marginBottom: '0.4rem' }}>Experience Required: {stage.exp}</div>
-                  <div style={{ color: '#c4b5fd', fontSize: '0.82rem' }}>Mandatory Skills: {stage.skills}</div>
-                  <div style={{ color: '#fbbf24', fontSize: '0.8rem', marginTop: '0.2rem' }}>📜 Recommended Cert: {stage.cert}</div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* 📊 Skill Gap Table */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>📊 Skill Gap Analysis</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
-              {activePreset.skillGaps.map(g => (
-                <div key={g.skill} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.75rem 1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'white', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.3rem' }}>
-                    <span>{g.skill}</span>
-                    <span>Current: {g.current}% / Target: {g.required}%</span>
+            {/* 🧠 Why This Career? */}
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.75rem' }}>🧠 "Why This Career?" AI Explanation</h3>
+              <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                {currentAnalysis.whyExplanation.map(reason => (
+                  <span key={reason} style={{ background: reason.includes('✅') ? 'rgba(74,222,128,0.15)' : 'rgba(239,68,68,0.15)', color: reason.includes('✅') ? '#4ade80' : '#f87171', padding: '0.4rem 0.8rem', borderRadius: '0.6rem', fontWeight: '700', fontSize: '0.85rem' }}>
+                    {reason}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* 📈 5-Year & 10-Year Roadmap Stepper */}
+            {activePreset.roadmap && (
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+                <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1.25rem' }}>📈 5-Year & 10-Year Career Milestone Roadmap</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {activePreset.roadmap.map((stage) => (
+                    <div key={stage.year} style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '4px solid #7c3aed', borderRadius: '0.9rem', padding: '1.25rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <span style={{ background: '#7c3aed', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '0.4rem', fontWeight: '800', fontSize: '0.8rem' }}>{stage.year}</span>
+                          <span style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem' }}>{stage.title}</span>
+                        </div>
+                        <span style={{ color: '#4ade80', fontWeight: '800', fontSize: '0.9rem' }}>💰 {stage.salary}</span>
+                      </div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.82rem', marginBottom: '0.4rem' }}>Experience Required: {stage.exp}</div>
+                      <div style={{ color: '#c4b5fd', fontSize: '0.82rem' }}>Mandatory Skills: {stage.skills}</div>
+                      <div style={{ color: '#fbbf24', fontSize: '0.8rem', marginTop: '0.2rem' }}>📜 Recommended Cert: {stage.cert}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 📊 Skill Gap Table */}
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>📊 Skill Gap Analysis (Real Profile vs Target Role)</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+                {currentAnalysis.skillGaps.map(g => (
+                  <div key={g.skill} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.75rem 1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'white', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.3rem' }}>
+                      <span>{g.skill} — <span style={{ color: g.current > 0 ? '#4ade80' : '#ef4444' }}>{g.status}</span></span>
+                      <span>Current: {g.current}% / Target: {g.required}%</span>
+                    </div>
+                    <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${g.current}%`, background: g.current >= g.required ? '#4ade80' : g.current > 0 ? '#fbbf24' : '#ef4444', borderRadius: '3px' }} />
+                    </div>
                   </div>
-                  <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${g.current}%`, background: g.current >= g.required ? '#4ade80' : '#fbbf24', borderRadius: '3px' }} />
-                  </div>
+                ))}
+              </div>
+              {currentAnalysis.skillGaps.some(g => g.current < g.required) && (
+                <div style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '0.75rem', borderRadius: '0.75rem', fontSize: '0.85rem', fontWeight: '700', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>🎯 Primary Skill Gap to Focus: {currentAnalysis.skillGaps.find(g => g.current === 0)?.skill || currentAnalysis.skillGaps[0]?.skill}</span>
+                  <button onClick={() => toast.success(`Redirecting to skill learning path!`)} style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '0.5rem', padding: '0.3rem 0.8rem', fontWeight: '800', cursor: 'pointer' }}>
+                    Start Learning →
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
-            <div style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '0.75rem', borderRadius: '0.75rem', fontSize: '0.85rem', fontWeight: '700', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>🎯 Your Biggest Skill Gap: {activePreset.skillGaps[activePreset.skillGaps.length - 1]?.skill}</span>
-              <button onClick={() => toast.success(`Redirecting to ${activePreset.skillGaps[activePreset.skillGaps.length - 1]?.skill} learning module!`)} style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '0.5rem', padding: '0.3rem 0.8rem', fontWeight: '800', cursor: 'pointer' }}>
-                Start Learning →
-              </button>
-            </div>
-          </div>
 
-          {/* 💰 Salary Growth Projection */}
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.4rem' }}>💰 Market Salary Growth Projection</h3>
-            <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '1rem' }}>* Estimated market compensation range (Not a guaranteed contract salary)</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-              {activePreset.salaryGrowth.map(sg => (
-                <div key={sg.stage} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.9rem', textAlign: 'center' }}>
-                  <div style={{ color: '#4ade80', fontWeight: '900', fontSize: '1.2rem' }}>{sg.range}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.2rem' }}>{sg.stage}</div>
+            {/* 💰 Salary Growth Projection */}
+            {activePreset.salaryGrowth && (
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+                <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.4rem' }}>💰 Market Salary Growth Projection</h3>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '1rem' }}>* Estimated market compensation range (Not a guaranteed contract salary)</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                  {activePreset.salaryGrowth.map(sg => (
+                    <div key={sg.stage} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.9rem', textAlign: 'center' }}>
+                      <div style={{ color: '#4ade80', fontWeight: '900', fontSize: '1.2rem' }}>{sg.range}</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.2rem' }}>{sg.stage}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            )}
 
-          {/* Disclaimer */}
-          <div style={{ color: '#64748b', fontSize: '0.75rem', textAlign: 'center', fontStyle: 'italic' }}>
-            ⚠️ AI Career Projection Disclaimer: Projections are estimated based on your current skills, interests, and industry benchmarks. This is a guidance roadmap, not a guaranteed contract prediction.
-          </div>
-        </motion.div>
-      )}
+            {/* Disclaimer */}
+            <div style={{ color: '#64748b', fontSize: '0.75rem', textAlign: 'center', fontStyle: 'italic' }}>
+              ⚠️ AI Career Projection Disclaimer: Projections are estimated based on your current skills, interests, and industry benchmarks. This is a guidance roadmap, not a guaranteed contract prediction.
+            </div>
+          </motion.div>
+        )
+      })()}
     </div>
   )
 }

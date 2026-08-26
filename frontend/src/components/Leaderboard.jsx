@@ -1,28 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import api from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
-
-const MOCK_STUDENTS = Array.from({ length: 40 }, (_, i) => ({
-  rank: i + 1,
-  name: ['Arjun Kumar', 'Priya Rajan', 'Mohammed Ali', 'Sneha Iyer', 'Karthik S', 'Divya M', 'Rahul Sharma', 'Lakshmi P', 'Vignesh R', 'Anitha K'][i % 10] + ` ${i + 1}`,
-  department: ['B.Sc CS', 'BCA', 'B.Tech CSE', 'B.Com', 'B.Sc IT', 'BBA', 'B.Tech ECE', 'MCA', 'B.Tech Mech', 'B.Com CA'][i % 10],
-  year: ['1st Year', '2nd Year', '3rd Year', 'Final Year'][i % 4],
-  college: ['Anna University', 'Bharathiar University', 'Madurai Kamaraj University', 'VIT Chennai'][i % 4],
-  xp: Math.max(50, 1200 - (i * 28) + Math.floor(Math.random() * 30)),
-  skillsScore: Math.max(40, 95 - (i * 1.3) + Math.floor(Math.random() * 10)),
-  interviewScore: Math.max(40, 92 - (i * 1.2) + Math.floor(Math.random() * 10)),
-  badges: Math.max(1, 12 - Math.floor(i / 3)),
-  streak: Math.max(1, 25 - i + Math.floor(Math.random() * 5)),
-  overallScore: Math.max(40, 980 - (i * 22)),
-  avatar: null,
-  prevRank: i + 1 + Math.floor(Math.random() * 5) - 2,
-  python: Math.floor(Math.random() * 40) + 60,
-  sql: Math.floor(Math.random() * 40) + 55,
-  java: Math.floor(Math.random() * 40) + 50,
-  dataAnalytics: Math.floor(Math.random() * 40) + 45,
-  aiml: Math.floor(Math.random() * 40) + 40,
-  webDev: Math.floor(Math.random() * 40) + 55
-}))
 
 const XP_ACTIVITIES = [
   { activity: 'Mock Test Completion', xp: '+50 XP', icon: '📝' },
@@ -46,35 +26,79 @@ const BADGES = [
   { icon: '🏆', name: 'Top Performer', desc: 'Reach top 10 on leaderboard' }
 ]
 
-const MONTHLY_CHAMPIONS = [
-  { title: '🏆 August Champion', name: 'Arjun Kumar', dept: 'B.Tech CSE', xp: '1,200 XP', avatar: 'A' },
-  { title: '⭐ Best Coder', name: 'Priya Rajan', dept: 'B.Sc CS', xp: '950 XP', avatar: 'P' },
-  { title: '🎤 Best Interviewer', name: 'Karthik S', dept: 'BCA', xp: '880 XP', avatar: 'K' },
-  { title: '🚀 Most Improved', name: 'Sneha Iyer', dept: 'B.Com', xp: '+42% this month', avatar: 'S' }
-]
-
-const DEPARTMENT_LB = [
-  { dept: 'B.Tech CSE', xp: 8450, rank: 1 },
-  { dept: 'B.Sc CS', xp: 7920, rank: 2 },
-  { dept: 'BCA', xp: 7540, rank: 3 },
-  { dept: 'MCA', xp: 6890, rank: 4 },
-  { dept: 'B.Sc IT', xp: 6450, rank: 5 },
-  { dept: 'B.Com CA', xp: 5980, rank: 6 },
-  { dept: 'B.Tech ECE', xp: 5650, rank: 7 },
-  { dept: 'BBA', xp: 4320, rank: 8 }
-]
-
 export default function Leaderboard() {
-  const [students, setStudents] = useState(MOCK_STUDENTS)
-  const [loading, setLoading] = useState(false)
+  const { user } = useAuth()
+  const [students, setStudents] = useState([])
+  const [loading, setLoading] = useState(true)
   const [filterDept, setFilterDept] = useState('All')
   const [filterYear, setFilterYear] = useState('All')
   const [filterTime, setFilterTime] = useState('All time')
   const [activeSection, setActiveSection] = useState('leaderboard')
   const [selectedStudent, setSelectedStudent] = useState(null)
-  const [skillFilter, setSkillFilter] = useState('overallScore')
 
-  const allDepts = ['All', ...new Set(MOCK_STUDENTS.map(s => s.department))]
+  useEffect(() => {
+    const loadRealLeaderboard = async () => {
+      setLoading(true)
+      try {
+        const res = await api.get('/admin/students')
+        if (res.data.students && res.data.students.length > 0) {
+          const formatted = res.data.students.map((s, idx) => ({
+            rank: idx + 1,
+            name: s.name || 'Student',
+            department: s.department || 'Computer Science',
+            year: s.year ? `${s.year} Year` : '1st Year',
+            college: s.college || 'Campus Pilot College',
+            xp: s.xp || 0,
+            skillsScore: s.skillsScore || (s.skills ? Math.min(100, s.skills.length * 15) : 0),
+            interviewScore: s.interviewScore || 0,
+            badges: s.badgesCount || (s.badges ? s.badges.length : 0),
+            streak: s.streak || 1,
+            overallScore: (s.xp || 0) + ((s.skills ? s.skills.length : 0) * 20),
+            avatar: s.avatar || null
+          })).sort((a, b) => b.xp - a.xp)
+          setStudents(formatted)
+        } else {
+          // Fallback to real logged-in user only
+          const currentUserObj = {
+            rank: 1,
+            name: user?.name || 'Logged In Student',
+            department: user?.department || 'Computer Science',
+            year: user?.year || '1st Year',
+            college: user?.college || 'My Campus',
+            xp: user?.xp || 0,
+            skillsScore: user?.skills ? Math.min(100, user.skills.length * 20) : 0,
+            interviewScore: user?.interviewScore || 0,
+            badges: user?.badgesCount || (user?.badges ? user.badges.length : 0),
+            streak: user?.streak || 1,
+            overallScore: user?.xp || 0,
+            avatar: user?.avatar || null
+          }
+          setStudents([currentUserObj])
+        }
+      } catch (err) {
+        // Render real logged in user only
+        const currentUserObj = {
+          rank: 1,
+          name: user?.name || 'Logged In Student',
+          department: user?.department || 'Computer Science',
+          year: user?.year || '1st Year',
+          college: user?.college || 'My Campus',
+          xp: user?.xp || 0,
+          skillsScore: user?.skills ? Math.min(100, user.skills.length * 20) : 0,
+          interviewScore: user?.interviewScore || 0,
+          badges: user?.badgesCount || (user?.badges ? user.badges.length : 0),
+          streak: user?.streak || 1,
+          overallScore: user?.xp || 0,
+          avatar: user?.avatar || null
+        }
+        setStudents([currentUserObj])
+      }
+      setLoading(false)
+    }
+    loadRealLeaderboard()
+  }, [user])
+
+  const allDepts = ['All', ...new Set(students.map(s => s.department).filter(Boolean))]
   const allYears = ['All', '1st Year', '2nd Year', '3rd Year', 'Final Year']
   const timeOptions = ['This week', 'This month', 'All time']
 
@@ -83,24 +107,19 @@ export default function Leaderboard() {
     (filterYear === 'All' || s.year === filterYear)
   )
 
+  const userInList = students.find(s => s.name === user?.name)
+  const myRank = userInList ? userInList.rank : (user?.xp > 0 ? 1 : 'Unranked')
+
   const top3 = filtered.slice(0, 3)
-  const rest = filtered.slice(3)
-  const myRank = 12
-
-  const rankImprovement = myRank - 18
-
   const podiumOrder = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3
   const podiumHeights = ['140px', '180px', '110px']
   const podiumColors = ['linear-gradient(135deg, #94a3b8, #cbd5e1)', 'linear-gradient(135deg, #fbbf24, #f59e0b)', 'linear-gradient(135deg, #c97b2f, #b45309)']
   const podiumLabels = ['🥈 2nd', '🥇 1st', '🥉 3rd']
 
   const sections = [
-    { id: 'leaderboard', label: '📊 Leaderboard' },
+    { id: 'leaderboard', label: '📊 Live Leaderboard' },
     { id: 'badges', label: '🏅 Badges' },
-    { id: 'xp', label: '⚡ XP Guide' },
-    { id: 'skills', label: '🎯 Skill Rankings' },
-    { id: 'dept', label: '👥 Departments' },
-    { id: 'champions', label: '🏆 Champions' }
+    { id: 'xp', label: '⚡ XP Guide' }
   ]
 
   return (
@@ -111,15 +130,15 @@ export default function Leaderboard() {
       >
         <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '400px', height: '200px', background: 'radial-gradient(circle, rgba(250,204,21,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <h1 style={{ fontSize: '2.2rem', fontWeight: '900', background: 'linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.5rem' }}>
-          🏆 College Hall of Fame
+          🏆 Verified Student Hall of Fame
         </h1>
-        <p style={{ color: '#94a3b8' }}>Top performers based on skills, mock tests, interviews & daily engagement.</p>
+        <p style={{ color: '#94a3b8' }}>Real-time student rankings calculated strictly from verified activity, quizzes & interviews.</p>
 
         {/* My Rank Banner */}
         <div style={{ marginTop: '1.25rem', display: 'inline-flex', alignItems: 'center', gap: '1rem', background: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.3)', borderRadius: '0.75rem', padding: '0.6rem 1.5rem' }}>
-          <span style={{ color: '#fbbf24', fontWeight: '700' }}>You are #{myRank}</span>
-          <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Previous rank: #18</span>
-          <span style={{ color: '#4ade80', fontWeight: '700' }}>📈 +{Math.abs(rankImprovement)} positions</span>
+          <span style={{ color: '#fbbf24', fontWeight: '700' }}>Your Rank: {typeof myRank === 'number' ? `#${myRank}` : myRank}</span>
+          <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Your Total XP: {user?.xp || 0} XP</span>
+          <span style={{ color: '#4ade80', fontWeight: '700' }}>⚡ Real Score</span>
         </div>
       </motion.div>
 
