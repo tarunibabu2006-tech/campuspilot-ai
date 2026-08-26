@@ -56,24 +56,26 @@ app.get('/api/ping', (req, res) => {
 // Disable buffering so queries fail immediately if DB is offline instead of hanging 10s
 mongoose.set('bufferCommands', false)
 
-// MongoDB Connection with TIMEOUT FIX
+// MongoDB Connection with Serverless Connection Pooling
+let cachedDB = null
+
 const connectDB = async () => {
+  if (cachedDB && mongoose.connection.readyState === 1) {
+    return cachedDB
+  }
+
   const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/campuspilot'
 
-  console.log('🔄 Connecting to MongoDB...')
-  console.log('📍 URI:', uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@'))
-
   try {
-    await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 3000, // 3 seconds timeout
-      connectTimeoutMS: 5000,
-      family: 4 // Use IPv4
+    cachedDB = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000
     })
     logger.info('✅ MongoDB connected successfully!')
-    logger.info(`📊 Database: ${mongoose.connection.name}`)
+    return cachedDB
   } catch (err) {
     logger.warn(`⚠️ MongoDB connection not available: ${err.message}`)
-    logger.info('💡 CampusPilot is running in Resilient Hybrid Mode (Authentication & Features work seamlessly!)')
+    return null
   }
 }
 
@@ -90,9 +92,16 @@ mongoose.connection.on('disconnected', () => {
   logger.warn('⚠️ MongoDB disconnected')
 })
 
-// Connect to MongoDB & Redis
+// Ensure DB is connected for every incoming API request in serverless environment
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    await connectDB()
+  }
+  next()
+})
+
+// Connect to Redis
 connectRedis()
-connectDB()
 
 // Security & CORS
 app.use(helmet({ contentSecurityPolicy: false }))
