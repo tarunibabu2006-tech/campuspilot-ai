@@ -48,6 +48,11 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 5000
 
+// Simple Diagnostic Route
+app.get('/api/ping', (req, res) => {
+  res.send('pong')
+})
+
 // Disable buffering so queries fail immediately if DB is offline instead of hanging 10s
 mongoose.set('bufferCommands', false)
 
