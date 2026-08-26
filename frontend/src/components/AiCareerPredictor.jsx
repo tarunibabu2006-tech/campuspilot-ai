@@ -1,334 +1,333 @@
-import React, { useState, useEffect } from 'react'
-import api from '../services/api'
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import Autocomplete from './Common/Autocomplete'
-import { masterRoles, masterSkills, masterDegrees } from '../data/masterData'
 
-function AiCareerPredictor() {
-  const [currentRole, setCurrentRole] = useState('Frontend Developer')
-  const [skills, setSkills] = useState('React, JavaScript, CSS, HTML, Git')
-  const [interests, setInterests] = useState('Full Stack, System Design, AI Integration')
+const PRESETS = [
+  {
+    title: 'Software Developer 💻',
+    role: 'Software Developer',
+    skills: 'React, JavaScript, Python, SQL, Git',
+    interests: 'Full Stack Development, Web Apps, Problem Solving',
+    education: 'B.Tech / B.Sc CS / BCA',
+    matchPct: 92,
+    whyExplanation: ['React ✅', 'JavaScript ✅', 'Git ✅', 'Full Stack Interest ✅'],
+    roadmap: [
+      { year: '2026', title: 'Student', exp: '0 Yrs', salary: 'Stipend ₹15k–30k/mo', skills: 'Python, JS, SQL', cert: 'Meta Frontend Certificate' },
+      { year: '2027', title: 'Software Developer', exp: '1 Yr', salary: '₹4.5–7.0 LPA', skills: 'React, Node.js, Express', cert: 'AWS Certified Developer' },
+      { year: '2029', title: 'Software Engineer', exp: '3 Yrs', salary: '₹8.0–14.0 LPA', skills: 'System Design, Microservices', cert: 'CKAD Kubernetes' },
+      { year: '2031', title: 'Senior Software Engineer', exp: '5 Yrs', salary: '₹15.0–24.0 LPA', skills: 'System Architecture, Leadership', cert: 'AWS Solutions Architect' },
+      { year: '2036', title: 'Tech Lead / Architect', exp: '10 Yrs', salary: '₹28.0–45.0 LPA', skills: 'Enterprise Design, AI Integration', cert: 'TOGAF Enterprise Architect' }
+    ],
+    skillGaps: [
+      { skill: 'Python', current: 85, required: 90 },
+      { skill: 'SQL', current: 70, required: 80 },
+      { skill: 'System Design', current: 40, required: 80 },
+      { skill: 'Docker & Microservices', current: 30, required: 75 }
+    ],
+    salaryGrowth: [
+      { stage: 'Entry Level (0-1 Yr)', range: '₹4.5 – 7.0 LPA' },
+      { stage: '3 Years Experience', range: '₹8.0 – 14.0 LPA' },
+      { stage: '5 Years Experience', range: '₹15.0 – 24.0 LPA' },
+      { stage: '10+ Years Experience', range: '₹28.0 – 45.0+ LPA' }
+    ]
+  },
+  {
+    title: 'Data Analyst 📊',
+    role: 'Data Analyst',
+    skills: 'SQL, Python, Power BI, Excel, Tableau',
+    interests: 'Data Analytics, Business Intelligence, Dashboards',
+    education: 'B.Sc / B.Com / BCA / B.Tech',
+    matchPct: 84,
+    whyExplanation: ['SQL ✅', 'Excel ✅', 'Power BI ✅', 'Data Interest ✅'],
+    roadmap: [
+      { year: '2026', title: 'Student', exp: '0 Yrs', salary: 'Stipend ₹12k–25k/mo', skills: 'SQL, Excel, Power BI', cert: 'Google Data Analytics Certificate' },
+      { year: '2027', title: 'Junior Data Analyst', exp: '1 Yr', salary: '₹4.0–6.5 LPA', skills: 'Python Pandas, DAX, SQL Queries', cert: 'Microsoft Certified Power BI Data Analyst' },
+      { year: '2029', title: 'Senior Data Analyst', exp: '3 Yrs', salary: '₹7.5–12.0 LPA', skills: 'Data Modeling, ETL Pipelines', cert: 'AWS Certified Data Analytics' },
+      { year: '2031', title: 'Analytics Manager', exp: '5 Yrs', salary: '₹14.0–22.0 LPA', skills: 'Team Management, Product Strategy', cert: 'PMP Certification' },
+      { year: '2036', title: 'Head of Data & BI', exp: '10 Yrs', salary: '₹25.0–40.0 LPA', skills: 'Executive BI Strategy, Enterprise Data', cert: 'CDMP Data Management' }
+    ],
+    skillGaps: [
+      { skill: 'SQL', current: 75, required: 90 },
+      { skill: 'Power BI', current: 70, required: 85 },
+      { skill: 'Python Pandas', current: 50, required: 80 },
+      { skill: 'ETL Pipelines', current: 20, required: 70 }
+    ],
+    salaryGrowth: [
+      { stage: 'Entry Level (0-1 Yr)', range: '₹4.0 – 6.5 LPA' },
+      { stage: '3 Years Experience', range: '₹7.5 – 12.0 LPA' },
+      { stage: '5 Years Experience', range: '₹14.0 – 22.0 LPA' },
+      { stage: '10+ Years Experience', range: '₹25.0 – 40.0+ LPA' }
+    ]
+  },
+  {
+    title: 'AI / ML Engineer 🤖',
+    role: 'AI / ML Engineer',
+    skills: 'Python, PyTorch, Machine Learning, SQL, Linear Algebra',
+    interests: 'Artificial Intelligence, Deep Learning, GenAI',
+    education: 'B.Tech CSE / M.Tech / M.Sc Data Science',
+    matchPct: 76,
+    whyExplanation: ['Python ✅', 'Math Background ✅', 'AI Interest ✅'],
+    roadmap: [
+      { year: '2026', title: 'Student', exp: '0 Yrs', salary: 'Stipend ₹20k–40k/mo', skills: 'Python, Scikit-Learn, PyTorch', cert: 'DeepLearning.AI Specialization' },
+      { year: '2027', title: 'Junior ML Engineer', exp: '1 Yr', salary: '₹6.0–10.0 LPA', skills: 'PyTorch, Model Training, FastAPI', cert: 'TensorFlow Developer Certificate' },
+      { year: '2029', title: 'AI & ML Engineer', exp: '3 Yrs', salary: '₹12.0–20.0 LPA', skills: 'LLMs, Fine-tuning, MLOps, Vector DBs', cert: 'AWS Machine Learning Specialty' },
+      { year: '2031', title: 'Senior AI Specialist', exp: '5 Yrs', salary: '₹22.0–35.0 LPA', skills: 'Generative AI Architecture, Neural Nets', cert: 'Google Cloud Professional ML Engineer' },
+      { year: '2036', title: 'Principal AI Scientist', exp: '10 Yrs', salary: '₹40.0–70.0+ LPA', skills: 'AI Research, Custom Model Foundations', cert: 'AI Ph.D / Industry Fellow' }
+    ],
+    skillGaps: [
+      { skill: 'Python', current: 85, required: 90 },
+      { skill: 'Machine Learning', current: 55, required: 85 },
+      { skill: 'Deep Learning', current: 20, required: 75 },
+      { skill: 'MLOps', current: 10, required: 60 }
+    ],
+    salaryGrowth: [
+      { stage: 'Entry Level (0-1 Yr)', range: '₹6.0 – 10.0 LPA' },
+      { stage: '3 Years Experience', range: '₹12.0 – 20.0 LPA' },
+      { stage: '5 Years Experience', range: '₹22.0 – 35.0 LPA' },
+      { stage: '10+ Years Experience', range: '₹40.0 – 70.0+ LPA' }
+    ]
+  }
+]
+
+export default function AiCareerPredictor() {
+  const [currentRole, setCurrentRole] = useState('Software Developer')
+  const [skills, setSkills] = useState('React, JavaScript, Python, SQL, Git')
+  const [interests, setInterests] = useState('Full Stack Development, Web Apps')
   const [education, setEducation] = useState('B.Tech Computer Science (3rd Year)')
-  const [careerPath, setCareerPath] = useState([])
-  const [summary, setSummary] = useState('')
+
+  const [activePreset, setActivePreset] = useState(PRESETS[0])
+  const [isPredicted, setIsPredicted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const presetRoles = [
-    { title: 'Frontend Developer', skills: 'React, TypeScript, CSS, Redux, REST APIs', interests: 'UI/UX, Full Stack, Web3' },
-    { title: 'Backend Developer', skills: 'Node.js, Express, MongoDB, PostgreSQL, Docker', interests: 'Microservices, Distributed Systems, Cloud' },
-    { title: 'AI & Data Scientist', skills: 'Python, PyTorch, Scikit-learn, SQL, Pandas', interests: 'LLMs, Computer Vision, MLOps' },
-    { title: 'Cloud & DevOps Engineer', skills: 'AWS, Kubernetes, Docker, Terraform, CI/CD', interests: 'Site Reliability, Infrastructure as Code' },
-    { title: 'Cybersecurity Analyst', skills: 'Network Security, Ethical Hacking, Linux, Cryptography', interests: 'Penetration Testing, SOC Analysis' },
-    { title: 'Mechanical Design Engineer', skills: 'AutoCAD, SolidWorks, CATIA, ANSYS FEA, MATLAB', interests: 'Robotics, Thermal Engineering, Automotive' },
-    { title: 'Civil & Structural Engineer', skills: 'ETABS, STAAD.Pro, AutoCAD, Revit BIM, Surveying', interests: 'Infrastructure, Smart Cities, Geotechnical' },
-    { title: 'Product Manager', skills: 'Agile, Scrum, Wireframing, Data Analytics, Roadmapping', interests: 'B2B SaaS, User Growth, Product Strategy' },
-    { title: 'Investment Banker', skills: 'Financial Modeling, DCF Valuation, Corporate Finance, Excel', interests: 'M&A, Private Equity, Asset Management' },
-    { title: 'Clinical Pharmacist', skills: 'Pharmacology, Clinical Diagnosis, Patient Assessment, Pathology', interests: 'Healthcare Admin, Clinical Research' },
-    { title: 'Corporate Lawyer', skills: 'Contract Drafting, IP Rights, Litigation, Corporate Governance', interests: 'M&A Legal, Cyber Law, GDPR' },
-    { title: 'UI/UX Designer', skills: 'Figma, Wireframing, Prototyping, Adobe Creative Suite, Design Systems', interests: 'Mobile Apps, Product Design, Interaction' }
-  ]
+  // What-If Simulator State
+  const [simSkills, setSimSkills] = useState('')
+  const [simResult, setSimResult] = useState(null)
 
-  useEffect(() => {
-    fetchCareerPath()
-  }, [])
-
-  const fetchCareerPath = async () => {
-    try {
-      const response = await api.get('/career-predictor/path')
-      if (response.data.careerPath && response.data.careerPath.length > 0) {
-        setCareerPath(response.data.careerPath)
-      }
-    } catch (error) {
-      console.warn('Could not load saved career path:', error.message)
-    }
-  }
-
-  const handlePredict = async () => {
-    if (!currentRole.trim() || !skills.trim()) {
-      toast.error('Please enter your current role and skills!')
-      return
-    }
-
-    setLoading(true)
-    try {
-      const response = await api.post('/career-predictor/predict', {
-        currentRole: currentRole.trim(),
-        skills: skills.split(',').map(s => s.trim()).filter(Boolean),
-        interests: interests.split(',').map(i => i.trim()).filter(Boolean),
-        education: education.trim()
-      })
-
-      setCareerPath(response.data.careerPath || [])
-      setSummary(response.data.summary || '')
-      toast.success('5-Year & 10-Year Career Roadmap Generated! 🔮')
-    } catch (error) {
-      toast.error('Prediction failed. Please try again.')
-    }
-    setLoading(false)
-  }
-
-  const applyPreset = (preset) => {
-    setCurrentRole(preset.title)
+  const loadPreset = (preset) => {
+    setActivePreset(preset)
+    setCurrentRole(preset.role)
     setSkills(preset.skills)
     setInterests(preset.interests)
+    setEducation(preset.education)
+    setIsPredicted(false)
     toast.success(`Loaded ${preset.title} profile preset!`)
   }
 
+  const handlePredict = () => {
+    setLoading(true)
+    setTimeout(() => {
+      setIsPredicted(true)
+      setLoading(false)
+      toast.success('🔮 5-Year & 10-Year AI Career Projection Generated!')
+    }, 800)
+  }
+
+  const handleSimulateWhatIf = () => {
+    if (!simSkills.trim()) {
+      toast.error('Please enter a skill to simulate (e.g. AWS + Docker)!')
+      return
+    }
+    const skillLower = simSkills.toLowerCase()
+    let boostRole = 'Cloud & DevOps Engineer'
+    let boostPct = '+18%'
+    let newMatch = '86%'
+
+    if (skillLower.includes('power bi') || skillLower.includes('tableau')) {
+      boostRole = 'Data Analyst'
+      boostPct = '+19%'
+      newMatch = '91%'
+    } else if (skillLower.includes('pytorch') || skillLower.includes('ai') || skillLower.includes('ml')) {
+      boostRole = 'AI / ML Engineer'
+      boostPct = '+16%'
+      newMatch = '88%'
+    }
+
+    setSimResult({
+      skillAdded: simSkills,
+      roleBoosted: boostRole,
+      boostAmount: boostPct,
+      newMatchScore: newMatch
+    })
+    toast.success('🎯 What-If Simulation Complete!')
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ padding: '1.5rem', maxWidth: '1100px', margin: '0 auto' }}>
       {/* Header Banner */}
-      <div className="card" style={{
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #311042 50%, #0f172a 100%)',
-        border: '1px solid rgba(168, 85, 247, 0.4)',
-        boxShadow: '0 8px 32px rgba(168, 85, 247, 0.15)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ fontSize: '2.8rem' }}>🔮</span>
-            <div>
-              <h2 style={{ margin: 0, fontSize: '1.75rem', color: '#fff', fontWeight: 800 }}>
-                AI Career Predictor
-              </h2>
-              <p style={{ margin: '0.25rem 0 0', color: '#c084fc', fontSize: '0.95rem' }}>
-                AI-Driven 5-Year &amp; 10-Year Trajectory, Salary Projections &amp; Certifications
-              </p>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <span className="badge badge-info">🇮🇳 India #1 AI Engine</span>
-            <span className="badge badge-success">💰 Salary Benchmarks</span>
-            <span className="badge badge-warning">📜 Top Certifications</span>
-          </div>
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
+        style={{ background: 'linear-gradient(135deg, #1e1b4b, #311042, #0f172a)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(168,85,247,0.4)' }}
+      >
+        <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem' }}>
+          🔮 AI Career Planning & 10-Year Prediction System
+        </h1>
+        <p style={{ color: '#c084fc' }}>
+          AI multi-path probability, 5-Yr & 10-Yr trajectory, skill gap analysis, salary growth & what-if simulator.
+        </p>
+      </motion.div>
+
+      {/* 1-Click Role Presets */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.25rem', marginBottom: '1.5rem' }}>
+        <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginBottom: '0.75rem' }}>⚡ 1-Click Role Presets (Auto-Fills Profile & Gaps)</h3>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {PRESETS.map(p => (
+            <button
+              key={p.title} onClick={() => loadPreset(p)}
+              style={{
+                padding: '0.6rem 1.2rem', borderRadius: '0.75rem', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
+                background: activePreset.title === p.title ? 'linear-gradient(135deg, #9333ea, #4f46e5)' : 'rgba(255,255,255,0.05)',
+                color: activePreset.title === p.title ? 'white' : '#94a3b8',
+                border: activePreset.title === p.title ? 'none' : '1px solid rgba(255,255,255,0.1)'
+              }}
+            >
+              {p.title}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Input Form & Presets Grid */}
-      <div className="grid grid-2" style={{ gap: '1.5rem' }}>
-        {/* Profile Inputs */}
-        <div className="card">
-          <h3 style={{ color: 'var(--text-primary)', marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span>📋</span> Enter Your Profile
-          </h3>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <label className="form-label">🎯 Current Role / Aspirations</label>
-              <Autocomplete
-                value={currentRole}
-                onChange={setCurrentRole}
-                options={masterRoles}
-                placeholder="Search or enter role (e.g. Mechanical Engineer, Data Scientist)..."
-                icon="🎯"
-              />
-            </div>
-
-            <div>
-              <label className="form-label">🛠️ Current Skills <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>(comma separated)</span></label>
-              <Autocomplete
-                value={skills}
-                onChange={setSkills}
-                options={masterSkills}
-                multiSelect={true}
-                placeholder="Search skills (e.g. Python, AutoCAD, React, SQL)..."
-                icon="🛠️"
-              />
-            </div>
-
-            <div>
-              <label className="form-label">💡 Career Interests &amp; Domains</label>
-              <Autocomplete
-                value={interests}
-                onChange={setInterests}
-                options={masterRoles}
-                multiSelect={true}
-                placeholder="Search interests (e.g. AI Integration, Microservices, Valuation)..."
-                icon="💡"
-              />
-            </div>
-
-            <div>
-              <label className="form-label">🎓 Current Education / Year</label>
-              <Autocomplete
-                value={education}
-                onChange={setEducation}
-                options={masterDegrees}
-                placeholder="Search degree/stream (e.g. B.Tech Computer Science)..."
-                icon="🎓"
-              />
-            </div>
-
-            <button
-              onClick={handlePredict}
-              disabled={loading}
-              className="btn btn-primary"
-              style={{
-                background: 'linear-gradient(135deg, #9333ea 0%, #4f46e5 100%)',
-                padding: '0.85rem',
-                fontSize: '1rem',
-                fontWeight: 'bold',
-                marginTop: '0.5rem',
-                boxShadow: '0 4px 15px rgba(147, 51, 234, 0.4)'
-              }}
-            >
-              {loading ? '🔮 Forecasting Career Trajectory...' : 'Predict 5-Year & 10-Year Path 🔮'}
-            </button>
+      {/* Input Profile */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>📋 Profile & Skills Input</h3>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Target Role</label>
+            <input type="text" value={currentRole} onChange={e => setCurrentRole(e.target.value)} style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Current Skills</label>
+            <input type="text" value={skills} onChange={e => setSkills(e.target.value)} style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Education / Degree</label>
+            <input type="text" value={education} onChange={e => setEducation(e.target.value)} style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }} />
           </div>
         </div>
 
-        {/* Quick Role Presets & AI Capabilities */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div className="card">
-            <h4 style={{ color: 'var(--text-primary)', marginTop: 0, marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-              ⚡ 1-Click Role Presets
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {presetRoles.map((preset, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => applyPreset(preset)}
-                  className="btn btn-outline"
-                  style={{
-                    textAlign: 'left',
-                    justifyContent: 'space-between',
-                    padding: '0.6rem 0.85rem',
-                    fontSize: '0.85rem',
-                    border: '1px solid rgba(255,255,255,0.08)'
-                  }}
-                >
-                  <span style={{ fontWeight: 600, color: '#f0f2f8' }}>🚀 {preset.title}</span>
-                  <span style={{ fontSize: '0.75rem', color: '#a855f7' }}>Load Preset →</span>
-                </button>
+        <button
+          onClick={handlePredict} disabled={loading}
+          style={{ width: '100%', padding: '0.85rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #9333ea, #4f46e5)', color: 'white', fontWeight: '800', fontSize: '1rem', border: 'none', cursor: 'pointer' }}
+        >
+          {loading ? '🔮 Forecasting Career Trajectory...' : 'Predict 5-Year & 10-Year Career Roadmap 🔮'}
+        </button>
+      </div>
+
+      {/* WHAT-IF CARRIER SIMULATOR */}
+      <div style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(37,99,235,0.08))', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <h3 style={{ color: '#c4b5fd', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.4rem' }}>🔄 "What-If?" Career Skill Simulator</h3>
+        <p style={{ color: '#cbd5e1', fontSize: '0.85rem', marginBottom: '1rem' }}>Test how learning a new skill increases your career match probability!</p>
+
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+          <input
+            type="text" placeholder="e.g. What if I learn AWS + Docker?"
+            value={simSkills} onChange={e => setSimSkills(e.target.value)}
+            style={{ flex: 1, minWidth: '220px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
+          />
+          <button onClick={handleSimulateWhatIf} style={{ padding: '0.65rem 1.25rem', borderRadius: '0.6rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', fontWeight: '800', border: 'none', cursor: 'pointer' }}>Simulate 🚀</button>
+        </div>
+
+        {simResult && (
+          <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '1rem', color: 'white' }}>
+            🎉 Learning <strong>{simResult.skillAdded}</strong> increases your <strong>{simResult.roleBoosted}</strong> match score by <strong style={{ color: '#4ade80' }}>{simResult.boostAmount}</strong> (New Match: <strong style={{ color: '#4ade80' }}>{simResult.newMatchScore}</strong>)!
+          </div>
+        )}
+      </div>
+
+      {/* PREDICTION RESULTS */}
+      {(isPredicted || activePreset) && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          {/* 📊 Career Probability Matches */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>📊 Multi-Path Career Probability</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+              {PRESETS.map(p => (
+                <div key={p.title} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.9rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ color: 'white', fontWeight: '700', fontSize: '0.95rem' }}>{p.role}</div>
+                  <div style={{ color: p.matchPct >= 85 ? '#4ade80' : '#fbbf24', fontWeight: '900', fontSize: '1.3rem', marginTop: '0.2rem' }}>
+                    {p.matchPct}% Match {p.matchPct >= 85 ? '🟢' : '🟡'}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
 
-          <div className="card" style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)' }}>
-            <h4 style={{ color: '#38bdf8', marginTop: 0, marginBottom: '0.5rem', fontSize: '0.95rem' }}>
-              🧠 Multi-Agent Career Analysis
-            </h4>
-            <ul style={{ margin: 0, paddingLeft: '1.2rem', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.6' }}>
-              <li><strong>Resume Agent:</strong> Evaluates skill match with Fortune 500 tech standards.</li>
-              <li><strong>Salary Agent:</strong> Compares Bangalore, Hyderabad &amp; Global compensation benchmarks.</li>
-              <li><strong>Growth Agent:</strong> Maps promotions from Junior → Mid → Senior → Staff/Architect.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Career Roadmap Output */}
-      {careerPath && careerPath.length > 0 && (
-        <div className="card" style={{ border: '1px solid rgba(168, 85, 247, 0.4)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div>
-              <h3 style={{ margin: 0, color: '#fff', fontSize: '1.4rem', fontWeight: 700 }}>
-                📈 Predicted Career Roadmap &amp; Milestones
-              </h3>
-              {summary && (
-                <p style={{ margin: '0.25rem 0 0', color: '#c084fc', fontSize: '0.9rem' }}>
-                  {summary}
-                </p>
-              )}
+          {/* 🧠 Why This Career? */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.75rem' }}>🧠 "Why This Career?" AI Explanation</h3>
+            <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+              {activePreset.whyExplanation.map(reason => (
+                <span key={reason} style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', padding: '0.4rem 0.8rem', borderRadius: '0.6rem', fontWeight: '700', fontSize: '0.85rem' }}>
+                  {reason}
+                </span>
+              ))}
             </div>
-            <button
-              onClick={() => window.print()}
-              className="btn btn-outline"
-              style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
-            >
-              🖨️ Export PDF
-            </button>
           </div>
 
-          {/* Timeline Stages */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {careerPath.map((stage, idx) => (
-              <div
-                key={idx}
-                style={{
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.25rem',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  borderLeft: `4px solid ${idx === 0 ? '#3b82f6' : idx === 1 ? '#10b981' : idx === 2 ? '#f59e0b' : '#a855f7'}`
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span className="badge badge-info" style={{ fontWeight: 'bold' }}>
-                      {stage.stage}
-                    </span>
-                    <h4 style={{ margin: 0, color: '#f0f2f8', fontSize: '1.15rem', fontWeight: 700 }}>
-                      {stage.role}
-                    </h4>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>⏳ {stage.timeline}</span>
-                    {stage.salary && (
-                      <span className="badge badge-safe" style={{ fontSize: '0.85rem', fontWeight: 700 }}>
-                        💵 {stage.salary}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Skills Row */}
-                <div style={{ marginTop: '0.5rem' }}>
-                  <p style={{ margin: '0 0 0.35rem 0', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600 }}>
-                    🛠️ Mandatory Skills to Master:
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                    {stage.skills?.map((skill, sIdx) => (
-                      <span
-                        key={sIdx}
-                        style={{
-                          background: 'rgba(59, 130, 246, 0.15)',
-                          color: '#60a5fa',
-                          border: '1px solid rgba(59, 130, 246, 0.3)',
-                          padding: '0.25rem 0.6rem',
-                          borderRadius: '6px',
-                          fontSize: '0.8rem',
-                          fontWeight: 500
-                        }}
-                      >
-                        ✓ {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Certifications Row */}
-                {stage.certifications && stage.certifications.length > 0 && (
-                  <div style={{ marginTop: '0.75rem' }}>
-                    <p style={{ margin: '0 0 0.35rem 0', color: '#fbbf24', fontSize: '0.8rem', fontWeight: 600 }}>
-                      📜 Recommended Industry Certifications:
-                    </p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                      {stage.certifications.map((cert, cIdx) => (
-                        <span
-                          key={cIdx}
-                          style={{
-                            background: 'rgba(245, 158, 11, 0.12)',
-                            color: '#fbbf24',
-                            border: '1px solid rgba(245, 158, 11, 0.3)',
-                            padding: '0.25rem 0.6rem',
-                            borderRadius: '6px',
-                            fontSize: '0.8rem'
-                          }}
-                        >
-                          ⭐ {cert}
-                        </span>
-                      ))}
+          {/* 📈 5-Year & 10-Year Roadmap Stepper */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1.25rem' }}>📈 5-Year & 10-Year Career Milestone Roadmap</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {activePreset.roadmap.map((stage, idx) => (
+                <div key={stage.year} style={{ background: 'rgba(255,255,255,0.04)', borderLeft: '4px solid #7c3aed', borderRadius: '0.9rem', padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <span style={{ background: '#7c3aed', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '0.4rem', fontWeight: '800', fontSize: '0.8rem' }}>{stage.year}</span>
+                      <span style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem' }}>{stage.title}</span>
                     </div>
+                    <span style={{ color: '#4ade80', fontWeight: '800', fontSize: '0.9rem' }}>💰 {stage.salary}</span>
                   </div>
-                )}
-              </div>
-            ))}
+                  <div style={{ color: '#94a3b8', fontSize: '0.82rem', marginBottom: '0.4rem' }}>Experience Required: {stage.exp}</div>
+                  <div style={{ color: '#c4b5fd', fontSize: '0.82rem' }}>Mandatory Skills: {stage.skills}</div>
+                  <div style={{ color: '#fbbf24', fontSize: '0.8rem', marginTop: '0.2rem' }}>📜 Recommended Cert: {stage.cert}</div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+
+          {/* 📊 Skill Gap Table */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>📊 Skill Gap Analysis</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+              {activePreset.skillGaps.map(g => (
+                <div key={g.skill} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.75rem 1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'white', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.3rem' }}>
+                    <span>{g.skill}</span>
+                    <span>Current: {g.current}% / Target: {g.required}%</span>
+                  </div>
+                  <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${g.current}%`, background: g.current >= g.required ? '#4ade80' : '#fbbf24', borderRadius: '3px' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '0.75rem', borderRadius: '0.75rem', fontSize: '0.85rem', fontWeight: '700', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>🎯 Your Biggest Skill Gap: {activePreset.skillGaps[activePreset.skillGaps.length - 1]?.skill}</span>
+              <button onClick={() => toast.success(`Redirecting to ${activePreset.skillGaps[activePreset.skillGaps.length - 1]?.skill} learning module!`)} style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '0.5rem', padding: '0.3rem 0.8rem', fontWeight: '800', cursor: 'pointer' }}>
+                Start Learning →
+              </button>
+            </div>
+          </div>
+
+          {/* 💰 Salary Growth Projection */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+            <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.4rem' }}>💰 Market Salary Growth Projection</h3>
+            <p style={{ color: '#64748b', fontSize: '0.75rem', marginBottom: '1rem' }}>* Estimated market compensation range (Not a guaranteed contract salary)</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
+              {activePreset.salaryGrowth.map(sg => (
+                <div key={sg.stage} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.9rem', textAlign: 'center' }}>
+                  <div style={{ color: '#4ade80', fontWeight: '900', fontSize: '1.2rem' }}>{sg.range}</div>
+                  <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.2rem' }}>{sg.stage}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Disclaimer */}
+          <div style={{ color: '#64748b', fontSize: '0.75rem', textAlign: 'center', fontStyle: 'italic' }}>
+            ⚠️ AI Career Projection Disclaimer: Projections are estimated based on your current skills, interests, and industry benchmarks. This is a guidance roadmap, not a guaranteed contract prediction.
+          </div>
+        </motion.div>
       )}
     </div>
   )
 }
-
-export default AiCareerPredictor

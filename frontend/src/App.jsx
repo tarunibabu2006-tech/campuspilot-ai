@@ -209,17 +209,32 @@ function MainApp() {
         </div>
       </header>
 
-      <nav className="nav-tabs" style={{ position: 'relative', zIndex: 20, maxHeight: '120px', overflowY: 'auto' }}>
-        {studentTabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`nav-tab ${activeTab === tab.id ? 'active' : ''}`}
+      {activeTab !== 'dashboard' && (
+        <div style={{ position: 'relative', zIndex: 20, padding: '0.75rem 1.5rem', background: 'rgba(15,23,42,0.8)', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backdropFilter: 'blur(8px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '0.6rem', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              🏠 Back to Dashboard
+            </button>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/</span>
+            <span style={{ color: 'white', fontWeight: '700', fontSize: '0.9rem', textTransform: 'capitalize' }}>
+              {studentTabs.find(t => t.id === activeTab)?.label || activeTab}
+            </span>
+          </div>
+
+          <select
+            value={activeTab}
+            onChange={e => setActiveTab(e.target.value)}
+            style={{ background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', color: 'white', padding: '0.4rem 0.8rem', borderRadius: '0.6rem', fontSize: '0.82rem', cursor: 'pointer', outline: 'none' }}
           >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
+            {studentTabs.map(t => (
+              <option key={t.id} value={t.id}>{t.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <main className="main-content" style={{ position: 'relative', zIndex: 20 }}>
         {renderActiveTab()}
