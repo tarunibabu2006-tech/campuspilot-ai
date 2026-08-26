@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
-import toast from 'react-hot-toast'
+import { motion } from 'framer-motion'
 
-function Dashboard({ onNavigate }) {
-  const { user, logout } = useAuth()
+export default function Dashboard({ onNavigate }) {
+  const { user } = useAuth()
   const [stats, setStats] = useState({
     totalStudents: 0,
     totalSkills: 50,
-    totalJobs: 30,
-    activeStudents: 0,
-    studentsByDepartment: [],
-    studentsByYear: [],
-    recentStudents: []
+    totalJobs: 30
   })
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchStats()
@@ -23,178 +18,121 @@ function Dashboard({ onNavigate }) {
   const fetchStats = async () => {
     try {
       const res = await api.get('/admin/dashboard')
-      if (res.data) {
-        setStats(res.data)
-      }
+      if (res.data) setStats(res.data)
     } catch (err) {
-      console.error('Error fetching dashboard stats:', err)
+      console.warn('Dashboard stats fallback')
     }
-    setLoading(false)
   }
 
-  const flagshipFeatures = [
-    { icon: '🔮', label: 'Career Predictor', tab: 'career-predictor', desc: 'AI 5-Yr & 10-Yr Trajectory, Salaries & Roadmap', color: 'linear-gradient(135deg, rgba(147,51,234,0.2) 0%, rgba(147,51,234,0.05) 100%)', border: 'rgba(147,51,234,0.4)', tag: 'PREDICTOR 🔮' },
-    { icon: '🎙️', label: 'Voice Mock Interview', tab: 'voice-interview', desc: 'Real Speech-to-Text Practice with AI Evaluation', color: 'linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.05) 100%)', border: 'rgba(239,68,68,0.4)', tag: 'VOICE AI 🎙️' },
-    { icon: '🏆', label: 'Gamification 2.0', tab: 'gamification', desc: 'Earn Skill Badges, Streaks & XP Leaderboards', color: 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(245,158,11,0.05) 100%)', border: 'rgba(245,158,11,0.4)', tag: 'BADGES 🏆' },
-    { icon: '👥', label: 'Study Groups', tab: 'study-groups', desc: 'Peer Chat Rooms, Shared Notes & Doubt Support', color: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(16,185,129,0.05) 100%)', border: 'rgba(16,185,129,0.4)', tag: 'STUDY ROOMS 👥' },
-    { icon: '🗺️', label: 'Career GPS', tab: 'career-gps', desc: 'AI Skill Gap Analyzer & Personalized Learning Path', color: 'linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%)', border: 'rgba(59,130,246,0.4)', tag: 'CAREER GPS 🗺️' },
-    { icon: '📄', label: 'Resume Scorer', tab: 'resume-scorer', desc: 'Instant ATS 0-100 Score, Tailoring & Keywords', color: 'linear-gradient(135deg, rgba(6,182,212,0.2) 0%, rgba(6,182,212,0.05) 100%)', border: 'rgba(6,182,212,0.4)', tag: 'ATS SCORE 📊' },
-    { icon: '🤖', label: 'AI Application Proxy', tab: 'ai-apply', desc: 'Automate job applications to matching vacancies', color: 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(139,92,246,0.05) 100%)', border: 'rgba(139,92,246,0.4)', tag: 'AUTO APPLY ⚡' },
-    { icon: '🏷️', label: 'Verified Skill Badge', tab: 'skill-badge', desc: 'Student Trust Score & Target Career Fit Score', color: 'linear-gradient(135deg, rgba(236,72,153,0.2) 0%, rgba(236,72,153,0.05) 100%)', border: 'rgba(236,72,153,0.4)', tag: 'VERIFIED 🛡️' },
-    { icon: '👥', label: 'Mentor Connect', tab: 'mentors', desc: 'Connect with Google, Amazon, TCS Alumni Experts', color: 'linear-gradient(135deg, rgba(20,184,166,0.2) 0%, rgba(20,184,166,0.05) 100%)', border: 'rgba(20,184,166,0.4)', tag: 'ALUMNI 👥' },
-    { icon: '📝', label: 'Company Mock Tests', tab: 'mock-tests', desc: 'Practice TCS, Infosys, Google, Amazon Test Patterns', color: 'linear-gradient(135deg, rgba(249,115,22,0.2) 0%, rgba(249,115,22,0.05) 100%)', border: 'rgba(249,115,22,0.4)', tag: 'TESTS 🎯' }
-  ]
+  const allDashboardCards = [
+    // 🌟 Flagship AI & Community Cards
+    { id: 'profile', icon: '👤', label: 'Student Profile', tag: 'PROFILE 👤', desc: 'Department, Semester, Skills & Links', bg: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(37,99,235,0.15))', border: 'rgba(139,92,246,0.4)' },
+    { id: 'leaderboard', icon: '🏆', label: 'Leaderboard & Podium', tag: 'HALL OF FAME 🏆', desc: 'Top 3 Podium, Rank, XP & Badges', bg: 'linear-gradient(135deg, rgba(251,191,36,0.25), rgba(245,158,11,0.15))', border: 'rgba(251,191,36,0.4)' },
+    { id: 'company-archives', icon: '🏛️', label: 'Company Archives', tag: 'ARCHIVES 🏛️', desc: 'Placement Papers, CTC History & AI Prep', bg: 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(37,99,235,0.15))', border: 'rgba(59,130,246,0.4)' },
+    { id: 'alumni-network', icon: '🤝', label: 'Alumni Network', tag: 'REFERRALS 🤝', desc: 'Seniors Directory, Referral Requests & Journey', bg: 'linear-gradient(135deg, rgba(52,211,153,0.25), rgba(5,150,105,0.15))', border: 'rgba(52,211,153,0.4)' },
+    { id: 'career-predictor', icon: '🔮', label: 'Career Predictor', tag: 'AI PREDICTOR 🔮', desc: '5-Yr Trajectory & Salary Predictor', bg: 'linear-gradient(135deg, rgba(192,132,252,0.25), rgba(147,51,234,0.15))', border: 'rgba(192,132,252,0.4)' },
+    { id: 'voice-interview', icon: '🎙️', label: 'Voice Mock Interview', tag: 'VOICE AI 🎙️', desc: 'Speech-to-Text Practice & AI Score', bg: 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(185,28,28,0.15))', border: 'rgba(239,68,68,0.4)' },
+    { id: 'gamification', icon: '🏆', label: 'Gamification 2.0', tag: 'XP & BADGES ⚡', desc: 'Tiers, Streaks, Challenges & Rewards', bg: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.15))', border: 'rgba(245,158,11,0.4)' },
+    { id: 'study-groups', icon: '👥', label: 'Study Groups', tag: 'CHAT & ROOMS 👥', desc: 'Peer Chat, Shared Notes & Doubt Solving', bg: 'linear-gradient(135deg, rgba(16,185,129,0.25), rgba(4,120,87,0.15))', border: 'rgba(16,185,129,0.4)' },
+    { id: 'career-gps', icon: '🗺️', label: 'Career GPS', tag: 'ROADMAP 🗺️', desc: 'Skill Gap Analyzer & Learning Roadmap', bg: 'linear-gradient(135deg, rgba(96,165,250,0.25), rgba(29,78,216,0.15))', border: 'rgba(96,165,250,0.4)' },
+    { id: 'resume-scorer', icon: '📄', label: 'Resume Scorer', tag: 'ATS SCORE 📊', desc: 'Instant 0-100 ATS Score & Keywords', bg: 'linear-gradient(135deg, rgba(6,182,212,0.25), rgba(14,116,144,0.15))', border: 'rgba(6,182,212,0.4)' },
+    { id: 'ai-apply', icon: '🤖', label: 'AI Application Proxy', tag: 'AUTO APPLY ⚡', desc: 'AI Job Matching & Application Rules', bg: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(109,40,217,0.15))', border: 'rgba(139,92,246,0.4)' },
+    { id: 'skill-badge', icon: '🏷️', label: 'Skill Badge & Trust Score', tag: 'VERIFIED 🛡️', desc: 'Student Trust Rating & Career Fit', bg: 'linear-gradient(135deg, rgba(244,114,182,0.25), rgba(190,24,93,0.15))', border: 'rgba(244,114,182,0.4)' },
+    { id: 'mentors', icon: '👥', label: 'Mentor Connect', tag: '1-ON-1 EXPERTS 🧑‍🏫', desc: 'Google, Amazon & TCS Alumni Sessions', bg: 'linear-gradient(135deg, rgba(20,184,166,0.25), rgba(15,118,110,0.15))', border: 'rgba(20,184,166,0.4)' },
+    { id: 'mock-tests', icon: '📝', label: 'Company Mock Tests', tag: 'TEST PATTERNS 🎯', desc: 'TCS, Infosys, Amazon Test Patterns', bg: 'linear-gradient(135deg, rgba(249,115,22,0.25), rgba(194,65,12,0.15))', border: 'rgba(249,115,22,0.4)' },
 
-  const studyTools = [
-    { icon: '📚', label: 'Learn Skills', tab: 'skills', desc: 'Explore tech roadmaps & notes' },
-    { icon: '🗺️', label: 'Role Paths', tab: 'role-learning', desc: 'Target 50+ roles' },
-    { icon: '💼', label: 'Job Portal', tab: 'jobs', desc: 'Browse verified campus jobs' },
-    { icon: '🎤', label: 'Mock Interview', tab: 'interview', desc: 'Practice with AI Interviewer' },
-    { icon: '🧠', label: 'Aptitude Test', tab: 'aptitude', desc: 'Test logic & quantitative skills' },
-    { icon: '📝', label: 'Notes Hub', tab: 'notes', desc: 'Access 1000+ peer notes' }
+    // 📚 Core Study & Prep Tools
+    { id: 'skills', icon: '📚', label: 'Skill Learning Hub', tag: 'SKILLS 💡', desc: 'Master 1000+ Tech & Soft Skills', bg: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(30,58,138,0.1))', border: 'rgba(59,130,246,0.3)' },
+    { id: 'role-learning', icon: '🗺️', label: 'Role-Based Learning', tag: 'ROLE PATHS 🗺️', desc: '50+ Indian Career Role Paths', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(88,28,135,0.1))', border: 'rgba(168,85,247,0.3)' },
+    { id: 'resume', icon: '📄', label: 'Resume Builder', tag: 'CV BUILDER 📄', desc: 'Build ATS-Friendly Resume in Minutes', bg: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(20,83,45,0.1))', border: 'rgba(34,197,94,0.3)' },
+    { id: 'jobs', icon: '💼', label: 'Job Portal', tag: 'JOBS 💼', desc: '1000+ Verified Campus Openings', bg: 'linear-gradient(135deg, rgba(234,179,8,0.2), rgba(113,63,18,0.1))', border: 'rgba(234,179,8,0.3)' },
+    { id: 'interview', icon: '🎤', label: 'Mock Interview Prep', tag: 'INTERVIEW 🎤', desc: 'Technical & HR Round Questions', bg: 'linear-gradient(135deg, rgba(244,63,94,0.2), rgba(136,19,55,0.1))', border: 'rgba(244,63,94,0.3)' },
+    { id: 'aptitude', icon: '🧠', label: 'Aptitude Master & Hub', tag: 'APTITUDE 🧠', desc: 'Formulas, Shortcuts & 250+ Practice', bg: 'linear-gradient(135deg, rgba(14,165,233,0.2), rgba(12,74,110,0.1))', border: 'rgba(14,165,233,0.3)' },
+    { id: 'exam', icon: '📚', label: 'Exam Emergency', tag: 'EXAMS 📚', desc: 'Last Minute Revision for 50+ Subjects', bg: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(127,29,29,0.1))', border: 'rgba(239,68,68,0.3)' },
+    { id: 'viva', icon: '🎤', label: 'Viva Prep Helper', tag: 'VIVA 🎤', desc: 'Lab Viva Questions & Quick Answers', bg: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(88,28,135,0.1))', border: 'rgba(168,85,247,0.3)' },
+    { id: 'placement', icon: '💼', label: 'Placement Hub', tag: 'PLACEMENTS 💼', desc: 'Company Specific Prep Strategies', bg: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,78,59,0.1))', border: 'rgba(16,185,129,0.3)' },
+    { id: 'notes', icon: '📝', label: 'Notes Hub & AI Cards', tag: 'NOTES 📝', desc: '1000+ Subject Notes & Flashcards', bg: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(120,53,15,0.1))', border: 'rgba(245,158,11,0.3)' },
+    { id: 'bunk', icon: '🏃', label: 'Safe Bunks Planner', tag: 'BUNKS 🏃', desc: 'Attendance Simulator & AI Advisor', bg: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(49,46,129,0.1))', border: 'rgba(99,102,241,0.3)' },
+    { id: 'job', icon: '🛡️', label: 'Career Reality Checker', tag: 'SCAM DETECTOR 🛡️', desc: 'Fee Scam & Fake Job Detector', bg: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(153,27,27,0.1))', border: 'rgba(239,68,68,0.3)' },
+    { id: 'skill', icon: '🗺️', label: 'Skill Gap Analyzer', tag: 'GAP ANALYSIS 🗺️', desc: 'Target vs Current Skill Gap', bg: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(21,94,117,0.1))', border: 'rgba(6,182,212,0.3)' },
+    { id: 'chat', icon: '🤖', label: 'AI Chat Assistant', tag: '24/7 AI 🤖', desc: 'Instant Answers for All Placement Doubts', bg: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(91,33,182,0.1))', border: 'rgba(139,92,246,0.3)' }
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1rem', maxWidth: '1200px', margin: '0 auto' }}>
       {/* Hero Welcome banner */}
-      <div className="card" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', border: '1px solid var(--border-color)' }}>
-        <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', color: '#fff' }}>Welcome back, {user?.name || 'Student'}! 👋</h2>
-        <p className="card-subtitle" style={{ color: 'var(--text-muted)' }}>
-          {user?.role === 'admin' ? 'Faculty/Administrator Console' : 'Your personal AI-powered study and placement prep cockpit.'}
+      <motion.div
+        initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }}
+        style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', borderRadius: '1.5rem', padding: '2rem', border: '1px solid rgba(139,92,246,0.3)' }}
+      >
+        <h2 style={{ fontSize: '1.8rem', fontWeight: '900', marginBottom: '0.4rem', color: '#fff' }}>
+          Welcome back, {user?.name || 'Student'}! 👋
+        </h2>
+        <p style={{ color: '#a5b4fc', fontSize: '0.95rem', marginBottom: '1.25rem' }}>
+          Your all-in-one AI Career Cockpit & Campus Placement Suite for India.
         </p>
-        <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-          <div>
-            <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--blue)' }}>{stats.totalSkills}</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Published Skills</span>
+        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.6rem 1.2rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <span style={{ fontSize: '1.4rem', fontWeight: '800', color: '#60a5fa' }}>{stats.totalSkills}</span>
+            <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block' }}>Published Skills</span>
           </div>
-          <div>
-            <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--green)' }}>{stats.totalJobs}</span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Active Job Vacancies</span>
+          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.6rem 1.2rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <span style={{ fontSize: '1.4rem', fontWeight: '800', color: '#4ade80' }}>{stats.totalJobs}</span>
+            <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block' }}>Active Job Openings</span>
           </div>
-          {user?.role === 'admin' && (
-            <div>
-              <span style={{ display: 'block', fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--danger)' }}>{stats.totalStudents}</span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Registered Students</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* 🌟 10 FLAGSHIP PLACEMENT FEATURES */}
-      <div className="card" style={{ background: 'linear-gradient(135deg, #0b0f19 0%, #16192b 100%)', border: '1px solid rgba(99,102,241,0.3)', padding: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-          <div>
-            <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span>🌟</span> India's #1 AI Placement & Career Suite
-            </h3>
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              10 Revolutionary AI & Career tools to guarantee dream job placement
-            </p>
+          <div style={{ background: 'rgba(255,255,255,0.05)', padding: '0.6rem 1.2rem', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <span style={{ fontSize: '1.4rem', fontWeight: '800', color: '#facc15' }}>28</span>
+            <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block' }}>Platform Modules</span>
           </div>
         </div>
+      </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
-          {flagshipFeatures.map(f => (
-            <div
-              key={f.tab}
-              onClick={() => onNavigate(f.tab)}
+      {/* PHOTO-STYLE CARD TILES GRID FOR ALL MODULES */}
+      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.5rem', padding: '1.5rem' }}>
+        <h3 style={{ margin: '0 0 1.25rem', fontSize: '1.4rem', fontWeight: '900', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span>🎓</span> CampusPilot AI Feature Suite ({allDashboardCards.length} Options)
+        </h3>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.25rem' }}>
+          {allDashboardCards.map((card, i) => (
+            <motion.div
+              key={card.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.03 }}
+              onClick={() => onNavigate(card.id)}
               style={{
-                background: f.color,
-                border: `1px solid ${f.border}`,
-                borderRadius: '12px',
-                padding: '1.25rem',
+                background: card.bg,
+                border: `1px solid ${card.border}`,
+                borderRadius: '1.25rem',
+                padding: '1.35rem',
                 cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s',
+                transition: 'all 0.2s',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'space-between'
+                justify: 'space-between',
+                minHeight: '160px'
               }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 8px 24px ${f.border}33` }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = `0 10px 30px ${card.border}` }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
             >
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '2rem' }}>{f.icon}</span>
-                  <span style={{ fontSize: '0.65rem', background: 'rgba(0,0,0,0.4)', padding: '0.2rem 0.5rem', borderRadius: '10px', color: '#fff', fontWeight: 'bold' }}>{f.tag}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                  <span style={{ fontSize: '2.2rem' }}>{card.icon}</span>
+                  <span style={{ fontSize: '0.65rem', background: 'rgba(0,0,0,0.5)', padding: '0.2rem 0.6rem', borderRadius: '1rem', color: '#fff', fontWeight: '800' }}>
+                    {card.tag}
+                  </span>
                 </div>
-                <h4 style={{ margin: '0 0 0.4rem', color: '#fff', fontSize: '1.05rem' }}>{f.label}</h4>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{f.desc}</p>
+                <h4 style={{ margin: '0 0 0.35rem', color: '#fff', fontSize: '1.1rem', fontWeight: '800' }}>{card.label}</h4>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.35 }}>{card.desc}</p>
               </div>
-              <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem', color: '#fff', fontWeight: 'bold' }}>
+              <div style={{ marginTop: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.82rem', color: '#fff', fontWeight: '800' }}>
                 Open Feature →
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-      </div>
-
-      {/* Main Grid: Additional study actions / Admin preview */}
-      <div className="grid-2" style={{ gridTemplateColumns: user?.role === 'admin' ? '1.2fr 0.8fr' : '1fr' }}>
-        <div>
-          <h3 className="result-title" style={{ marginTop: 0 }}>📚 Core Learning & Practice Tools</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-            {studyTools.map(action => (
-              <div
-                key={action.tab}
-                className="result-item"
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  cursor: 'pointer',
-                  padding: '0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px'
-                }}
-                onClick={() => onNavigate(action.tab)}
-              >
-                <div style={{ fontSize: '1.6rem' }}>{action.icon}</div>
-                <div>
-                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: 'var(--text-primary)' }}>{action.label}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{action.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Show Admin Stats Summary if User is Admin */}
-        {user?.role === 'admin' && (
-          <div className="card" style={{ alignSelf: 'start' }}>
-            <h3 className="result-title" style={{ marginTop: 0 }}>📊 Campus Statistics</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Department Share</p>
-                {stats.studentsByDepartment?.map(dept => (
-                  <div key={dept._id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', padding: '0.2rem 0' }}>
-                    <span>{dept._id}</span>
-                    <span style={{ fontWeight: 'bold' }}>{dept.count}</span>
-                  </div>
-                ))}
-              </div>
-              <hr style={{ borderColor: 'var(--border-color)' }} />
-              <div>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>Recent Signups</p>
-                {stats.recentStudents?.slice(0, 3).map(s => (
-                  <div key={s.id} style={{ fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', padding: '0.2rem 0' }}>
-                    <span>{s.name}</span>
-                    <span className="badge badge-info" style={{ fontSize: '0.65rem' }}>{s.department}</span>
-                  </div>
-                ))}
-              </div>
-              <button className="btn btn-primary btn-full" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }} onClick={() => onNavigate('admin')}>
-                Open Full Admin Console 👑
-              </button>
-              <button className="btn btn-outline btn-full" style={{ fontSize: '0.8rem', marginTop: '0.4rem', border: '1px solid rgba(59,130,246,0.5)' }} onClick={() => onNavigate('student-analytics')}>
-                👥 View Student Activity & Logins
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
 }
-
-export default Dashboard

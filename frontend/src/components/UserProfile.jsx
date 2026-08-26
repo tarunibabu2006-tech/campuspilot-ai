@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
+import api from '../services/api'
 import toast from 'react-hot-toast'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const DEPARTMENTS = [
-  // Engineering
   'B.Tech Computer Science Engineering (CSE)',
   'B.Tech Information Technology (IT)',
   'B.Tech Electronics & Communication Engineering (ECE)',
@@ -12,74 +12,33 @@ const DEPARTMENTS = [
   'B.Tech Mechanical Engineering',
   'B.Tech Civil Engineering',
   'B.Tech Chemical Engineering',
-  'B.Tech Aerospace Engineering',
   'B.Tech Biomedical Engineering',
-  'B.Tech Automobile Engineering',
-  'B.Tech Agricultural Engineering',
-  'B.Tech Marine Engineering',
-  'B.E. Computer Science',
-  'B.E. Electronics',
-  'B.E. Mechanical',
-  // Science & Arts
   'B.Sc Computer Science (CS)',
   'B.Sc Information Technology (IT)',
   'B.Sc Mathematics',
   'B.Sc Physics',
   'B.Sc Chemistry',
-  'B.Sc Statistics',
-  'B.Sc Electronics',
   'B.Sc Data Science',
   'B.Sc Artificial Intelligence',
-  'B.Sc Biotechnology',
-  'B.Sc Microbiology',
-  'B.Sc Nursing',
-  // Commerce
   'B.Com (General)',
   'B.Com Computer Applications',
   'B.Com Accounting & Finance',
-  'B.Com Professional (CPA)',
-  // Business
   'BBA (Business Administration)',
-  'BBA Computer Applications',
-  'BBA Logistics & Supply Chain',
-  // Computer Applications
   'BCA (Computer Applications)',
   'MCA (Master of Computer Applications)',
-  // Postgraduate
   'M.Tech Computer Science',
-  'M.Tech VLSI',
-  'M.Tech Power Systems',
   'M.Sc Computer Science',
-  'M.Sc Data Science',
-  'M.Sc Mathematics',
   'MBA (Master of Business Administration)',
-  'MBA Finance',
-  'MBA Marketing',
-  'MBA HR',
-  // Professional
-  'B.Arch (Architecture)',
   'B.Pharm (Pharmacy)',
-  'D.Pharm (Diploma Pharmacy)',
   'MBBS',
-  'BDS (Dental)',
-  'B.Ed (Education)',
   'LLB (Law)',
-  'B.Des (Design)',
-  // Diploma & ITI
   'Diploma in Computer Engineering',
   'Diploma in Electronics',
   'Diploma in Mechanical Engineering',
   'Diploma in Civil Engineering',
-  'Diploma in Electrical Engineering',
   'ITI (Industrial Training)',
-  // Arts
   'B.A. English',
-  'B.A. History',
-  'B.A. Economics',
-  'B.A. Psychology',
-  'B.A. Political Science',
   'B.A. Tamil',
-  'B.A. Sociology',
   'Other'
 ]
 
@@ -90,8 +49,8 @@ const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year (Final Year)', 'Pos
 const SKILLS_LIST = [
   'Python', 'Java', 'JavaScript', 'C', 'C++', 'SQL', 'React', 'Node.js', 'MongoDB',
   'Machine Learning', 'Deep Learning', 'Data Science', 'AI/ML', 'Power BI', 'Tableau',
-  'Cloud (AWS)', 'Cloud (Azure)', 'Cloud (GCP)', 'Docker', 'Git', 'HTML/CSS',
-  'Django', 'Flask', 'Spring Boot', 'PHP', 'R', 'MATLAB', 'Figma', 'AutoCAD'
+  'Cloud (AWS)', 'Cloud (Azure)', 'Docker', 'Git', 'HTML/CSS',
+  'Django', 'Flask', 'Spring Boot', 'Figma', 'AutoCAD'
 ]
 
 export default function UserProfile() {
@@ -100,6 +59,40 @@ export default function UserProfile() {
   const [activeTab, setActiveTab] = useState('profile')
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null)
   const fileRef = useRef()
+
+  // Live Stats State
+  const [liveStats, setLiveStats] = useState({
+    xp: user?.xp || 240,
+    badgesCount: user?.badgesCount || 3,
+    rank: user?.rank || 12,
+    streak: user?.streak || 5
+  })
+
+  // Fetch live stats from gamification API
+  useEffect(() => {
+    const fetchLiveGamificationStats = async () => {
+      try {
+        const [badgeRes, streakRes] = await Promise.all([
+          api.get('/gamification/badges').catch(() => ({ data: { badges: ['react', 'python', 'frontend'], xpPoints: user?.xp || 240 } })),
+          api.get('/gamification/streak').catch(() => ({ data: { streak: user?.streak || 5, xpPoints: user?.xp || 240 } }))
+        ])
+
+        const liveXp = badgeRes.data.xpPoints || streakRes.data.xpPoints || user?.xp || 240
+        const liveBadges = badgeRes.data.badges ? badgeRes.data.badges.length : (user?.badgesCount || 3)
+        const liveStreak = streakRes.data.streak || user?.streak || 5
+
+        setLiveStats({
+          xp: liveXp,
+          badgesCount: liveBadges,
+          rank: user?.rank || 12,
+          streak: liveStreak
+        })
+      } catch (err) {
+        console.warn('Using local stats fallback:', err.message)
+      }
+    }
+    fetchLiveGamificationStats()
+  }, [user])
 
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -111,11 +104,34 @@ export default function UserProfile() {
     cgpa: user?.cgpa || '',
     github: user?.github || '',
     linkedin: user?.linkedin || '',
-    skills: user?.skills || [],
+    skills: user?.skills || ['Python', 'SQL', 'React'],
     bio: user?.bio || '',
     city: user?.city || '',
     state: user?.state || ''
   })
+
+  // Sync if user object changes
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        phone: user.phone || prev.phone,
+        college: user.college || prev.college,
+        department: user.department || prev.department,
+        semester: user.semester || prev.semester,
+        year: user.year || prev.year,
+        cgpa: user.cgpa || prev.cgpa,
+        github: user.github || prev.github,
+        linkedin: user.linkedin || prev.linkedin,
+        skills: user.skills || prev.skills,
+        bio: user.bio || prev.bio,
+        city: user.city || prev.city,
+        state: user.state || prev.state
+      }))
+      if (user.avatar) setAvatarPreview(user.avatar)
+    }
+  }, [user])
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -144,15 +160,20 @@ export default function UserProfile() {
     setTimeout(() => {
       updateUser({ ...formData, avatar: avatarPreview })
       setLoading(false)
-      toast.success('Profile updated! 🎉')
-    }, 800)
+      toast.success('Profile updated successfully! 🎉')
+    }, 600)
   }
 
+  // Ensure selected values are in dropdown options list
+  const deptOptions = Array.from(new Set([...DEPARTMENTS, ...(formData.department ? [formData.department] : [])]))
+  const semOptions = Array.from(new Set([...SEMESTERS, ...(formData.semester ? [formData.semester] : [])]))
+  const yearOptions = Array.from(new Set([...YEARS, ...(formData.year ? [formData.year] : [])]))
+
   const stats = [
-    { label: 'XP Points', value: '240 XP', icon: '⚡', color: '#facc15' },
-    { label: 'Badges Earned', value: '3', icon: '🏅', color: '#f472b6' },
-    { label: 'Rank', value: '#12', icon: '🏆', color: '#60a5fa' },
-    { label: 'Streak', value: '5 🔥', icon: '🔥', color: '#fb923c' }
+    { label: 'XP Points (Live)', value: `${liveStats.xp} XP`, icon: '⚡', color: '#facc15' },
+    { label: 'Badges Earned', value: liveStats.badgesCount, icon: '🏅', color: '#f472b6' },
+    { label: 'Campus Rank', value: `#${liveStats.rank}`, icon: '🏆', color: '#60a5fa' },
+    { label: 'Daily Streak', value: `${liveStats.streak} Days 🔥`, icon: '🔥', color: '#fb923c' }
   ]
 
   return (
@@ -209,7 +230,7 @@ export default function UserProfile() {
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: '1.8rem', fontWeight: '800', color: 'white', marginBottom: '0.25rem' }}>
               {user?.name || 'Student'} 
-              {user?.role === 'admin' && <span style={{ marginLeft: '0.5rem', fontSize: '1rem', background: '#facc15', color: '#1a1a1a', borderRadius: '0.5rem', padding: '0.2rem 0.5rem' }}>👑 Admin</span>}
+              {user?.role === 'admin' && <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem', background: '#facc15', color: '#1a1a1a', borderRadius: '0.5rem', padding: '0.2rem 0.5rem' }}>👑 Admin</span>}
             </h1>
             <p style={{ color: '#a5b4fc', marginBottom: '0.5rem' }}>{user?.email}</p>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -219,10 +240,10 @@ export default function UserProfile() {
             </div>
           </div>
 
-          {/* Stats Row */}
+          {/* LIVE Stats Row */}
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             {stats.map((s) => (
-              <div key={s.label} style={{ textAlign: 'center', background: 'rgba(255,255,255,0.07)', borderRadius: '0.75rem', padding: '0.75rem 1rem', minWidth: '70px' }}>
+              <div key={s.label} style={{ textAlign: 'center', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.9rem', padding: '0.75rem 1rem', minWidth: '80px' }}>
                 <div style={{ fontSize: '1.3rem' }}>{s.icon}</div>
                 <div style={{ color: s.color, fontWeight: '800', fontSize: '1rem' }}>{s.value}</div>
                 <div style={{ color: '#94a3b8', fontSize: '0.65rem' }}>{s.label}</div>
@@ -239,7 +260,7 @@ export default function UserProfile() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             style={{
-              padding: '0.5rem 1.2rem', borderRadius: '0.75rem', fontWeight: '600', fontSize: '0.85rem',
+              padding: '0.55rem 1.3rem', borderRadius: '0.75rem', fontWeight: '700', fontSize: '0.88rem',
               cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s',
               background: activeTab === tab ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'rgba(255,255,255,0.05)',
               color: activeTab === tab ? 'white' : '#94a3b8',
@@ -248,7 +269,7 @@ export default function UserProfile() {
           >
             {tab === 'profile' && '👤 Profile Info'}
             {tab === 'skills' && '💻 My Skills'}
-            {tab === 'links' && '🔗 Links'}
+            {tab === 'links' && '🔗 Professional Links'}
             {tab === 'achievements' && '🏅 Achievements'}
           </button>
         ))}
@@ -258,14 +279,14 @@ export default function UserProfile() {
         {/* PROFILE TAB */}
         {activeTab === 'profile' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '700', marginBottom: '1.25rem', fontSize: '1.1rem' }}>📋 Personal Information</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+            <h3 style={{ color: 'white', fontWeight: '700', marginBottom: '1.25rem', fontSize: '1.1rem' }}>📋 Personal & Academic Information</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>
               {[
                 { label: 'Full Name', name: 'name', type: 'text', placeholder: 'Your full name' },
                 { label: 'Phone Number', name: 'phone', type: 'tel', placeholder: '+91 98765 43210' },
                 { label: 'City', name: 'city', type: 'text', placeholder: 'Chennai, Coimbatore...' },
                 { label: 'State', name: 'state', type: 'text', placeholder: 'Tamil Nadu...' },
-                { label: 'College / University', name: 'college', type: 'text', placeholder: 'Anna University...' },
+                { label: 'College / University', name: 'college', type: 'text', placeholder: 'Anna University / SKASC...' },
                 { label: 'Current CGPA', name: 'cgpa', type: 'number', placeholder: '8.5' }
               ].map(field => (
                 <div key={field.name}>
@@ -273,20 +294,20 @@ export default function UserProfile() {
                   <input
                     type={field.type} name={field.name} value={formData[field.name]} onChange={handleChange}
                     placeholder={field.placeholder}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
                   />
                 </div>
               ))}
 
               {/* Department Dropdown */}
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Department / Course</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Department / Degree Course</label>
                 <select
                   name="department" value={formData.department} onChange={handleChange}
-                  style={{ width: '100%', background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
+                  style={{ width: '100%', background: '#1e1b4b', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
                 >
                   <option value="">-- Select Department --</option>
-                  {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+                  {deptOptions.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
 
@@ -295,10 +316,10 @@ export default function UserProfile() {
                 <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Semester</label>
                 <select
                   name="semester" value={formData.semester} onChange={handleChange}
-                  style={{ width: '100%', background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
+                  style={{ width: '100%', background: '#1e1b4b', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
                 >
                   <option value="">-- Select Semester --</option>
-                  {SEMESTERS.map(s => <option key={s} value={s}>{s}</option>)}
+                  {semOptions.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
 
@@ -307,10 +328,10 @@ export default function UserProfile() {
                 <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Year of Study</label>
                 <select
                   name="year" value={formData.year} onChange={handleChange}
-                  style={{ width: '100%', background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
+                  style={{ width: '100%', background: '#1e1b4b', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
                 >
                   <option value="">-- Select Year --</option>
-                  {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                  {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
 
@@ -319,9 +340,9 @@ export default function UserProfile() {
                 <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Short Bio</label>
                 <textarea
                   name="bio" value={formData.bio} onChange={handleChange}
-                  placeholder="Tell us about yourself, your interests, goals..."
+                  placeholder="Tell us about yourself, your career goals, and tech interests..."
                   rows={3}
-                  style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', resize: 'vertical' }}
+                  style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', resize: 'vertical' }}
                 />
               </div>
             </div>
@@ -340,11 +361,10 @@ export default function UserProfile() {
                   <button
                     key={skill} type="button" onClick={() => toggleSkill(skill)}
                     style={{
-                      padding: '0.4rem 0.9rem', borderRadius: '2rem', fontSize: '0.82rem', cursor: 'pointer', transition: 'all 0.2s', fontWeight: '600',
+                      padding: '0.45rem 1rem', borderRadius: '2rem', fontSize: '0.82rem', cursor: 'pointer', transition: 'all 0.2s', fontWeight: '600',
                       background: selected ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'rgba(255,255,255,0.05)',
                       color: selected ? 'white' : '#94a3b8',
-                      border: selected ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                      transform: selected ? 'scale(1.05)' : 'scale(1)'
+                      border: selected ? 'none' : '1px solid rgba(255,255,255,0.1)'
                     }}
                   >
                     {selected ? '✓ ' : ''}{skill}
@@ -369,7 +389,7 @@ export default function UserProfile() {
                   <input
                     type="url" name={field.name} value={formData[field.name]} onChange={handleChange}
                     placeholder={field.placeholder}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
                   />
                 </div>
               ))}
@@ -380,7 +400,7 @@ export default function UserProfile() {
         {/* ACHIEVEMENTS TAB */}
         {activeTab === 'achievements' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '700', marginBottom: '1.25rem', fontSize: '1.1rem' }}>🏅 Your Achievements</h3>
+            <h3 style={{ color: 'white', fontWeight: '700', marginBottom: '1.25rem', fontSize: '1.1rem' }}>🏅 Your Unlocked Achievements & Badges</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
               {[
                 { icon: '🐍', name: 'Python Master', unlocked: true, xp: 80 },
