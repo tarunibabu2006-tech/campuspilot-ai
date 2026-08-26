@@ -1,6 +1,53 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
+import { SEED_COMPANIES } from '../data/seedCompanies'
+
+// Transform SEED_COMPANIES into full Archive Card structure
+const SEEDED_ARCHIVE_DATA = SEED_COMPANIES.map(c => ({
+  id: c.id,
+  name: c.name,
+  logo: c.category.includes('Tech') ? '⚡' : c.category.includes('PSU') ? '🏛️' : c.category.includes('Bank') ? '🏦' : '🏢',
+  industry: c.category,
+  difficulty: c.ctcFresher.includes('15') || c.ctcFresher.includes('18') ? 'Hard' : c.ctcFresher.includes('8') ? 'Medium' : 'Easy',
+  diffColor: c.ctcFresher.includes('15') || c.ctcFresher.includes('18') ? '#ef4444' : c.ctcFresher.includes('8') ? '#facc15' : '#4ade80',
+  diffScore: c.ctcFresher.includes('15') ? '8.9/10' : '6.5/10',
+  lastVisited: '2026',
+  selectedCount: c.hired || 40,
+  selectionRate: '15%',
+  roles: c.roles.split(', '),
+  ctcRange: c.ctcFresher,
+  avgCtc: c.avgPkg,
+  highestCtc: c.highest,
+  ctcHistory: [
+    { year: '2024', avg: c.avgPkg, high: c.highest },
+    { year: '2025', avg: c.avgPkg, high: c.highest },
+    { year: '2026', avg: c.avgPkg, high: c.highest }
+  ],
+  selectionProcess: [
+    { stage: '1. Written / Online Test', desc: 'Aptitude & Technical Basics', duration: '90 mins', difficulty: 'Medium' },
+    { stage: '2. Technical Interview', desc: `Core Skills (${c.topSkills}) & Project Review`, duration: '45 mins', difficulty: 'Medium' },
+    { stage: '3. HR & Managerial', desc: 'Behavioral & Relocation Discussion', duration: '20 mins', difficulty: 'Easy' }
+  ],
+  pastPapers: [
+    { year: `2025 ${c.name} Placement Paper`, totalQuestions: 40, sections: `Aptitude & ${c.topSkills}` }
+  ],
+  interviewQuestions: {
+    technical: [
+      `Explain your main project and role using ${c.topSkills.split(', ')[0] || 'Python'}.`,
+      `What are the core concepts required for ${c.roles.split(', ')[0]} at ${c.name}?`,
+      'Explain DBMS normalization and SQL JOINs with examples.'
+    ],
+    hr: [
+      `Why do you want to join ${c.name}?`,
+      'Are you open to relocation across India?',
+      'Where do you see yourself in 3-5 years?'
+    ]
+  },
+  experiences: [
+    { name: 'Siddharth M', batch: '2025', dept: 'CSE / ECE', role: c.roles.split(', ')[0], status: 'Selected', rating: 5, review: `Focus heavily on ${c.topSkills}! Written round is critical.` }
+  ]
+}))
 
 const ARCHIVE_DATA = [
   {
@@ -206,7 +253,9 @@ export default function CompanyArchives() {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiResponse, setAiResponse] = useState(null)
 
-  const filtered = ARCHIVE_DATA.filter(c => {
+  const ALL_ARCHIVE_DATA = [...ARCHIVE_DATA, ...SEEDED_ARCHIVE_DATA]
+
+  const filtered = ALL_ARCHIVE_DATA.filter(c => {
     const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.roles.some(r => r.toLowerCase().includes(searchTerm.toLowerCase()))
     const matchesDiff = filterDifficulty === 'All' || c.difficulty === filterDifficulty

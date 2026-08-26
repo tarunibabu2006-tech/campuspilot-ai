@@ -4,28 +4,9 @@ import toast from 'react-hot-toast'
 import Autocomplete from './Common/Autocomplete'
 import { masterRoles } from '../data/masterData'
 
-const SAMPLE_ROLES = [
-  'Full Stack Developer',
-  'Frontend Developer (React/Vue)',
-  'Backend Developer (Node/Python/Java)',
-  'Data Scientist & ML Engineer',
-  'Data Analyst / Business Analyst',
-  'Cloud & DevOps Engineer',
-  'Cybersecurity Analyst',
-  'Mechanical Design Engineer',
-  'Civil & Structural Engineer',
-  'Electrical & Electronics Engineer (EEE)',
-  'Electronics & Communication Engineer (ECE)',
-  'VLSI & Embedded Systems Engineer',
-  'Product Manager',
-  'Financial Analyst / Investment Banker',
-  'Clinical Pharmacist / Healthcare Lead',
-  'Corporate Law Specialist',
-  'UI/UX Designer',
-  'Digital Marketing Specialist',
-  'HR / Behavioral Interview Round',
-  'Government Exam / Civil Services Interview'
-]
+import { CAREER_ROLE_PRESETS } from '../data/seedRoles'
+
+const SAMPLE_ROLES = CAREER_ROLE_PRESETS.map(r => r.title)
 
 export default function VoiceMockInterview() {
   const [role, setRole] = useState('Full Stack Developer')

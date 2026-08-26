@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
+import { masterStates, masterCities, masterSkills } from '../data/masterData'
 
 const DEPARTMENTS = [
   'B.Tech Computer Science Engineering (CSE)',
@@ -46,12 +47,7 @@ const SEMESTERS = ['1st Semester', '2nd Semester', '3rd Semester', '4th Semester
 
 const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year (Final Year)', 'Postgraduate - 1st Year', 'Postgraduate - 2nd Year']
 
-const SKILLS_LIST = [
-  'Python', 'Java', 'JavaScript', 'C', 'C++', 'SQL', 'React', 'Node.js', 'MongoDB',
-  'Machine Learning', 'Deep Learning', 'Data Science', 'AI/ML', 'Power BI', 'Tableau',
-  'Cloud (AWS)', 'Cloud (Azure)', 'Docker', 'Git', 'HTML/CSS',
-  'Django', 'Flask', 'Spring Boot', 'Figma', 'AutoCAD'
-]
+const SKILLS_LIST = masterSkills
 
 export default function UserProfile() {
   const { user, updateUser } = useAuth()
@@ -229,7 +225,7 @@ export default function UserProfile() {
 
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: '1.8rem', fontWeight: '800', color: 'white', marginBottom: '0.25rem' }}>
-              {user?.name || 'Student'} 
+              {user?.name || 'Student'}
               {user?.role === 'admin' && <span style={{ marginLeft: '0.5rem', fontSize: '0.9rem', background: '#facc15', color: '#1a1a1a', borderRadius: '0.5rem', padding: '0.2rem 0.5rem' }}>👑 Admin</span>}
             </h1>
             <p style={{ color: '#a5b4fc', marginBottom: '0.5rem' }}>{user?.email}</p>
@@ -284,8 +280,6 @@ export default function UserProfile() {
               {[
                 { label: 'Full Name', name: 'name', type: 'text', placeholder: 'Your full name' },
                 { label: 'Phone Number', name: 'phone', type: 'tel', placeholder: '+91 98765 43210' },
-                { label: 'City', name: 'city', type: 'text', placeholder: 'Chennai, Coimbatore...' },
-                { label: 'State', name: 'state', type: 'text', placeholder: 'Tamil Nadu...' },
                 { label: 'College / University', name: 'college', type: 'text', placeholder: 'Anna University / SKASC...' },
                 { label: 'Current CGPA', name: 'cgpa', type: 'number', placeholder: '8.5' }
               ].map(field => (
@@ -298,6 +292,30 @@ export default function UserProfile() {
                   />
                 </div>
               ))}
+
+              {/* State Dropdown */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>State / UT (India)</label>
+                <select
+                  name="state" value={formData.state} onChange={handleChange}
+                  style={{ width: '100%', background: '#1e1b4b', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+                >
+                  <option value="">-- Select State --</option>
+                  {masterStates.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              {/* City Dropdown */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>City (India)</label>
+                <select
+                  name="city" value={formData.city} onChange={handleChange}
+                  style={{ width: '100%', background: '#1e1b4b', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+                >
+                  <option value="">-- Select City --</option>
+                  {masterCities.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
 
               {/* Department Dropdown */}
               <div style={{ gridColumn: 'span 2' }}>

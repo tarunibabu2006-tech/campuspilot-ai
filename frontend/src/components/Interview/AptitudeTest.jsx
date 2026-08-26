@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { aptitudeQuestions } from '../../data/aptitudeQuestions'
+import { SEED_APTITUDE_QUESTIONS } from '../../data/seedAptitude'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 
@@ -59,9 +60,10 @@ export default function AptitudeTest() {
   const [score, setScore] = useState(0)
 
   const startTest = () => {
-    const filtered = aptitudeQuestions.filter(q => q.category.toLowerCase() === category.toLowerCase())
+    const ALL_QUESTIONS = [...aptitudeQuestions, ...SEED_APTITUDE_QUESTIONS.map(q => ({ ...q, correctAnswer: q.answerIndex }))]
+    const filtered = ALL_QUESTIONS.filter(q => q.category.toLowerCase().includes(category.toLowerCase()))
     const shuffled = [...filtered].sort(() => 0.5 - Math.random()).slice(0, 10)
-    setQuestions(shuffled.length > 0 ? shuffled : aptitudeQuestions.slice(0, 10))
+    setQuestions(shuffled.length > 0 ? shuffled : ALL_QUESTIONS.slice(0, 10))
     setSelectedAnswers({})
     setCurrentIdx(0)
     setIsStarted(true)

@@ -1,93 +1,40 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
+import { CAREER_ROLE_PRESETS, ROLE_CATEGORIES } from '../data/seedRoles'
 
-const PRESETS = [
-  {
-    title: 'Software Developer 💻',
-    role: 'Software Developer',
-    skills: 'React, JavaScript, Python, SQL, Git',
-    interests: 'Full Stack Development, Web Apps, Problem Solving',
-    education: 'B.Tech / B.Sc CS / BCA',
-    matchPct: 92,
-    whyExplanation: ['React ✅', 'JavaScript ✅', 'Git ✅', 'Full Stack Interest ✅'],
-    roadmap: [
-      { year: '2026', title: 'Student', exp: '0 Yrs', salary: 'Stipend ₹15k–30k/mo', skills: 'Python, JS, SQL', cert: 'Meta Frontend Certificate' },
-      { year: '2027', title: 'Software Developer', exp: '1 Yr', salary: '₹4.5–7.0 LPA', skills: 'React, Node.js, Express', cert: 'AWS Certified Developer' },
-      { year: '2029', title: 'Software Engineer', exp: '3 Yrs', salary: '₹8.0–14.0 LPA', skills: 'System Design, Microservices', cert: 'CKAD Kubernetes' },
-      { year: '2031', title: 'Senior Software Engineer', exp: '5 Yrs', salary: '₹15.0–24.0 LPA', skills: 'System Architecture, Leadership', cert: 'AWS Solutions Architect' },
-      { year: '2036', title: 'Tech Lead / Architect', exp: '10 Yrs', salary: '₹28.0–45.0 LPA', skills: 'Enterprise Design, AI Integration', cert: 'TOGAF Enterprise Architect' }
-    ],
-    skillGaps: [
-      { skill: 'Python', current: 85, required: 90 },
-      { skill: 'SQL', current: 70, required: 80 },
-      { skill: 'System Design', current: 40, required: 80 },
-      { skill: 'Docker & Microservices', current: 30, required: 75 }
-    ],
-    salaryGrowth: [
-      { stage: 'Entry Level (0-1 Yr)', range: '₹4.5 – 7.0 LPA' },
-      { stage: '3 Years Experience', range: '₹8.0 – 14.0 LPA' },
-      { stage: '5 Years Experience', range: '₹15.0 – 24.0 LPA' },
-      { stage: '10+ Years Experience', range: '₹28.0 – 45.0+ LPA' }
-    ]
-  },
-  {
-    title: 'Data Analyst 📊',
-    role: 'Data Analyst',
-    skills: 'SQL, Python, Power BI, Excel, Tableau',
-    interests: 'Data Analytics, Business Intelligence, Dashboards',
-    education: 'B.Sc / B.Com / BCA / B.Tech',
-    matchPct: 84,
-    whyExplanation: ['SQL ✅', 'Excel ✅', 'Power BI ✅', 'Data Interest ✅'],
-    roadmap: [
-      { year: '2026', title: 'Student', exp: '0 Yrs', salary: 'Stipend ₹12k–25k/mo', skills: 'SQL, Excel, Power BI', cert: 'Google Data Analytics Certificate' },
-      { year: '2027', title: 'Junior Data Analyst', exp: '1 Yr', salary: '₹4.0–6.5 LPA', skills: 'Python Pandas, DAX, SQL Queries', cert: 'Microsoft Certified Power BI Data Analyst' },
-      { year: '2029', title: 'Senior Data Analyst', exp: '3 Yrs', salary: '₹7.5–12.0 LPA', skills: 'Data Modeling, ETL Pipelines', cert: 'AWS Certified Data Analytics' },
-      { year: '2031', title: 'Analytics Manager', exp: '5 Yrs', salary: '₹14.0–22.0 LPA', skills: 'Team Management, Product Strategy', cert: 'PMP Certification' },
-      { year: '2036', title: 'Head of Data & BI', exp: '10 Yrs', salary: '₹25.0–40.0 LPA', skills: 'Executive BI Strategy, Enterprise Data', cert: 'CDMP Data Management' }
-    ],
-    skillGaps: [
-      { skill: 'SQL', current: 75, required: 90 },
-      { skill: 'Power BI', current: 70, required: 85 },
-      { skill: 'Python Pandas', current: 50, required: 80 },
-      { skill: 'ETL Pipelines', current: 20, required: 70 }
-    ],
-    salaryGrowth: [
-      { stage: 'Entry Level (0-1 Yr)', range: '₹4.0 – 6.5 LPA' },
-      { stage: '3 Years Experience', range: '₹7.5 – 12.0 LPA' },
-      { stage: '5 Years Experience', range: '₹14.0 – 22.0 LPA' },
-      { stage: '10+ Years Experience', range: '₹25.0 – 40.0+ LPA' }
-    ]
-  },
-  {
-    title: 'AI / ML Engineer 🤖',
-    role: 'AI / ML Engineer',
-    skills: 'Python, PyTorch, Machine Learning, SQL, Linear Algebra',
-    interests: 'Artificial Intelligence, Deep Learning, GenAI',
-    education: 'B.Tech CSE / M.Tech / M.Sc Data Science',
-    matchPct: 76,
-    whyExplanation: ['Python ✅', 'Math Background ✅', 'AI Interest ✅'],
-    roadmap: [
-      { year: '2026', title: 'Student', exp: '0 Yrs', salary: 'Stipend ₹20k–40k/mo', skills: 'Python, Scikit-Learn, PyTorch', cert: 'DeepLearning.AI Specialization' },
-      { year: '2027', title: 'Junior ML Engineer', exp: '1 Yr', salary: '₹6.0–10.0 LPA', skills: 'PyTorch, Model Training, FastAPI', cert: 'TensorFlow Developer Certificate' },
-      { year: '2029', title: 'AI & ML Engineer', exp: '3 Yrs', salary: '₹12.0–20.0 LPA', skills: 'LLMs, Fine-tuning, MLOps, Vector DBs', cert: 'AWS Machine Learning Specialty' },
-      { year: '2031', title: 'Senior AI Specialist', exp: '5 Yrs', salary: '₹22.0–35.0 LPA', skills: 'Generative AI Architecture, Neural Nets', cert: 'Google Cloud Professional ML Engineer' },
-      { year: '2036', title: 'Principal AI Scientist', exp: '10 Yrs', salary: '₹40.0–70.0+ LPA', skills: 'AI Research, Custom Model Foundations', cert: 'AI Ph.D / Industry Fellow' }
-    ],
-    skillGaps: [
-      { skill: 'Python', current: 85, required: 90 },
-      { skill: 'Machine Learning', current: 55, required: 85 },
-      { skill: 'Deep Learning', current: 20, required: 75 },
-      { skill: 'MLOps', current: 10, required: 60 }
-    ],
-    salaryGrowth: [
-      { stage: 'Entry Level (0-1 Yr)', range: '₹6.0 – 10.0 LPA' },
-      { stage: '3 Years Experience', range: '₹12.0 – 20.0 LPA' },
-      { stage: '5 Years Experience', range: '₹22.0 – 35.0 LPA' },
-      { stage: '10+ Years Experience', range: '₹40.0 – 70.0+ LPA' }
-    ]
-  }
-]
+// Convert seed roles into full predictor preset objects
+const PRESETS = CAREER_ROLE_PRESETS.map(r => ({
+  id: r.id,
+  title: r.title,
+  category: r.category,
+  role: r.title,
+  skills: r.skills,
+  interests: r.interests,
+  education: r.education,
+  matchPct: Math.floor(Math.random() * 25) + 70,
+  whyExplanation: r.skills.split(', ').slice(0, 4).map(s => `${s} ✅`),
+  roadmap: [
+    { year: '2026', title: `Student / Trainee`, exp: '0 Yrs', salary: 'Stipend ₹15k–35k/mo', skills: r.skills.split(', ').slice(0, 3).join(', '), cert: `${r.title.split(' ')[0]} Certification` },
+    { year: '2027', title: `${r.title}`, exp: '1 Yr', salary: '₹4.5–8.0 LPA', skills: r.skills, cert: 'Professional Level Cert' },
+    { year: '2029', title: `Senior ${r.title}`, exp: '3 Yrs', salary: '₹9.0–16.0 LPA', skills: `Advanced ${r.skills.split(', ')[0]}, Leadership`, cert: 'Advanced Specialist Cert' },
+    { year: '2031', title: `${r.title} Lead / Manager`, exp: '5 Yrs', salary: '₹18.0–28.0 LPA', skills: 'Management, Architecture, Strategy', cert: 'Executive Leadership Cert' },
+    { year: '2036', title: `Director / Principal ${r.title}`, exp: '10 Yrs', salary: '₹30.0–60.0+ LPA', skills: 'Enterprise Strategy & Governance', cert: 'Industry Fellow' }
+  ],
+  skillGaps: r.skills.split(', ').slice(0, 4).map((sk, i) => ({
+    skill: sk,
+    current: 40 + i * 15,
+    required: 80 + i * 5
+  })),
+  salaryGrowth: [
+    { stage: 'Entry Level (0-1 Yr)', range: '₹4.5 – 8.0 LPA' },
+    { stage: '3 Years Experience', range: '₹9.0 – 16.0 LPA' },
+    { stage: '5 Years Experience', range: '₹18.0 – 28.0 LPA' },
+    { stage: '10+ Years Experience', range: '₹30.0 – 60.0+ LPA' }
+  ]
+}))
+
+
 
 export default function AiCareerPredictor() {
   const [currentRole, setCurrentRole] = useState('Software Developer')
@@ -188,7 +135,7 @@ export default function AiCareerPredictor() {
       {/* Input Profile */}
       <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
         <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>📋 Profile & Skills Input</h3>
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
           <div>
             <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Target Role</label>

@@ -755,13 +755,66 @@ export const masterLocations = [
   'Bhopal, Madhya Pradesh',
   'Lucknow, Uttar Pradesh',
   'Remote (India)',
-  'Remote (Global / USA)',
-  'San Francisco / Silicon Valley, USA',
-  'Seattle, USA',
-  'New York, USA',
-  'London, United Kingdom',
-  'Singapore',
-  'Dubai / Abu Dhabi, UAE',
-  'Berlin / Munich, Germany'
+  'Remote (Global / USA)'
 ]
+
+// All Indian States & Union Territories (Official)
+export const masterStates = [
+  'Andaman and Nicobar Islands', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar',
+  'Chandigarh', 'Chhattisgarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Delhi (NCT)',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu and Kashmir', 'Jharkhand',
+  'Karnataka', 'Kerala', 'Ladakh', 'Lakshadweep', 'Madhya Pradesh', 'Maharashtra',
+  'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab',
+  'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh',
+  'Uttarakhand', 'West Bengal'
+]
+
+// All Major Indian Cities across all States
+export const masterCities = [
+  // Tamil Nadu
+  'Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli (Trichy)', 'Salem', 'Erode', 'Tiruppur', 'Vellore',
+  'Tirunelveli', 'Thoothukudi (Tuticorin)', 'Nagercoil', 'Thanjavur', 'Dindigul', 'Karur', 'Namakkal',
+  'Kanchipuram', 'Tiruvannamalai', 'Cuddalore', 'Nagapattinam', 'Pudukkottai', 'Ramanathapuram',
+  'Sivakasi', 'Virudhunagar', 'Hosur', 'Ambur', 'Ariyalur', 'Mayiladuthurai', 'Ooty (Udhagamandalam)',
+  'Pollachi', 'Udumalpet', 'Sathyamangalam', 'Gobichettipalayam', 'Tiruchengode', 'Rasipuram',
+
+  // Karnataka
+  'Bengaluru (Bangalore)', 'Mysuru (Mysore)', 'Mangaluru (Mangalore)', 'Hubballi-Dharwad', 'Belagavi (Belgaum)',
+  'Kalaburagi (Gulbarga)', 'Ballari (Bellary)', 'Shivamogga (Shimoga)', 'Tumakuru (Tumkur)', 'Davangere',
+  'Udupi', 'Hassan', 'Bidar', 'Hospet', 'Gadag', 'Robertsonpet (KGF)',
+
+  // Kerala
+  'Thiruvananthapuram (Trivandrum)', 'Kochi (Cochin)', 'Kozhikode (Calicut)', 'Thrissur', 'Kollam (Quilon)',
+  'Kannur', 'Alappuzha (Alleppey)', 'Kottayam', 'Palakkad', 'Malappuram', 'Thalassery', 'Pathanamthitta',
+
+  // Andhra Pradesh & Telangana
+  'Hyderabad', 'Warangal', 'Nizamabad', 'Karimnagar', 'Khammam', 'Ramagundam',
+  'Visakhapatnam (Vizag)', 'Vijayawada', 'Guntur', 'Nellore', 'Kurnool', 'Rajahmundry', 'Tirupati',
+  'Kakinada', 'Kadapa', 'Anantapur', 'Eluru', 'Ongole', 'Vizianagaram',
+
+  // Maharashtra
+  'Mumbai', 'Pune', 'Nagpur', 'Thane', 'Pimpri-Chinchwad', 'Nashik', 'Kalyan-Dombivli', 'Vasai-Virar',
+  'Aurangabad (Chhatrapati Sambhaji Nagar)', 'Navi Mumbai', 'Solapur', 'Mira-Bhayandar', 'Bhiwandi',
+  'Amravati', 'Nanded', 'Kolhapur', 'Ulhasnagar', 'Sangli', 'Malegaon', 'Akola', 'Latur', 'Dhule', 'Ahmednagar',
+
+  // Delhi NCR & North India
+  'New Delhi', 'Noida', 'Greater Noida', 'Gurugram (Gurgaon)', 'Faridabad', 'Ghaziabad', 'Sonepat',
+  'Chandigarh', 'Ludhiana', 'Amritsar', 'Jalandhar', 'Patiala', 'Bathinda',
+  'Jaipur', 'Jodhpur', 'Kota', 'Bikaner', 'Ajmer', 'Udaipur', 'Bhilwara', 'Alwar',
+  'Dehradun', 'Haridwar', 'Roorkee', 'Haldwani',
+  'Lucknow', 'Kanpur', 'Agra', 'Varanasi', 'Prayagraj (Allahabad)', 'Meerut', 'Bareilly', 'Aligarh', 'Moradabad', 'Gorakhpur',
+
+  // Eastern & Central India
+  'Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri', 'Kharagpur',
+  'Bhubaneswar', 'Cuttack', 'Rourkela', 'Puri', 'Sambalpur',
+  'Patna', 'Gaya', 'Bhagalpur', 'Muzaffarpur',
+  'Ranchi', 'Jamshedpur', 'Dhanbad', 'Bokaro',
+  'Bhopal', 'Indore', 'Jabalpur', 'Gwalior', 'Ujjain',
+  'Raipur', 'Bhilai', 'Bilaspur',
+
+  // Union Territories & Northeast
+  'Guwahati', 'Dispur', 'Silchar', 'Shillong', 'Imphal', 'Aizawl', 'Agartala', 'Gangtok', 'Itanagar', 'Kohima',
+  'Panaji', 'Margao', 'Puducherry', 'Port Blair', 'Leh', 'Srinagar', 'Jammu'
+]
+
 

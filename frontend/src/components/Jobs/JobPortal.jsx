@@ -3,16 +3,21 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const SEED_JOBS = [
-  { id: 'j1', role: 'Software Developer (Digital / Ninja)', company: 'TCS', location: 'Chennai, TN', salary: '₹4.5 - 7.0 LPA', experience: 'Fresher (2025/2026)', skills: 'Python, Java, SQL, Data Structures', matchPct: 94, verified: true, stats: { hired: 245, avgPackage: '₹5.2 LPA', highest: '₹12.0 LPA', topSkills: 'SQL, Python, OOPs' }, applyLink: 'https://tcs.com/careers' },
-  { id: 'j2', role: 'Software Development Engineer (SDE-1)', company: 'Zoho Corporation', location: 'Chennai / Tenkasi', salary: '₹6.0 - 12.0 LPA', experience: 'Fresher / 0-1 Yr', skills: 'Java, C++, Data Structures, OOP', matchPct: 92, verified: true, stats: { hired: 85, avgPackage: '₹7.5 LPA', highest: '₹14.0 LPA', topSkills: 'Java, Low Level Design' }, applyLink: 'https://zoho.com/careers' },
-  { id: 'j3', role: 'Associate Data Analyst', company: 'Accenture India', location: 'Bengaluru, KA', salary: '₹4.8 - 6.5 LPA', experience: 'Fresher', skills: 'SQL, Power BI, Excel, Python', matchPct: 89, verified: true, stats: { hired: 190, avgPackage: '₹5.5 LPA', highest: '₹9.0 LPA', topSkills: 'SQL, Power BI' }, applyLink: 'https://accenture.com/careers' },
-  { id: 'j4', role: 'System Engineer Trainee', company: 'Infosys', location: 'Mysore / Remote', salary: '₹3.6 - 9.5 LPA', experience: 'Fresher', skills: 'C, C++, Java, DBMS', matchPct: 87, verified: true, stats: { hired: 310, avgPackage: '₹4.5 LPA', highest: '₹9.5 LPA', topSkills: 'Pseudocode, DBMS' }, applyLink: 'https://infosys.com/careers' },
-  { id: 'j5', role: 'SDE-1 (eCommerce Core)', company: 'Amazon India', location: 'Hyderabad, TS', salary: '₹14.0 - 28.0 LPA', experience: 'Fresher / 0-2 Yrs', skills: 'DSA, System Design, C++, AWS', matchPct: 84, verified: true, stats: { hired: 45, avgPackage: '₹18.0 LPA', highest: '₹28.0 LPA', topSkills: 'Trees, Dynamic Programming' }, applyLink: 'https://amazon.jobs' },
-  { id: 'j6', role: 'Graduate Engineer Trainee (GET)', company: 'Larsen & Toubro (L&T)', location: 'Mumbai / Chennai', salary: '₹6.0 - 9.0 LPA', experience: 'Fresher', skills: 'AutoCAD, SolidWorks, Mechanical / Civil', matchPct: 81, verified: true, stats: { hired: 120, avgPackage: '₹6.8 LPA', highest: '₹10.5 LPA', topSkills: 'CAD, Structural Analysis' }, applyLink: 'https://larsentoubro.com/careers' },
-  { id: 'j7', role: 'Frontend Developer Intern (React)', company: 'Freshworks', location: 'Chennai, TN', salary: '₹4.0 - 6.0 LPA', experience: 'Fresher Intern', skills: 'React, JavaScript, HTML, CSS', matchPct: 90, verified: true, stats: { hired: 60, avgPackage: '₹5.8 LPA', highest: '₹11.0 LPA', topSkills: 'React, JavaScript' }, applyLink: 'https://freshworks.com/careers' },
-  { id: 'j8', role: 'IT Specialist Officer (Scale-I)', company: 'IBPS Banks', location: 'All India', salary: '₹7.0 - 10.0 LPA', experience: 'Fresher Degree Holder', skills: 'Database Admin, Networking, Security', matchPct: 78, verified: true, stats: { hired: 500, avgPackage: '₹8.0 LPA', highest: '₹11.0 LPA', topSkills: 'Bank Exam Aptitude, IT Knowledge' }, applyLink: 'https://ibps.in' }
-]
+import { SEED_JOBS as EXTERNAL_SEED_JOBS } from '../../data/seedJobs'
+
+const SEED_JOBS = EXTERNAL_SEED_JOBS.map(j => ({
+  id: j.id,
+  role: j.title,
+  company: j.company,
+  location: j.location,
+  salary: j.ctc,
+  experience: j.experience,
+  skills: j.skills.join(', '),
+  matchPct: Math.floor(Math.random() * 20) + 78,
+  verified: j.isVerified,
+  stats: { hired: j.applicants || 120, avgPackage: j.ctc.split('–')[0] || '₹5 LPA', highest: j.ctc.split('–')[1] || '₹10 LPA', topSkills: j.skills.slice(0, 3).join(', ') },
+  applyLink: `https://google.com/search?q=${encodeURIComponent(j.company + ' careers ' + j.title)}`
+}))
 
 export default function JobPortal() {
   const [jobs, setJobs] = useState(SEED_JOBS)
@@ -40,8 +45,8 @@ export default function JobPortal() {
 
   const filteredJobs = jobs.filter(j => {
     const matchesSearch = j.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          j.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (j.skills && j.skills.toLowerCase().includes(searchTerm.toLowerCase()))
+      j.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (j.skills && j.skills.toLowerCase().includes(searchTerm.toLowerCase()))
     const matchesLoc = selectedLocation === 'All' || j.location.includes(selectedLocation)
     return matchesSearch && matchesLoc
   })

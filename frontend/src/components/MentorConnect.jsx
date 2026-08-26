@@ -1,6 +1,33 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
+import { SEED_MENTORS } from '../data/seedMentors'
+
+const SEEDED_MENTOR_ENTRIES = SEED_MENTORS.map(m => ({
+  id: m.id,
+  name: m.name,
+  role: m.role,
+  company: m.company,
+  exp: m.experience,
+  location: m.location,
+  rating: m.rating,
+  reviewsCount: m.reviews,
+  menteesCount: Math.floor(Math.random() * 100) + 50,
+  sessionsCount: Math.floor(Math.random() * 80) + 40,
+  placedStudents: Math.floor(Math.random() * 40) + 15,
+  pricing: 'Free',
+  verified: true,
+  verifiedCompany: true,
+  category: m.expertise[0] || 'Career Guidance',
+  about: m.bio,
+  skills: m.expertise,
+  availableSlots: m.availableDays.map(d => `${d} 6:00 PM`),
+  aiMatchScore: Math.floor(Math.random() * 15) + 85,
+  aiMatchReason: `Highly recommended for ${m.expertise[0]} & ${m.company} guidance.`,
+  reviews: [
+    { name: 'Student Mentee', rating: 5, text: `Great session with ${m.name}! Got super helpful insights.` }
+  ]
+}))
 
 const MOCK_MENTORS = [
   {
@@ -122,7 +149,9 @@ export default function MentorConnect() {
   const [bookingSlot, setBookingSlot] = useState('')
   const [bookingMsg, setBookingMsg] = useState('')
 
-  const filteredMentors = MOCK_MENTORS.filter(m => {
+  const ALL_MENTORS = [...MOCK_MENTORS, ...SEEDED_MENTOR_ENTRIES]
+
+  const filteredMentors = ALL_MENTORS.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       m.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       m.skills.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -131,7 +160,7 @@ export default function MentorConnect() {
     return matchesSearch && matchesCategory && matchesPrice
   })
 
-  const topRated = [...MOCK_MENTORS].sort((a, b) => b.rating - a.rating)[0]
+  const topRated = [...ALL_MENTORS].sort((a, b) => b.rating - a.rating)[0]
 
   const handleBookingSubmit = (e) => {
     e.preventDefault()

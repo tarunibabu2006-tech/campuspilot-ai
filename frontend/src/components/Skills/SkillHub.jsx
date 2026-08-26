@@ -3,18 +3,23 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const SEED_SKILLS = [
-  { id: 'sk1', name: 'Python Programming 🐍', category: 'Software Development', domain: 'Data Science & AI', level: 'Beginner → Advanced', duration: '3 months', demand: '🔥 Very High', difficulty: '⭐⭐', relatedJobs: ['Data Analyst', 'AI Engineer', 'Backend Dev'], matchPct: 95, icon: '🐍', prereq: 'Basic Math & Logic', desc: 'Master Python fundamentals, OOP, data structures, and popular libraries.' },
-  { id: 'sk2', name: 'SQL & Database Architecture 🗄️', category: 'Database', domain: 'Data Science & Backend', level: 'Beginner → Intermediate', duration: '2 months', demand: '🔥 Very High', difficulty: '⭐⭐', relatedJobs: ['Data Analyst', 'Database Admin', 'Backend Developer'], matchPct: 91, icon: '🗄️', prereq: 'None', desc: 'Relational database design, complex JOINs, indexing, and window functions.' },
-  { id: 'sk3', name: 'React.js & Frontend Web ⚛️', category: 'Web Development', domain: 'Frontend & Full Stack', level: 'Intermediate', duration: '3 months', demand: '🔥 High', difficulty: '⭐⭐⭐', relatedJobs: ['Frontend Developer', 'Full Stack Developer'], matchPct: 88, icon: '⚛️', prereq: 'HTML, CSS, JavaScript', desc: 'Build modern responsive single-page web applications with React Hooks & Redux.' },
-  { id: 'sk4', name: 'Power BI & Data Visualization 📊', category: 'Data Analytics', domain: 'Business Intelligence', level: 'Beginner → Intermediate', duration: '1.5 months', demand: '🔥 High', difficulty: '⭐', relatedJobs: ['BI Analyst', 'Data Analyst', 'Business Consultant'], matchPct: 86, icon: '📊', prereq: 'Excel Basics', desc: 'Transform raw datasets into interactive dashboards and business reports.' },
-  { id: 'sk5', name: 'Machine Learning & PyTorch 🤖', category: 'AI & Data Science', domain: 'Artificial Intelligence', level: 'Advanced', duration: '4 months', demand: '🔥 Very High', difficulty: '⭐⭐⭐⭐', relatedJobs: ['ML Engineer', 'Data Scientist', 'AI Researcher'], matchPct: 82, icon: '🤖', prereq: 'Python & Linear Algebra', desc: 'Supervised/Unsupervised learning algorithms, PyTorch neural networks & MLOps.' },
-  { id: 'sk6', name: 'AWS Cloud Solutions Architecture ☁️', category: 'Cloud Computing', domain: 'DevOps & Infrastructure', level: 'Intermediate → Advanced', duration: '3 months', demand: '🔥 Very High', difficulty: '⭐⭐⭐', relatedJobs: ['Cloud Architect', 'DevOps Engineer', 'SRE'], matchPct: 79, icon: '☁️', prereq: 'Linux & Networking Basics', desc: 'Deploy resilient cloud infrastructure using EC2, S3, Lambda, and CloudFront.' },
-  { id: 'sk7', name: 'Java & Spring Boot Enterprise ☕', category: 'Backend Development', domain: 'Software Engineering', level: 'Intermediate', duration: '4 months', demand: '🔥 High', difficulty: '⭐⭐⭐', relatedJobs: ['Java Developer', 'Backend Architect'], matchPct: 77, icon: '☕', prereq: 'Core Java', desc: 'Build production RESTful microservices and enterprise Java applications.' },
-  { id: 'sk8', name: 'Docker & Kubernetes DevOps 🐳', category: 'DevOps', domain: 'Cloud & System Admin', level: 'Advanced', duration: '2 months', demand: '🔥 High', difficulty: '⭐⭐⭐⭐', relatedJobs: ['DevOps Specialist', 'Site Reliability Engineer'], matchPct: 75, icon: '🐳', prereq: 'Linux & Cloud Basics', desc: 'Containerize applications and manage automated Kubernetes clusters.' },
-  { id: 'sk9', name: 'Node.js & Express REST APIs 🟢', category: 'Backend Development', domain: 'Web Development', level: 'Intermediate', duration: '2.5 months', demand: '🔥 High', difficulty: '⭐⭐', relatedJobs: ['Node.js Developer', 'Full Stack Engineer'], matchPct: 84, icon: '🟢', prereq: 'JavaScript ES6+', desc: 'Build fast asynchronous server-side APIs with MongoDB and Express.' },
-  { id: 'sk10', name: 'Cybersecurity & Ethical Hacking 🛡️', category: 'Security', domain: 'Information Security', level: 'Intermediate → Advanced', duration: '4 months', demand: '🔥 Very High', difficulty: '⭐⭐⭐⭐', relatedJobs: ['Security Analyst', 'Penetration Tester'], matchPct: 73, icon: '🛡️', prereq: 'Networking & Linux', desc: 'Vulnerability assessment, penetration testing, SOC monitoring, and network security.' }
-]
+import { SEED_SKILLS as EXTERNAL_SEED_SKILLS, SKILL_CATEGORIES } from '../../data/seedSkills'
+
+const SEED_SKILLS = EXTERNAL_SEED_SKILLS.map(s => ({
+  id: s.id,
+  name: s.name,
+  category: s.category,
+  domain: s.domain,
+  level: s.level,
+  duration: s.duration,
+  demand: s.demand,
+  difficulty: s.difficulty,
+  relatedJobs: s.relatedJobs,
+  matchPct: s.matchPct,
+  icon: s.icon,
+  prereq: s.prereq,
+  desc: s.desc
+}))
 
 const TRENDING_SKILLS_2026 = [
   { name: 'AI Engineering & LLMs', icon: '🔥', growth: '+140% demand' },
@@ -58,8 +63,8 @@ export default function SkillHub({ onSelectSkill }) {
 
   const filtered = skillsList.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          s.domain?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          s.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      s.domain?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.description?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCat = selectedCategory === 'All' || s.category === selectedCategory
     return matchesSearch && matchesCat
   })

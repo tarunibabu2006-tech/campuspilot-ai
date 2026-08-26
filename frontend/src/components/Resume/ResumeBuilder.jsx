@@ -129,8 +129,11 @@ ${formData.experience.map(x => `- ${x.role} at ${x.company} (${x.duration})\n  $
         <div>
           <label className="form-label" style={{ display: 'inline', marginRight: '0.5rem' }}>Style Template:</label>
           <select className="form-select" style={{ display: 'inline-block', width: 'auto', padding: '0.2rem 0.5rem' }} value={template} onChange={e => setTemplate(e.target.value)}>
-            <option value="modern">Modern Professional</option>
-            <option value="minimalist">Minimalist Classic</option>
+            <option value="modern">Modern Professional (Blue & Grey)</option>
+            <option value="minimalist">Minimalist Classic (Serif & Clean)</option>
+            <option value="ats">ATS Optimized Standard (High Pass-Rate)</option>
+            <option value="creative">Creative Portfolio (Purple Accent)</option>
+            <option value="executive">Executive Leadership (Emerald Dark)</option>
           </select>
         </div>
       </div>
@@ -226,16 +229,16 @@ ${formData.experience.map(x => `- ${x.role} at ${x.company} (${x.duration})\n  $
 
         {/* Live Resume Sheet Preview */}
         <div style={{
-          background: '#ffffff',
-          color: '#111827',
+          background: template === 'executive' ? '#064e3b' : '#ffffff',
+          color: template === 'executive' ? '#f0fdf4' : '#111827',
           padding: '1.5rem',
           borderRadius: 'var(--radius-md)',
           border: '1px solid #e5e7eb',
           boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-          fontFamily: template === 'modern' ? 'sans-serif' : 'serif'
+          fontFamily: template === 'minimalist' ? 'Georgia, serif' : template === 'ats' ? 'Courier, monospace' : 'Inter, sans-serif'
         }}>
-          <div style={{ borderBottom: '2px solid #2563eb', paddingBottom: '0.75rem', marginBottom: '1rem', textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase' }}>{formData.name}</h1>
+          <div style={{ borderBottom: `2px solid ${template === 'creative' ? '#9333ea' : template === 'executive' ? '#34d399' : '#2563eb'}`, paddingBottom: '0.75rem', marginBottom: '1rem', textAlign: 'center' }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: template === 'creative' ? '#7e22ce' : template === 'executive' ? '#34d399' : '#1d4ed8', textTransform: 'uppercase' }}>{formData.name}</h1>
             <p style={{ fontSize: '0.8rem', color: '#4b5563', marginTop: '0.2rem' }}>
               📧 <a href={`mailto:${formData.email}`} style={{ color: '#2563eb', textDecoration: 'none' }}>{formData.email}</a> | 📞 {formData.phone}
             </p>

@@ -3,78 +3,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const SEED_NOTES = [
-  {
-    id: 'n1',
-    title: 'Operating Systems (OS) — Complete Notes',
-    subject: 'Operating Systems',
-    category: 'Engineering',
-    branch: 'Computer Science',
-    units: 'Unit 1–5 (Process, Threads, Deadlocks, Memory, File Systems)',
-    readTime: '15 min read',
-    difficulty: 'Intermediate',
-    rating: 4.8,
-    saved: false,
-    content: `Unit 1: Process Management & CPU Scheduling\nProcess states: New, Ready, Running, Waiting, Terminated.\nFCFS, SJF, Round Robin, Priority Scheduling.\n\nUnit 2: Threads & Concurrency\nUser-level threads vs Kernel-level threads. Critical Section Problem & Semaphores.\n\nUnit 3: Deadlocks\n4 Necessary conditions: Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait. Banker's Algorithm for Deadlock Avoidance.\n\nUnit 4: Memory Management\nPaging, Segmentation, Virtual Memory, Page Faults, LRU Page Replacement.\n\nUnit 5: Disk & File Systems\nSCAN, C-SCAN, FIFO Disk Scheduling, File Allocation Methods.`,
-    examQuestions: [
-      { mark: '2-Mark', q: 'What is a Semaphore?' },
-      { mark: '2-Mark', q: 'List 4 necessary conditions for Deadlock.' },
-      { mark: '10-Mark', q: 'Explain Banker\'s Algorithm with a neat example.' },
-      { mark: '10-Mark', q: 'Compare Paging and Segmentation memory management.' }
-    ]
-  },
-  {
-    id: 'n2',
-    title: 'Data Structures & Algorithms (DSA)',
-    subject: 'Data Structures',
-    category: 'Computer Applications',
-    branch: 'BCA / MCA',
-    units: 'Unit 1–5 (Arrays, Linked Lists, Stacks, Trees, Graphs)',
-    readTime: '20 min read',
-    difficulty: 'Advanced',
-    rating: 4.9,
-    saved: true,
-    content: `Unit 1: Arrays & Pointers\nDynamic Memory Allocation (malloc, calloc), 2D Arrays, Time & Space Complexity.\n\nUnit 2: Linked Lists & Stacks\nSingly, Doubly, Circular Linked List. Stack LIFO operations & Infix to Postfix conversion.\n\nUnit 3: Queues & Deque\nFIFO Queue, Circular Queue, Priority Queue implementation using Arrays.\n\nUnit 4: Trees & BST\nBinary Trees, Binary Search Trees (BST), AVL Trees, Inorder, Preorder, Postorder Traversals.\n\nUnit 5: Graphs & Algorithms\nBFS, DFS, Dijkstra Shortest Path, Prim's & Kruskal's Minimum Spanning Tree.`,
-    examQuestions: [
-      { mark: '2-Mark', q: 'Define Inorder Traversal of Binary Tree.' },
-      { mark: '10-Mark', q: 'Explain Dijkstra\'s Algorithm step by step.' }
-    ]
-  },
-  {
-    id: 'n3',
-    title: 'Database Management Systems (DBMS)',
-    subject: 'DBMS & SQL',
-    category: 'Engineering',
-    branch: 'Information Technology',
-    units: 'Unit 1–5 (ER Models, SQL, Normalization, Transactions, Indexing)',
-    readTime: '12 min read',
-    difficulty: 'Intermediate',
-    rating: 4.7,
-    saved: false,
-    content: `Unit 1: Introduction to DBMS\nANSI/SPARC 3-schema architecture, Data Independence, ER Diagrams.\n\nUnit 2: Relational Algebra & SQL\nSELECT, WHERE, GROUP BY, HAVING, INNER/LEFT/RIGHT JOINs.\n\nUnit 3: Normalization\n1NF, 2NF, 3NF, BCNF Decomposition and Functional Dependencies.\n\nUnit 4: Transaction Processing & ACID Properties\nAtomicity, Consistency, Isolation, Durability. Two-Phase Locking (2PL).\n\nUnit 5: Indexing & Hashing\nB-Trees, B+ Trees, Dense vs Sparse Indexing.`,
-    examQuestions: [
-      { mark: '2-Mark', q: 'Explain ACID Properties.' },
-      { mark: '10-Mark', q: 'Explain 1NF, 2NF, 3NF with Employee table example.' }
-    ]
-  },
-  {
-    id: 'n4',
-    title: 'Financial Accounting & Costing',
-    subject: 'Financial Accounting',
-    category: 'Commerce',
-    branch: 'B.Com / M.Com',
-    units: 'Unit 1–5 (Journal, Ledger, Trial Balance, Final Accounts, Ratio Analysis)',
-    readTime: '18 min read',
-    difficulty: 'Intermediate',
-    rating: 4.8,
-    saved: false,
-    content: `Unit 1: Basic Accounting Concepts\nDebit & Credit Rules, Golden Rules of Accounting.\n\nUnit 2: Journal & Ledger\nPosting entries to Ledger accounts and balancing.\n\nUnit 3: Final Accounts\nTrading Account, Profit & Loss Account, Balance Sheet.\n\nUnit 4: Ratio Analysis\nLiquidity Ratios, Solvency Ratios, Profitability Ratios.\n\nUnit 5: Cost Accounting\nCost Sheet preparation, Direct & Indirect Expenses.`,
-    examQuestions: [
-      { mark: '2-Mark', q: 'What is Golden Rule of Nominal Account?' },
-      { mark: '10-Mark', q: 'Prepare Trading and Profit & Loss Account from Trial Balance.' }
-    ]
-  }
-]
+import { SEED_NOTES } from '../data/seedNotes'
 
 const FLASHCARDS = [
   { question: 'What is an Operating System?', answer: 'An Operating System is system software that manages computer hardware and software resources and provides common services for computer programs.' },
@@ -118,8 +47,8 @@ export default function NotesHub() {
 
   const filteredNotes = notes.filter(n => {
     const matchesSearch = n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          n.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          n.content.toLowerCase().includes(searchTerm.toLowerCase())
+      n.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      n.content.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesBranch = selectedBranch === 'All' || n.category === selectedBranch
     const matchesSaved = !savedNotesOnly || n.saved
     return matchesSearch && matchesBranch && matchesSaved
