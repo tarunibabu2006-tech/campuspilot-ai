@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\BABUKAVI\\.gemini\\antigravity-ide\\scratch\\campus-pilot-ai\\backend\\logs\\.dce703dad842d8d95885529bc78432eed6139a21-audit.json",
+    "files": [
+        {
+            "date": 1787245505395,
+            "name": "C:\\Users\\BABUKAVI\\.gemini\\antigravity-ide\\scratch\\campus-pilot-ai\\backend\\logs\\campuspilot-2026-08-20.log",
+            "hash": "fe788ee765d3ca6db2bc6a5d4ac43cd3fb876b266c73390a9ec857755711f105"
+        },
+        {
+            "date": 1787721380384,
+            "name": "C:\\Users\\BABUKAVI\\.gemini\\antigravity-ide\\scratch\\campus-pilot-ai\\backend\\logs\\campuspilot-2026-08-26.log",
+            "hash": "9812e770e23747a43ae47b1b97b6fc7d923ecd101f9bd62aeb533e76a7e1b017"
+        }
+    ],
+    "hashType": "sha256"
+}

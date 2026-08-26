@@ -10,16 +10,33 @@ export const connectRedis = async () => {
   }
 
   try {
-    redisClient = createClient({ url: process.env.REDIS_URL })
+    redisClient = createClient({
+      url: process.env.REDIS_URL,
+      socket: {
+        reconnectStrategy: (retries) => {
+          if (retries >= 3) {
+            // Stop retrying after 3 attempts to prevent spamming logs
+            return false
+          }
+          return 3000 // Retry every 3 seconds
+        }
+      }
+    })
 
-    redisClient.on('error', (err) => logger.error(`Redis Client Error: ${err.message}`))
+    redisClient.on('error', (err) => {
+      if (err.code === 'ECONNREFUSED') {
+        logger.warn('⚠️ Redis is offline. Caching is disabled.')
+      } else {
+        logger.error(`Redis Client Error: ${err.message}`)
+      }
+    })
     redisClient.on('connect', () => logger.info('🔄 Connecting to Redis...'))
     redisClient.on('ready', () => logger.info('✅ Redis connected successfully!'))
 
     await redisClient.connect()
     return redisClient
   } catch (error) {
-    logger.error(`❌ Failed to connect to Redis: ${error.message}`)
+    logger.warn(`❌ Failed to connect to Redis: ${error.message}`)
     redisClient = null
     return null
   }
