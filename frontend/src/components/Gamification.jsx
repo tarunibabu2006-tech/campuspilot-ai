@@ -25,17 +25,32 @@ const LEVEL_CONFIG = [
   { level: 10, name: 'Campus Champion', minXP: 1600, maxXP: 9999 }
 ]
 
+import { useAppStore } from '../store/appStore'
+
+const BADGE_MODULE_MAP = {
+  python: 'skills',
+  data: 'skills',
+  ai: 'career-predictor',
+  code: 'aptitude',
+  interview: 'voice-interview',
+  resume: 'resume-scorer',
+  streak30: 'gamification',
+  top: 'leaderboard',
+  project: 'profile',
+  career: 'career-gps'
+}
+
 const ALL_BADGES = [
-  { id: 'python', icon: '🐍', name: 'Python Master', desc: 'Score 80%+ in Python assessment', xp: 80, color: '#4ade80', how: 'Complete Python skill module & score 80%+' },
-  { id: 'data', icon: '📊', name: 'Data Analytics Pro', desc: 'Complete Data Analytics module', xp: 90, color: '#60a5fa', how: 'Finish all Data Analytics lessons' },
-  { id: 'ai', icon: '🤖', name: 'AI/ML Explorer', desc: 'Complete AI/ML learning path', xp: 120, color: '#c084fc', how: 'Finish AI/ML skill learning path' },
-  { id: 'code', icon: '💻', name: 'Coding Champion', desc: 'Solve 50+ coding problems', xp: 150, color: '#fbbf24', how: 'Solve 50 coding problems in mock tests' },
-  { id: 'interview', icon: '🎤', name: 'Interview Pro', desc: 'Complete 10 mock interviews', xp: 100, color: '#f472b6', how: 'Do 10 mock interview sessions' },
-  { id: 'resume', icon: '📄', name: 'Resume Expert', desc: 'Score 90+ on Resume Scorer', xp: 80, color: '#34d399', how: 'Upload & score 90+ on Resume Scorer' },
-  { id: 'streak30', icon: '🔥', name: '30-Day Streak', desc: 'Login 30 consecutive days', xp: 200, color: '#fb923c', how: 'Login every day for 30 consecutive days' },
-  { id: 'top', icon: '🏆', name: 'Top Performer', desc: 'Reach top 10 on leaderboard', xp: 250, color: '#facc15', how: 'Earn enough XP to enter top 10' },
-  { id: 'project', icon: '🚀', name: 'Project Builder', desc: 'Upload 3+ projects to profile', xp: 110, color: '#a78bfa', how: 'Add 3 projects to your profile' },
-  { id: 'career', icon: '🌟', name: 'Career Ready', desc: 'Complete all placement modules', xp: 300, color: '#e879f9', how: 'Finish all Career GPS + Placement modules' }
+  { id: 'python', icon: '🐍', name: 'Python Master', desc: 'Score 80%+ in Python assessment', xp: 80, color: '#4ade80', how: 'Complete Python skill module & score 80%+', targetTab: 'skills' },
+  { id: 'data', icon: '📊', name: 'Data Analytics Pro', desc: 'Complete Data Analytics module', xp: 90, color: '#60a5fa', how: 'Finish all Data Analytics lessons', targetTab: 'skills' },
+  { id: 'ai', icon: '🤖', name: 'AI/ML Explorer', desc: 'Complete AI/ML learning path', xp: 120, color: '#c084fc', how: 'Finish AI/ML skill learning path', targetTab: 'career-predictor' },
+  { id: 'code', icon: '💻', name: 'Coding Champion', desc: 'Solve 50+ coding problems', xp: 150, color: '#fbbf24', how: 'Solve 50 coding problems in mock tests', targetTab: 'aptitude' },
+  { id: 'interview', icon: '🎤', name: 'Interview Pro', desc: 'Complete 10 mock interviews', xp: 100, color: '#f472b6', how: 'Do 10 mock interview sessions', targetTab: 'voice-interview' },
+  { id: 'resume', icon: '📄', name: 'Resume Expert', desc: 'Score 90+ on Resume Scorer', xp: 80, color: '#34d399', how: 'Upload & score 90+ on Resume Scorer', targetTab: 'resume-scorer' },
+  { id: 'streak30', icon: '🔥', name: '30-Day Streak', desc: 'Login 30 consecutive days', xp: 200, color: '#fb923c', how: 'Login every day for 30 consecutive days', targetTab: 'gamification' },
+  { id: 'top', icon: '🏆', name: 'Top Performer', desc: 'Reach top 10 on leaderboard', xp: 250, color: '#facc15', how: 'Earn enough XP to enter top 10', targetTab: 'leaderboard' },
+  { id: 'project', icon: '🚀', name: 'Project Builder', desc: 'Upload 3+ projects to profile', xp: 110, color: '#a78bfa', how: 'Add 3 projects to your profile', targetTab: 'profile' },
+  { id: 'career', icon: '🌟', name: 'Career Ready', desc: 'Complete all placement modules', xp: 300, color: '#e879f9', how: 'Finish all Career GPS + Placement modules', targetTab: 'career-gps' }
 ]
 
 const XP_TABLE = [
@@ -83,8 +98,8 @@ export default function Gamification() {
   const { user } = useAuth()
   const [unlockedBadges, setUnlockedBadges] = useState(user?.badges || [])
   const [xp, setXp] = useState(user?.xp || 0)
-  const [streak, setStreak] = useState(user?.streak || 1)
-  const [longestStreak, setLongestStreak] = useState(user?.streak || 1)
+  const [streak, setStreak] = useState(user?.streak || 0)
+  const [longestStreak, setLongestStreak] = useState(user?.streak || 0)
   const [challenges, setChallenges] = useState(WEEKLY_CHALLENGES)
   const [activeTab, setActiveTab] = useState('overview')
   const [loading, setLoading] = useState(false)
@@ -97,8 +112,9 @@ export default function Gamification() {
   const nextTier = TIER_CONFIG.find(t => t.minXP > xp) || TIER_CONFIG[TIER_CONFIG.length - 1]
   const tierPct = Math.min(100, ((xp - currentTier.minXP) / (nextTier.minXP - currentTier.minXP)) * 100)
 
+  // Show real login days only — new users have no active days yet
   const weeklyDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-  const activeWeekDays = [true, true, true, true, true, false, false]
+  const activeWeekDays = Array(7).fill(false).map((_, i) => i < Math.min(streak, 7))
 
   const completedChallenges = challenges.filter(c => c.completed).length
   const challengeXP = challenges.filter(c => c.completed).reduce((sum, c) => sum + c.xp, 0)
@@ -164,7 +180,8 @@ export default function Gamification() {
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
         {tabs.map(t => (
           <button key={t.id} onClick={() => setActiveTab(t.id)}
-            style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontWeight: '600', fontSize: '0.82rem', whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.2s',
+            style={{
+              padding: '0.5rem 1rem', borderRadius: '0.75rem', fontWeight: '600', fontSize: '0.82rem', whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.2s',
               background: activeTab === t.id ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'rgba(255,255,255,0.05)',
               color: activeTab === t.id ? 'white' : '#94a3b8',
               border: activeTab === t.id ? 'none' : '1px solid rgba(255,255,255,0.1)'
@@ -261,21 +278,28 @@ export default function Gamification() {
               const unlocked = unlockedBadges.includes(badge.id)
               return (
                 <motion.div key={badge.id} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.06 }}
-                  style={{ textAlign: 'center', padding: '1.25rem', borderRadius: '1rem', transition: 'transform 0.2s',
-                    background: unlocked ? `linear-gradient(135deg, ${badge.color}22, ${badge.color}10)` : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${unlocked ? badge.color + '55' : 'rgba(255,255,255,0.07)'}`,
-                    opacity: unlocked ? 1 : 0.6
+                  onClick={() => {
+                    if (badge.targetTab) {
+                      useAppStore.getState().setActiveTab(badge.targetTab)
+                      toast.success(`Opening ${badge.name} module! 🚀`)
+                    }
                   }}
-                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'}
-                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                  style={{
+                    textAlign: 'center', padding: '1.25rem', borderRadius: '1rem', transition: 'all 0.2s', cursor: 'pointer',
+                    background: unlocked ? `linear-gradient(135deg, ${badge.color}22, ${badge.color}10)` : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${unlocked ? badge.color + '55' : 'rgba(255,255,255,0.1)'}`,
+                    opacity: unlocked ? 1 : 0.85
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.03)'; e.currentTarget.style.borderColor = badge.color }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.borderColor = unlocked ? badge.color + '55' : 'rgba(255,255,255,0.1)' }}
                 >
-                  <div style={{ fontSize: '2.2rem', marginBottom: '0.4rem', filter: unlocked ? 'none' : 'grayscale(100%) brightness(0.5)' }}>{badge.icon}</div>
-                  <div style={{ color: unlocked ? 'white' : '#475569', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.25rem' }}>{badge.name}</div>
-                  <div style={{ color: '#64748b', fontSize: '0.72rem', marginBottom: '0.5rem' }}>{badge.desc}</div>
+                  <div style={{ fontSize: '2.2rem', marginBottom: '0.4rem' }}>{badge.icon}</div>
+                  <div style={{ color: 'white', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.25rem' }}>{badge.name}</div>
+                  <div style={{ color: '#94a3b8', fontSize: '0.72rem', marginBottom: '0.5rem' }}>{badge.desc}</div>
                   {unlocked ? (
                     <span style={{ background: `${badge.color}33`, color: badge.color, padding: '0.2rem 0.6rem', borderRadius: '1rem', fontSize: '0.72rem', fontWeight: '700' }}>✓ +{badge.xp} XP</span>
                   ) : (
-                    <div style={{ color: '#475569', fontSize: '0.72rem' }}>🔒 {badge.how}</div>
+                    <div style={{ color: '#60a5fa', fontSize: '0.72rem', fontWeight: '700' }}>🚀 Click to Open Module</div>
                   )}
                 </motion.div>
               )

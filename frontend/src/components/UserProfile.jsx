@@ -56,12 +56,12 @@ export default function UserProfile() {
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null)
   const fileRef = useRef()
 
-  // Live Stats State (Real User Data Only)
+  // Live Stats State — strictly from real user data only, ZERO for new users
   const [liveStats, setLiveStats] = useState({
     xp: user?.xp || 0,
     badgesCount: user?.badgesCount || (user?.badges ? user.badges.length : 0),
     rank: user?.rank ? `#${user.rank}` : 'Unranked',
-    streak: user?.streak || 1
+    streak: user?.streak || 0
   })
 
   // Fetch live stats from gamification API
@@ -75,7 +75,7 @@ export default function UserProfile() {
 
         const liveXp = badgeRes.data.xpPoints ?? streakRes.data.xpPoints ?? user?.xp ?? 0
         const liveBadges = badgeRes.data.badges ? badgeRes.data.badges.length : (user?.badgesCount || (user?.badges ? user.badges.length : 0))
-        const liveStreak = streakRes.data.streak ?? user?.streak ?? 1
+        const liveStreak = streakRes.data.streak ?? user?.streak ?? 0
         const liveRank = user?.rank ? `#${user.rank}` : 'Unranked'
 
         setLiveStats({
@@ -101,7 +101,7 @@ export default function UserProfile() {
     cgpa: user?.cgpa || '',
     github: user?.github || '',
     linkedin: user?.linkedin || '',
-    skills: user?.skills || ['Python', 'SQL', 'React'],
+    skills: user?.skills || [],
     bio: user?.bio || '',
     city: user?.city || '',
     state: user?.state || ''
@@ -169,7 +169,7 @@ export default function UserProfile() {
   const stats = [
     { label: 'XP Points (Live)', value: `${liveStats.xp} XP`, icon: '⚡', color: '#facc15' },
     { label: 'Badges Earned', value: liveStats.badgesCount, icon: '🏅', color: '#f472b6' },
-    { label: 'Campus Rank', value: `#${liveStats.rank}`, icon: '🏆', color: '#60a5fa' },
+    { label: 'Campus Rank', value: liveStats.rank === 'Unranked' ? 'Unranked' : `#${liveStats.rank}`, icon: '🏆', color: '#60a5fa' },
     { label: 'Daily Streak', value: `${liveStats.streak} Days 🔥`, icon: '🔥', color: '#fb923c' }
   ]
 

@@ -4,18 +4,29 @@ import mongoose from 'mongoose'
 
 const router = express.Router()
 
-// In-memory gamification state fallback
-let memoryGamification = {
-  xpPoints: 240,
-  badges: ['react', 'python', 'frontend'],
-  streak: 5,
-  lastActivityDate: new Date(),
+// Per-user in-memory gamification state (keyed by userId string)
+// New users always start at 0 XP, 0 badges, 0 streak — no fake defaults
+const userGamificationMap = new Map()
+
+const getDefaultUserState = () => ({
+  xpPoints: 0,
+  badges: [],
+  streak: 0,
+  lastActivityDate: null,
   weeklyChallenges: [
-    { id: 1, challenge: 'Complete 1 Voice Mock Interview', xp: 50, completed: true },
+    { id: 1, challenge: 'Complete 1 Voice Mock Interview', xp: 50, completed: false },
     { id: 2, challenge: 'Solve 10 Aptitude Questions', xp: 40, completed: false },
-    { id: 3, challenge: 'Generate a 5-Year Career Roadmap', xp: 60, completed: true },
+    { id: 3, challenge: 'Generate a 5-Year Career Roadmap', xp: 60, completed: false },
     { id: 4, challenge: 'Score > 85 on Resume Scorer', xp: 75, completed: false }
   ]
+})
+
+const getUserState = (userId) => {
+  if (!userId) return getDefaultUserState()
+  if (!userGamificationMap.has(userId)) {
+    userGamificationMap.set(userId, getDefaultUserState())
+  }
+  return userGamificationMap.get(userId)
 }
 
 // GET /api/gamification/badges
@@ -28,7 +39,8 @@ router.get('/badges', async (req, res) => {
         return res.json({ badges: student.badges || [], xpPoints: student.xpPoints || 0 })
       }
     }
-    res.json({ badges: memoryGamification.badges, xpPoints: memoryGamification.xpPoints })
+    const state = getUserState(userId)
+    res.json({ badges: state.badges, xpPoints: state.xpPoints })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -55,12 +67,12 @@ router.post('/earn-badge', async (req, res) => {
       }
     }
 
-    if (!memoryGamification.badges.includes(badge)) {
-      memoryGamification.badges.push(badge)
-      memoryGamification.xpPoints += 50
+    const state = getUserState(userId)
+    if (!state.badges.includes(badge)) {
+      state.badges.push(badge)
+      state.xpPoints += 50
     }
-    
-    res.json({ success: true, badges: memoryGamification.badges, xpPoints: memoryGamification.xpPoints })
+    res.json({ success: true, badges: state.badges, xpPoints: state.xpPoints })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -80,10 +92,11 @@ router.get('/streak', async (req, res) => {
         })
       }
     }
+    const state = getUserState(userId)
     res.json({
-      streak: memoryGamification.streak,
-      xpPoints: memoryGamification.xpPoints,
-      badges: memoryGamification.badges
+      streak: state.streak,
+      xpPoints: state.xpPoints,
+      badges: state.badges
     })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -109,11 +122,12 @@ router.post('/update-streak', async (req, res) => {
       }
     }
 
-    memoryGamification.streak += 1
-    memoryGamification.xpPoints += 20
+    const state = getUserState(userId)
+    state.streak += 1
+    state.xpPoints += 20
     res.json({
-      streak: memoryGamification.streak,
-      xpPoints: memoryGamification.xpPoints,
+      streak: state.streak,
+      xpPoints: state.xpPoints,
       message: '🔥 Streak extended! +20 XP awarded'
     })
   } catch (error) {
@@ -123,7 +137,9 @@ router.post('/update-streak', async (req, res) => {
 
 // GET /api/gamification/challenges
 router.get('/challenges', async (req, res) => {
-  res.json({ challenges: memoryGamification.weeklyChallenges })
+  const userId = req.user?.id || req.query.userId
+  const state = getUserState(userId)
+  res.json({ challenges: state.weeklyChallenges })
 })
 
 // GET /api/gamification/leaderboard

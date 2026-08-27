@@ -15,16 +15,30 @@ const XP_ACTIVITIES = [
   { activity: 'Help Peer (Doubt)', xp: '+25 XP', icon: '🤝' }
 ]
 
-const BADGES = [
-  { icon: '🐍', name: 'Python Master', desc: 'Score 80%+ in Python assessment' },
-  { icon: '📊', name: 'Data Analytics Pro', desc: 'Complete Data Analytics module' },
-  { icon: '🤖', name: 'AI/ML Explorer', desc: 'Complete AI/ML learning path' },
-  { icon: '💻', name: 'Coding Champion', desc: 'Solve 50+ coding problems' },
-  { icon: '🎤', name: 'Interview Pro', desc: 'Complete 10 mock interviews' },
-  { icon: '📄', name: 'Resume Expert', desc: 'Score 90+ on Resume Scorer' },
-  { icon: '🔥', name: '30-Day Streak', desc: 'Login 30 consecutive days' },
-  { icon: '🏆', name: 'Top Performer', desc: 'Reach top 10 on leaderboard' }
-]
+import { useAppStore } from '../store/appStore'
+import toast from 'react-hot-toast'
+
+const BADGE_NAVIGATION_MAP = {
+  'Python Master': { tab: 'skills', label: 'Python Skill Module' },
+  'Data Analytics Pro': { tab: 'skills', label: 'Data Analytics Module' },
+  'AI/ML Explorer': { tab: 'career-predictor', label: 'AI/ML Path' },
+  'Coding Champion': { tab: 'aptitude', label: 'Coding & Aptitude Test' },
+  'Interview Pro': { tab: 'voice-interview', label: 'Voice Mock Interview' },
+  'Resume Expert': { tab: 'resume-scorer', label: 'Resume Scorer' },
+  '30-Day Streak': { tab: 'gamification', label: 'Gamification 2.0' },
+  'Top Performer': { tab: 'leaderboard', label: 'Live Leaderboard' }
+}
+
+const XP_NAVIGATION_MAP = {
+  'Mock Test Completion': 'mock-tests',
+  'Voice Interview Session': 'voice-interview',
+  'Course Completion': 'skills',
+  'Skill Assessment': 'skill-badge',
+  'Job Application': 'ai-apply',
+  'Daily Login': 'gamification',
+  'Resume Upload': 'resume-scorer',
+  'Help Peer (Doubt)': 'study-groups'
+}
 
 export default function Leaderboard() {
   const { user } = useAuth()
@@ -146,7 +160,8 @@ export default function Leaderboard() {
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.25rem' }}>
         {sections.map(s => (
           <button key={s.id} onClick={() => setActiveSection(s.id)}
-            style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontWeight: '600', fontSize: '0.82rem', whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.2s',
+            style={{
+              padding: '0.5rem 1rem', borderRadius: '0.75rem', fontWeight: '600', fontSize: '0.82rem', whiteSpace: 'nowrap', cursor: 'pointer', transition: 'all 0.2s',
               background: activeSection === s.id ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'rgba(255,255,255,0.05)',
               color: activeSection === s.id ? '#1a1a1a' : '#94a3b8',
               border: activeSection === s.id ? 'none' : '1px solid rgba(255,255,255,0.1)'
@@ -193,10 +208,12 @@ export default function Leaderboard() {
             </select>
             {timeOptions.map(t => (
               <button key={t} onClick={() => setFilterTime(t)}
-                style={{ padding: '0.5rem 0.9rem', borderRadius: '0.6rem', fontSize: '0.82rem', cursor: 'pointer',
+                style={{
+                  padding: '0.5rem 0.9rem', borderRadius: '0.6rem', fontSize: '0.82rem', cursor: 'pointer',
                   background: filterTime === t ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.05)',
                   color: filterTime === t ? '#fbbf24' : '#94a3b8',
-                  border: `1px solid ${filterTime === t ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.1)'}` }}>{t}</button>
+                  border: `1px solid ${filterTime === t ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.1)'}`
+                }}>{t}</button>
             ))}
           </div>
 
@@ -210,7 +227,8 @@ export default function Leaderboard() {
             {filtered.slice(0, 20).map((s, i) => (
               <motion.div key={s.rank} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
                 onClick={() => setSelectedStudent(s)}
-                style={{ display: 'grid', gridTemplateColumns: '50px 1fr 120px 90px 70px 70px 70px 60px 60px 80px', gap: '0.5rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer', transition: 'background 0.2s',
+                style={{
+                  display: 'grid', gridTemplateColumns: '50px 1fr 120px 90px 70px 70px 70px 60px 60px 80px', gap: '0.5rem', padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer', transition: 'background 0.2s',
                   background: i < 3 ? 'rgba(251,191,36,0.04)' : 'transparent'
                 }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
@@ -242,17 +260,38 @@ export default function Leaderboard() {
       {/* === BADGES SECTION === */}
       {activeSection === 'badges' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.3rem', marginBottom: '1.25rem' }}>🏅 Achievement Badges</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-            {BADGES.map((badge, i) => (
+          <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.3rem', marginBottom: '0.4rem' }}>🏅 Achievement Badges</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1.25rem' }}>Click on any badge below to jump directly into its learning & test module!</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+            {[
+              { icon: '🐍', name: 'Python Master', desc: 'Score 80%+ in Python assessment', targetTab: 'skills' },
+              { icon: '📊', name: 'Data Analytics Pro', desc: 'Complete Data Analytics module', targetTab: 'skills' },
+              { icon: '🤖', name: 'AI/ML Explorer', desc: 'Complete AI/ML learning path', targetTab: 'career-predictor' },
+              { icon: '💻', name: 'Coding Champion', desc: 'Solve 50+ coding problems', targetTab: 'aptitude' },
+              { icon: '🎤', name: 'Interview Pro', desc: 'Complete 10 mock interviews', targetTab: 'voice-interview' },
+              { icon: '📄', name: 'Resume Expert', desc: 'Score 90+ on Resume Scorer', targetTab: 'resume-scorer' },
+              { icon: '🔥', name: '30-Day Streak', desc: 'Login 30 consecutive days', targetTab: 'gamification' },
+              { icon: '🏆', name: 'Top Performer', desc: 'Reach top 10 on leaderboard', targetTab: 'leaderboard' }
+            ].map((badge, i) => (
               <motion.div key={badge.name} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.07 }}
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '1rem', padding: '1.25rem', textAlign: 'center', transition: 'transform 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                onClick={() => {
+                  useAppStore.getState().setActiveTab(badge.targetTab)
+                  toast.success(`Opening ${badge.name} module! 🚀`)
+                }}
+                style={{
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '1rem', padding: '1.25rem', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)'; e.currentTarget.style.borderColor = '#fbbf24' }}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)' }}
               >
                 <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{badge.icon}</div>
-                <div style={{ color: 'white', fontWeight: '700', marginBottom: '0.3rem' }}>{badge.name}</div>
-                <div style={{ color: '#64748b', fontSize: '0.78rem' }}>{badge.desc}</div>
+                <div style={{ color: 'white', fontWeight: '700', marginBottom: '0.3rem', fontSize: '1rem' }}>{badge.name}</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginBottom: '0.75rem' }}>{badge.desc}</div>
+                <div style={{ background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: 'white', padding: '0.35rem 0.75rem', borderRadius: '0.6rem', fontSize: '0.75rem', fontWeight: '800', display: 'inline-block' }}>
+                  Open Module ↗
+                </div>
               </motion.div>
             ))}
           </div>
@@ -262,19 +301,31 @@ export default function Leaderboard() {
       {/* === XP GUIDE SECTION === */}
       {activeSection === 'xp' && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.3rem', marginBottom: '1.25rem' }}>⚡ XP Earning Guide</h2>
+          <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.3rem', marginBottom: '0.4rem' }}>⚡ XP Earning Guide</h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1.25rem' }}>Click on any activity to jump directly into the module and earn XP!</p>
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
-            {XP_ACTIVITIES.map((act, i) => (
-              <motion.div key={act.activity} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.9rem', padding: '1rem 1.25rem' }}
-              >
-                <span style={{ fontSize: '1.5rem' }}>{act.icon}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ color: 'white', fontWeight: '600', fontSize: '0.88rem' }}>{act.activity}</div>
-                </div>
-                <span style={{ color: '#facc15', fontWeight: '800', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>{act.xp}</span>
-              </motion.div>
-            ))}
+            {XP_ACTIVITIES.map((act, i) => {
+              const targetTab = XP_NAVIGATION_MAP[act.activity] || 'dashboard'
+              return (
+                <motion.div key={act.activity} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
+                  onClick={() => {
+                    useAppStore.getState().setActiveTab(targetTab)
+                    toast.success(`Opening ${act.activity} module! ⚡`)
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.9rem', padding: '1rem 1.25rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.borderColor = '#facc15' }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)' }}
+                >
+                  <span style={{ fontSize: '1.5rem' }}>{act.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: 'white', fontWeight: '600', fontSize: '0.88rem' }}>{act.activity}</div>
+                    <div style={{ color: '#60a5fa', fontSize: '0.72rem', fontWeight: '600', marginTop: '0.1rem' }}>Click to Start ↗</div>
+                  </div>
+                  <span style={{ color: '#facc15', fontWeight: '800', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>{act.xp}</span>
+                </motion.div>
+              )
+            })}
           </div>
         </motion.div>
       )}
