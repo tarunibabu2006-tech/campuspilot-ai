@@ -1,1068 +1,1341 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SEED_COMPANIES, COMPANY_CATEGORIES } from '../../data/seedCompanies'
+import toast from 'react-hot-toast'
+import { useAuth } from '../../context/AuthContext'
+import { SEED_COMPANIES } from '../../data/seedCompanies'
 import { SEED_MENTORS } from '../../data/seedMentors'
 import { CAREER_ROLE_PRESETS } from '../../data/seedRoles'
 import { SEED_SKILLS } from '../../data/seedSkills'
 import { SEED_JOBS } from '../../data/seedJobs'
 import StudentAnalytics from './StudentAnalytics'
-import BulkDataHandler from '../BulkDataHandler'
 
-// ── ADMIN SECTION DEFINITIONS (15.1 to 15.14) ────────────────────
-const ADMIN_SECTIONS = [
-  { id: '15.1', key: 'archives', label: '15.1 Company Archives', icon: '🏛️' },
-  { id: '15.2', key: 'alumni', label: '15.2 Alumni Network', icon: '🎓' },
-  { id: '15.3', key: 'groups', label: '15.3 Study Groups', icon: '👥' },
-  { id: '15.4', key: 'ai_apply', label: '15.4 AI Apply Tracker', icon: '⚡' },
-  { id: '15.5', key: 'mentors', label: '15.5 Mentors & Sessions', icon: '🤝' },
-  { id: '15.6', key: 'mock_tests', label: '15.6 Mock Tests & Patterns', icon: '📝' },
-  { id: '15.7', key: 'skills', label: '15.7 Skill Hub Modules', icon: '📚' },
-  { id: '15.8', key: 'roles', label: '15.8 Role Paths & Roadmaps', icon: '🗺️' },
-  { id: '15.9', key: 'resumes', label: '15.9 Resume Templates & CVs', icon: '📄' },
-  { id: '15.10', key: 'jobs', label: '15.10 Job Portal & Employer Verifier', icon: '💼' },
-  { id: '15.11', key: 'interviews', label: '15.11 Mock Interview Bank', icon: '🎤' },
-  { id: '15.12', key: 'aptitude', label: '15.12 Aptitude Test Bank', icon: '🧠' },
-  { id: '15.13', key: 'notes', label: '15.13 Notes Hub Manager', icon: '✏️' },
-  { id: '15.14', key: 'students', label: '15.14 Student Database (Full Inspector)', icon: '👑' },
-  { id: 'analytics', key: 'analytics', label: '📊 Live Campus Analytics', icon: '📈' }
+// ── ADMIN CREDENTIALS CONSTANTS ─────────────────────────────────
+const ADMIN_EMAIL = 'tarunibabu2006@gmail.com'
+const ADMIN_PASS = 'prawinkumar_0704'
+
+// ── NAVIGATION SECTIONS (1 to 15) ───────────────────────────────
+const SECTIONS = [
+  { id: 'dashboard', label: '📊 Dashboard', icon: '📊' },
+  { id: 'students', label: '👥 Students', icon: '👥' },
+  { id: 'skills', label: '📚 Skills', icon: '📚' },
+  { id: 'jobs', label: '💼 Jobs', icon: '💼' },
+  { id: 'notes', label: '📝 Notes', icon: '📝' },
+  { id: 'companies', label: '🏢 Companies', icon: '🏢' },
+  { id: 'mentors', label: '👨‍🏫 Mentors', icon: '👨‍🏫' },
+  { id: 'tests', label: '🎯 Tests', icon: '🎯' },
+  { id: 'ai_apply', label: '🤖 AI Apply', icon: '🤖' },
+  { id: 'archive', label: '📦 Archive', icon: '📦' },
+  { id: 'alumni', label: '🎓 Alumni', icon: '🎓' },
+  { id: 'groups', label: '👥 Groups', icon: '👥' },
+  { id: 'resumes', label: '📄 Resumes', icon: '📄' },
+  { id: 'rolepath', label: '🎯 Role Path', icon: '🎯' },
+  { id: 'settings', label: '⚙️ Settings', icon: '⚙️' }
 ]
 
-// ── SEED REGISTERED STUDENTS DATABASE ────────────────────────────
-const INITIAL_STUDENTS_DB = [
+// ── INITIAL RICH STUDENTS DATA ──────────────────────────────────
+const INITIAL_STUDENTS = [
   {
-    id: 'std_01',
+    id: 's1',
+    name: 'Rahul Kumar',
+    email: 'rahul@email.com',
+    department: 'Computer Science',
+    year: '3rd Year',
+    loginCount: 45,
+    joined: 'Jan 15, 2024',
+    lastLogin: 'Today, 10:30 AM',
+    skills: ['Python', 'Java', 'SQL', 'React', 'Node.js', 'Docker', 'AWS', 'DSA', 'Git', 'MongoDB', 'C++', 'System Design'],
+    achievements: [
+      { name: 'Python Master', status: 'Earned', date: 'Jan 2024', unlocked: true },
+      { name: 'React Master', status: 'Earned', date: 'Feb 2024', unlocked: true },
+      { name: 'Interview Pro', status: '3/5 interviews completed', date: 'In Progress', unlocked: false }
+    ],
+    activityLog: [
+      { time: 'Today 10:30', text: 'Logged In' },
+      { time: 'Today 09:15', text: 'Completed Mock Interview (Score 9/10)' },
+      { time: 'Yesterday 16:00', text: 'Applied for SDE-1 at Amazon' },
+      { time: 'Yesterday 14:20', text: 'Completed Python Test (Score 95%)' }
+    ],
+    stats: {
+      totalLogins: 45,
+      coursesCompleted: 12,
+      testsTaken: 8,
+      jobsApplied: 15,
+      xpPoints: 1250,
+      badgesEarned: 3,
+      currentStreak: 5
+    }
+  },
+  {
+    id: 's2',
+    name: 'Priya Sundar',
+    email: 'priya@email.com',
+    department: 'Electronics & Communication',
+    year: '2nd Year',
+    loginCount: 32,
+    joined: 'Feb 10, 2024',
+    lastLogin: 'Yesterday, 04:15 PM',
+    skills: ['C++', 'Python', 'Digital Electronics', 'Verilog', 'VLSI', 'SQL'],
+    achievements: [
+      { name: 'Hardware Hero', status: 'Earned', date: 'Feb 2024', unlocked: true },
+      { name: 'Python Master', status: 'Earned', date: 'Mar 2024', unlocked: true }
+    ],
+    activityLog: [
+      { time: 'Yesterday 04:15', text: 'Logged In' },
+      { time: 'Yesterday 02:30', text: 'Reviewed VLSI Lecture Notes' }
+    ],
+    stats: {
+      totalLogins: 32,
+      coursesCompleted: 8,
+      testsTaken: 5,
+      jobsApplied: 6,
+      xpPoints: 890,
+      badgesEarned: 2,
+      currentStreak: 4
+    }
+  },
+  {
+    id: 's3',
+    name: 'Amit Ram',
+    email: 'amit@email.com',
+    department: 'Mechanical Engineering',
+    year: '4th Year',
+    loginCount: 28,
+    joined: 'Mar 01, 2024',
+    lastLogin: '2 days ago',
+    skills: ['AutoCAD', 'SolidWorks', 'Thermodynamics', 'Fluid Mechanics', 'Python'],
+    achievements: [
+      { name: 'Design Specialist', status: 'Earned', date: 'Mar 2024', unlocked: true }
+    ],
+    activityLog: [
+      { time: '2 days ago', text: 'Calculated Bunk Attendance' }
+    ],
+    stats: {
+      totalLogins: 28,
+      coursesCompleted: 6,
+      testsTaken: 4,
+      jobsApplied: 9,
+      xpPoints: 650,
+      badgesEarned: 1,
+      currentStreak: 2
+    }
+  },
+  {
+    id: 's4',
     name: 'Tarun Babu',
     email: 'tarun.babu@college.edu',
     department: 'Computer Science & Engineering',
     year: '4th Year',
-    status: 'Active',
-    joinedDate: '2024-08-15',
-    lastLogin: 'Today, 01:20 AM',
-    loginHistory: [
-      { timestamp: '2026-08-28 01:20 AM', device: 'Chrome on Windows 11', ip: '192.168.1.15' },
-      { timestamp: '2026-08-27 11:45 PM', device: 'Mobile Chrome (Android 14)', ip: '106.51.72.110' },
-      { timestamp: '2026-08-26 04:30 PM', device: 'Chrome on Windows 11', ip: '192.168.1.15' }
+    loginCount: 68,
+    joined: 'Jan 05, 2024',
+    lastLogin: 'Today, 01:45 AM',
+    skills: ['React.js', 'Node.js', 'Python', 'SQL', 'FastAPI', 'DSA', 'Docker', 'AWS'],
+    achievements: [
+      { name: 'Python Master', status: 'Earned', date: 'Jan 2024', unlocked: true },
+      { name: 'React Master', status: 'Earned', date: 'Feb 2024', unlocked: true },
+      { name: 'Interview Pro', status: 'Earned', date: 'Mar 2024', unlocked: true }
     ],
-    xpPoints: 340,
-    streak: 12,
-    skills: ['React.js (Advanced)', 'Node.js (Intermediate)', 'Python (Advanced)', 'SQL (Advanced)', 'Data Structures (Expert)'],
-    badges: [
-      { name: 'Python Master', earnedAt: '2026-08-20', icon: '🐍' },
-      { name: 'React Master', earnedAt: '2026-08-24', icon: '⚛️' },
-      { name: '7-Day Streak Warrior', earnedAt: '2026-08-27', icon: '🔥' }
+    activityLog: [
+      { time: 'Today 01:45', text: 'Exported ATS Resume PDF' },
+      { time: 'Today 01:10', text: 'Downloaded 5 Study Notes' }
     ],
-    testsTaken: [
-      { testName: 'TCS NQT Full Mock Round', score: '88/100', rank: 3, date: '2026-08-25' },
-      { testName: 'Amazon SDE Coding Test', score: '92/100', rank: 1, date: '2026-08-26' },
-      { testName: 'DSA Quantitative Round', score: '85/100', rank: 5, date: '2026-08-27' }
-    ],
-    applications: [
-      { company: 'Google India', role: 'Associate Software Engineer', status: 'Under Review', appliedDate: '2026-08-22' },
-      { company: 'TCS Digital', role: 'Digital Innovator', status: 'Shortlisted for Interview', appliedDate: '2026-08-24' },
-      { company: 'Microsoft', role: 'Software Engineer Trainee', status: 'Applied', appliedDate: '2026-08-26' }
-    ],
-    sessionsBooked: [
-      { mentorName: 'Anish Sundaram (Google SDE-3)', topic: 'System Design & DSA Strategy', scheduledTime: 'Sat, Aug 30 - 6:00 PM', status: 'Confirmed' },
-      { mentorName: 'Priya Ramakrishnan (Microsoft)', topic: 'Resume Review & FAANG Strategy', scheduledTime: 'Sun, Aug 31 - 7:30 PM', status: 'Confirmed' }
-    ],
-    activities: [
-      'Solved 5 Binary Search problems in Notes Hub',
-      'Exported ATS-friendly Resume (Modern Blue)',
-      'Completed 15 min Voice HR Mock Interview (Score 9/10)',
-      'Booked 1-on-1 session with Anish Sundaram (Google)'
-    ]
-  },
-  {
-    id: 'std_02',
-    name: 'Santhiya S',
-    email: 'santhiya.s@college.edu',
-    department: 'Artificial Intelligence & Data Science',
-    year: '4th Year',
-    status: 'Active',
-    joinedDate: '2024-08-18',
-    lastLogin: 'Yesterday, 10:15 PM',
-    loginHistory: [
-      { timestamp: '2026-08-27 10:15 PM', device: 'Safari on macOS', ip: '115.240.90.12' },
-      { timestamp: '2026-08-25 02:10 PM', device: 'Chrome on macOS', ip: '115.240.90.12' }
-    ],
-    xpPoints: 290,
-    streak: 8,
-    skills: ['PyTorch (Advanced)', 'Machine Learning (Advanced)', 'FastAPI (Intermediate)', 'Pandas & NumPy (Expert)'],
-    badges: [
-      { name: 'AI Explorer', earnedAt: '2026-08-22', icon: '🤖' },
-      { name: 'Python Master', earnedAt: '2026-08-25', icon: '🐍' }
-    ],
-    testsTaken: [
-      { testName: 'Infosys InfyTQ Mock Test', score: '94/100', rank: 2, date: '2026-08-26' }
-    ],
-    applications: [
-      { company: 'Flipkart', role: 'Data Scientist Intern', status: 'Shortlisted', appliedDate: '2026-08-25' }
-    ],
-    sessionsBooked: [
-      { mentorName: 'Priya Ramakrishnan (Microsoft)', topic: 'Transitioning to Generative AI', scheduledTime: 'Sat, Aug 30 - 4:00 PM', status: 'Confirmed' }
-    ],
-    activities: [
-      'Completed Machine Learning Mathematics Notes in Notes Hub',
-      'Created Study Group "🚀 AI & Cloud Engineering Group"'
-    ]
-  },
-  {
-    id: 'std_03',
-    name: 'Jayyappan K',
-    email: 'jayyappan.k@college.edu',
-    department: 'Electronics & Communication',
-    year: '3rd Year',
-    status: 'Active',
-    joinedDate: '2024-09-01',
-    lastLogin: 'Today, 12:40 AM',
-    loginHistory: [
-      { timestamp: '2026-08-28 12:40 AM', device: 'Firefox on Linux', ip: '122.164.88.45' }
-    ],
-    xpPoints: 210,
-    streak: 5,
-    skills: ['VLSI Design (Intermediate)', 'Verilog (Intermediate)', 'C++ (Advanced)', 'Embedded Systems (Beginner)'],
-    badges: [
-      { name: 'Hardware Hero', earnedAt: '2026-08-26', icon: '⚡' }
-    ],
-    testsTaken: [
-      { testName: 'Texas Instruments Mock Test', score: '78/100', rank: 8, date: '2026-08-25' }
-    ],
-    applications: [
-      { company: 'Qualcomm', role: 'Hardware Engineer Intern', status: 'Applied', appliedDate: '2026-08-27' }
-    ],
-    sessionsBooked: [],
-    activities: [
-      'Read Digital Electronics Notes (Unit 1 & 2)',
-      'Generated 25 Aptitude practice questions'
-    ]
-  },
-  {
-    id: 'std_04',
-    name: 'Kavitha R',
-    email: 'kavitha.r@college.edu',
-    department: 'Mechanical Engineering',
-    year: '4th Year',
-    status: 'Active',
-    joinedDate: '2024-09-05',
-    lastLogin: '2 days ago',
-    loginHistory: [
-      { timestamp: '2026-08-26 06:10 PM', device: 'Chrome on Windows 10', ip: '182.72.100.34' }
-    ],
-    xpPoints: 180,
-    streak: 3,
-    skills: ['AutoCAD (Expert)', 'SolidWorks (Advanced)', 'Thermodynamics (Advanced)', 'Python for Engineers (Beginner)'],
-    badges: [
-      { name: 'Design Specialist', earnedAt: '2026-08-24', icon: '⚙️' }
-    ],
-    testsTaken: [
-      { testName: 'L&T Core Engineering Test', score: '82/100', rank: 4, date: '2026-08-24' }
-    ],
-    applications: [
-      { company: 'Tata Motors', role: 'Graduate Engineer Trainee', status: 'Under Review', appliedDate: '2026-08-23' }
-    ],
-    sessionsBooked: [],
-    activities: [
-      'Reviewed Thermodynamics formula sheets in Notes Hub',
-      'Calculated attendance bunks in Bunk Planner'
-    ]
+    stats: {
+      totalLogins: 68,
+      coursesCompleted: 18,
+      testsTaken: 14,
+      jobsApplied: 24,
+      xpPoints: 1850,
+      badgesEarned: 5,
+      currentStreak: 15
+    }
   }
 ]
 
 export default function AdminPanel() {
-  // ── Active Section State ──────────────────────────────────────
-  const [activeSection, setActiveSection] = useState('15.1')
+  const { user, login } = useAuth()
+  
+  // ── ADMIN AUTH STATE ──────────────────────────────────────────
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return localStorage.getItem('campuspilot_admin_auth') === 'true' || user?.email === ADMIN_EMAIL || user?.role === 'admin'
+  })
+  const [authEmail, setAuthEmail] = useState(ADMIN_EMAIL)
+  const [authPassword, setAuthPassword] = useState('')
+
+  // ── ACTIVE NAVIGATION TAB ─────────────────────────────────────
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('All')
-  const [selectedStudentForModal, setSelectedStudentForModal] = useState(null)
 
-  // ── Database State with LocalStorage Persistence ───────────────
-  const [companies, setCompanies] = useState(() => {
+  // ── MODALS STATE ──────────────────────────────────────────────
+  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [modalMode, setModalMode] = useState(null) // 'add_student', 'edit_student', 'add_skill', 'add_job', 'add_note', 'add_company', 'add_mentor', 'add_test', 'add_alumni', 'add_role'
+  const [modalForm, setModalForm] = useState({})
+
+  // ── DATABASE STORES WITH LOCALSTORAGE SYNC ─────────────────────
+  const [students, setStudents] = useState(() => {
     try {
-      const saved = localStorage.getItem('campuspilot_admin_companies')
-      return saved ? JSON.parse(saved) : SEED_COMPANIES.slice(0, 30)
-    } catch { return SEED_COMPANIES.slice(0, 30) }
+      const saved = localStorage.getItem('campuspilot_admin_students_db')
+      return saved ? JSON.parse(saved) : INITIAL_STUDENTS
+    } catch { return INITIAL_STUDENTS }
   })
 
-  const [alumniList, setAlumniList] = useState(() => {
+  const [skills, setSkills] = useState(() => {
     try {
-      const saved = localStorage.getItem('campuspilot_admin_alumni')
-      return saved ? JSON.parse(saved) : SEED_MENTORS.slice(0, 20).map(m => ({ ...m, status: 'Verified' }))
-    } catch { return SEED_MENTORS.slice(0, 20) }
+      const saved = localStorage.getItem('campuspilot_admin_skills_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 'sk1', name: 'Python', category: 'Programming', level: 'Adv', duration: '3 months', prereq: 'Basic Logic', courses: 45, students: 234, relatedRoles: 'Data Analyst, AI Engineer, Backend Dev' },
+        { id: 'sk2', name: 'React.js', category: 'Web Dev', level: 'Adv', duration: '2 months', prereq: 'JavaScript ES6', courses: 32, students: 189, relatedRoles: 'Frontend Developer, Full Stack' },
+        { id: 'sk3', name: 'SQL', category: 'Database', level: 'Int', duration: '1.5 months', prereq: 'None', courses: 28, students: 156, relatedRoles: 'Data Analyst, Database Admin' },
+        { id: 'sk4', name: 'Docker', category: 'DevOps', level: 'Int', duration: '1 month', prereq: 'Linux Basics', courses: 15, students: 89, relatedRoles: 'DevOps Engineer, Cloud Architect' },
+        { id: 'sk5', name: 'Data Structures & Algorithms', category: 'Programming', level: 'Adv', duration: '4 months', prereq: 'C++ or Java', courses: 60, students: 410, relatedRoles: 'Software Engineer, SDE-1' }
+      ]
+    } catch { return [] }
+  })
+
+  const [jobs, setJobs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_admin_jobs_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 'jb1', company: 'Google', role: 'SDE-1', ctc: '18-32 LPA', location: 'Bengaluru', experience: 'Fresher', applied: 45, status: 'Active', applyLink: 'https://careers.google.com' },
+        { id: 'jb2', company: 'Amazon', role: 'Data Analyst', ctc: '14-22 LPA', location: 'Hyderabad', experience: '0-1 yr', applied: 32, status: 'Active', applyLink: 'https://amazon.jobs' },
+        { id: 'jb3', company: 'TCS', role: 'Ninja & Digital', ctc: '3.6-7.5 LPA', location: 'Pan India', experience: 'Fresher', applied: 89, status: 'Active', applyLink: 'https://nextstep.tcs.com' },
+        { id: 'jb4', company: 'Infosys', role: 'Power Programmer', ctc: '6-9.5 LPA', location: 'Bengaluru', experience: 'Fresher', applied: 54, status: 'Active', applyLink: 'https://infosys.com' }
+      ]
+    } catch { return [] }
+  })
+
+  const [notes, setNotes] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_admin_notes_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 'nt1', title: 'DSA Complete Guide', category: 'CSE', subject: 'Data Structures', level: 'Adv', readTime: '15 min', rating: '4.9/5', content: 'Comprehensive notes covering Arrays, Trees, Graphs, DP, and greedy algorithms with code.' },
+        { id: 'nt2', title: 'DBMS Handbook & SQL', category: 'CSE', subject: 'DBMS', level: 'Int', readTime: '12 min', rating: '4.8/5', content: 'Relational algebra, normal forms 1NF to BCNF, SQL transactions, ACID, indexing.' },
+        { id: 'nt3', title: 'Operating Systems Deep Dive', category: 'CSE', subject: 'Operating Systems', level: 'Int', readTime: '10 min', rating: '4.7/5', content: 'Process management, CPU scheduling algorithms, Deadlocks, Paging, Virtual Memory.' },
+        { id: 'nt4', title: 'Digital Electronics & Logic', category: 'ECE', subject: 'Digital Circuits', level: 'Beg', readTime: '8 min', rating: '4.8/5', content: 'Boolean algebra, logic gates, flip-flops, multiplexers, counters, and registers.' }
+      ]
+    } catch { return [] }
+  })
+
+  const [companies, setCompanies] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_admin_companies_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 'cp1', name: 'Google', industry: 'Tech/Product', ctc: '18-32 LPA', students: 45, isArchived: true, hq: 'Bengaluru' },
+        { id: 'cp2', name: 'TCS', industry: 'IT Services', ctc: '3.6-7.5 LPA', students: 234, isArchived: true, hq: 'Mumbai' },
+        { id: 'cp3', name: 'ONGC', industry: 'Oil & Gas / PSU', ctc: '8-14 LPA', students: 56, isArchived: true, hq: 'Dehradun' },
+        { id: 'cp4', name: 'Microsoft', industry: 'Tech/Product', ctc: '16-30 LPA', students: 38, isArchived: true, hq: 'Hyderabad' },
+        { id: 'cp5', name: 'Flipkart', industry: 'E-Commerce', ctc: '14-26 LPA', students: 42, isArchived: true, hq: 'Bengaluru' }
+      ]
+    } catch { return [] }
+  })
+
+  const [mentors, setMentors] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_admin_mentors_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 'm1', name: 'Siddharth S', company: 'Google', role: 'Sr. SWE', sessions: '85+', rating: 4.9, email: 'siddharth@google.com' },
+        { id: 'm2', name: 'Deepika S', company: 'Microsoft', role: 'Lead Data Sci', sessions: '95+', rating: 4.9, email: 'deepika@microsoft.com' },
+        { id: 'm3', name: 'Vikram N', company: 'Zoho', role: 'Full Stack Staff', sessions: '150+', rating: 4.8, email: 'vikram@zoho.com' }
+      ]
+    } catch { return [] }
+  })
+
+  const [mentorRequests, setMentorRequests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_admin_mentor_reqs_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 'mr1', student: 'Rahul K', mentor: 'Siddharth S (Google)', status: 'Pending', date: 'Today, 10:30 AM' },
+        { id: 'mr2', student: 'Priya S', mentor: 'Deepika S (Microsoft)', status: 'Accepted', date: 'Yesterday' },
+        { id: 'mr3', student: 'Amit R', mentor: 'Vikram N (Zoho)', status: 'Rejected', date: '2 days ago' }
+      ]
+    } catch { return [] }
+  })
+
+  const [tests, setTests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_admin_tests_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 't1', name: 'Aptitude Master Test 1', type: 'Aptitude', questions: 50, duration: '60 min', students: 234, cutoff: '75%' },
+        { id: 't2', name: 'TCS NQT Full Mock Test', type: 'Company Pattern', questions: 80, duration: '90 min', students: 156, cutoff: '70%' },
+        { id: 't3', name: 'DSA & Algorithms Quiz 1', type: 'Skill Assessment', questions: 20, duration: '30 min', students: 89, cutoff: '80%' }
+      ]
+    } catch { return [] }
+  })
+
+  const [aiApplications, setAiApplications] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_admin_applications_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 'ap1', student: 'Rahul K', company: 'Google', role: 'SDE-1', status: 'Applied', date: 'Today' },
+        { id: 'ap2', student: 'Priya S', company: 'Amazon', role: 'Data Analyst', status: 'Shortlisted', date: 'Yesterday' },
+        { id: 'ap3', student: 'Amit R', company: 'TCS', role: 'Ninja', status: 'Rejected', date: '2 days ago' },
+        { id: 'ap4', student: 'Tarun Babu', company: 'Microsoft', role: 'Software Engineer', status: 'Shortlisted', date: 'Today' }
+      ]
+    } catch { return [] }
+  })
+
+  const [alumni, setAlumni] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_admin_alumni_db')
+      return saved ? JSON.parse(saved) : [
+        { id: 'al1', name: 'Karthik S', company: 'Zoho', role: 'Sr. Developer', year: '2024', dept: 'CSE' },
+        { id: 'al2', name: 'Ananya R', company: 'TCS', role: 'Digital Engineer', year: '2024', dept: 'IT' },
+        { id: 'al3', name: 'Mohammed R', company: 'Amazon', role: 'SDE-2', year: '2022', dept: 'CSE' }
+      ]
+    } catch { return [] }
   })
 
   const [studyGroups, setStudyGroups] = useState(() => {
     try {
-      const saved = localStorage.getItem('campuspilot_admin_groups')
+      const saved = localStorage.getItem('campuspilot_admin_studygroups_db')
       return saved ? JSON.parse(saved) : [
-        { id: 'grp_1', name: '🚀 Full Stack & DSA Masters', members: 24, active: true, createdBy: 'Tarun Babu', topic: 'LeetCode & System Design', reports: 0 },
-        { id: 'grp_2', name: '🤖 AI & Machine Learning Hub', members: 18, active: true, createdBy: 'Santhiya S', topic: 'PyTorch & NLP', reports: 0 },
-        { id: 'grp_3', name: '💼 TCS & Infosys Fast-Track Prep', members: 42, active: true, createdBy: 'Arjun K', topic: 'Aptitude & Coding', reports: 1 }
+        { id: 'g1', name: 'DSA Masters Room', members: 12, streak: 12, active: '4/4 active', admin: 'Arjun K' },
+        { id: 'g2', name: 'Python AI Squad', members: 8, streak: 8, active: '3/4 active', admin: 'Santhiya S' },
+        { id: 'g3', name: 'Interview Pro Guild', members: 15, streak: 5, active: '4/4 active', admin: 'Tarun B' }
       ]
     } catch { return [] }
   })
 
-  const [aiApplyJobs, setAiApplyJobs] = useState(() => {
+  const [resumes, setResumes] = useState(() => {
     try {
-      const saved = localStorage.getItem('campuspilot_admin_ai_apply')
-      return saved ? JSON.parse(saved) : SEED_JOBS.slice(0, 15).map(j => ({ ...j, autoApplyCount: 42, verified: true }))
-    } catch { return SEED_JOBS.slice(0, 15) }
-  })
-
-  const [mentorsList, setMentorsList] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_mentors')
-      return saved ? JSON.parse(saved) : SEED_MENTORS.slice(0, 25).map(m => ({ ...m, status: 'Approved' }))
-    } catch { return SEED_MENTORS.slice(0, 25) }
-  })
-
-  const [mockTests, setMockTests] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_mocktests')
+      const saved = localStorage.getItem('campuspilot_admin_resumes_db')
       return saved ? JSON.parse(saved) : [
-        { id: 'mt_1', name: 'TCS NQT Grand Simulation 2026', company: 'TCS', duration: '90 min', questions: 80, cutoff: '75%', attempts: 340, avgScore: '68%' },
-        { id: 'mt_2', name: 'Infosys InfyTQ Round-1 Test', company: 'Infosys', duration: '60 min', questions: 40, cutoff: '70%', attempts: 280, avgScore: '71%' },
-        { id: 'mt_3', name: 'Amazon SDE-1 Coding & DSA Round', company: 'Amazon', duration: '120 min', questions: 3, cutoff: '85%', attempts: 190, avgScore: '59%' },
-        { id: 'mt_4', name: 'Wipro Elite National Talent Test', company: 'Wipro', duration: '60 min', questions: 50, cutoff: '65%', attempts: 210, avgScore: '74%' }
+        { id: 'res1', student: 'Rahul K', template: 'Professional Modern', score: '85%', downloads: 12 },
+        { id: 'res2', student: 'Priya S', template: 'Minimalist Classic', score: '78%', downloads: 8 },
+        { id: 'res3', student: 'Amit R', template: 'ATS-Optimized Standard', score: '92%', downloads: 15 },
+        { id: 'res4', student: 'Tarun Babu', template: 'ATS-Optimized Standard', score: '98%', downloads: 22 }
       ]
     } catch { return [] }
-  })
-
-  const [skillsList, setSkillsList] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_skills')
-      return saved ? JSON.parse(saved) : SEED_SKILLS.slice(0, 20)
-    } catch { return SEED_SKILLS.slice(0, 20) }
   })
 
   const [rolePaths, setRolePaths] = useState(() => {
     try {
-      const saved = localStorage.getItem('campuspilot_admin_roles')
-      return saved ? JSON.parse(saved) : CAREER_ROLE_PRESETS.slice(0, 20)
-    } catch { return CAREER_ROLE_PRESETS.slice(0, 20) }
-  })
-
-  const [resumeTemplates, setResumeTemplates] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_resumes')
+      const saved = localStorage.getItem('campuspilot_admin_rolepaths_db')
       return saved ? JSON.parse(saved) : [
-        { id: 't1', name: 'Modern Professional (Blue)', style: 'Contemporary 2-Column', atsScore: '98/100', downloads: 14200, active: true },
-        { id: 't2', name: 'Minimalist Classic', style: 'Serif Elegant', atsScore: '95/100', downloads: 9800, active: true },
-        { id: 't3', name: 'ATS Optimized Standard', style: 'Single Column High-Parse', atsScore: '100/100', downloads: 18500, active: true },
-        { id: 't4', name: 'Creative Portfolio (Purple)', style: 'Modern Visual Accent', atsScore: '92/100', downloads: 6400, active: true },
-        { id: 't5', name: 'Executive Leadership (Emerald)', style: 'Corporate Accent', atsScore: '96/100', downloads: 5200, active: true }
+        { id: 'rp1', name: 'Frontend Developer', category: 'Tech', skills: 15, students: 234, salary: '₹6–14 LPA' },
+        { id: 'rp2', name: 'Data Scientist & ML Engineer', category: 'Data', skills: 18, students: 156, salary: '₹8–18 LPA' },
+        { id: 'rp3', name: 'Product Marketing Manager', category: 'Business', skills: 12, students: 89, salary: '₹7–15 LPA' }
       ]
     } catch { return [] }
   })
 
-  const [interviewQuestions, setInterviewQuestions] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_interviews')
-      return saved ? JSON.parse(saved) : [
-        { id: 'iq_1', question: 'Explain the difference between Process and Thread with memory allocation.', category: 'Operating Systems', difficulty: 'Medium', expectedTime: '3 min' },
-        { id: 'iq_2', question: 'How do Virtual DOM and reconciliation work in React.js?', category: 'Web Development', difficulty: 'Medium', expectedTime: '4 min' },
-        { id: 'iq_3', question: 'Tell me about a time you faced a difficult deadline in a college project.', category: 'HR Behavioral', difficulty: 'Easy', expectedTime: '2 min' },
-        { id: 'iq_4', question: 'Derive time complexity for Dijkstra Algorithm using Min-Heap.', category: 'DSA', difficulty: 'Hard', expectedTime: '5 min' }
-      ]
-    } catch { return [] }
-  })
-
-  const [aptitudeQuestions, setAptitudeQuestions] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_aptitude')
-      return saved ? JSON.parse(saved) : [
-        { id: 'aq_1', q: 'A train 120m long passes a pole in 6 seconds. What is the speed of the train?', answer: '72 km/hr', category: 'Time & Distance', difficulty: 'Easy' },
-        { id: 'aq_2', q: 'Find the odd one out: 3, 5, 11, 14, 17, 21', answer: '14 (Even number)', category: 'Logical Reasoning', difficulty: 'Easy' },
-        { id: 'aq_3', q: 'A pipe can fill a tank in 4 hours, B in 6 hours. Both open together, time taken?', answer: '2.4 hours (2 hrs 24 mins)', category: 'Pipes & Cisterns', difficulty: 'Medium' }
-      ]
-    } catch { return [] }
-  })
-
-  const [studentsList, setStudentsList] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_students')
-      return saved ? JSON.parse(saved) : INITIAL_STUDENTS_DB
-    } catch { return INITIAL_STUDENTS_DB }
-  })
-
-  // ── Auto-save to LocalStorage ───────────────────────────────────
+  // ── SYNC TO LOCALSTORAGE ───────────────────────────────────────
   useEffect(() => {
-    localStorage.setItem('campuspilot_admin_companies', JSON.stringify(companies))
-    localStorage.setItem('campuspilot_admin_alumni', JSON.stringify(alumniList))
-    localStorage.setItem('campuspilot_admin_groups', JSON.stringify(studyGroups))
-    localStorage.setItem('campuspilot_admin_ai_apply', JSON.stringify(aiApplyJobs))
-    localStorage.setItem('campuspilot_admin_mentors', JSON.stringify(mentorsList))
-    localStorage.setItem('campuspilot_admin_mocktests', JSON.stringify(mockTests))
-    localStorage.setItem('campuspilot_admin_skills', JSON.stringify(skillsList))
-    localStorage.setItem('campuspilot_admin_roles', JSON.stringify(rolePaths))
-    localStorage.setItem('campuspilot_admin_resumes', JSON.stringify(resumeTemplates))
-    localStorage.setItem('campuspilot_admin_interviews', JSON.stringify(interviewQuestions))
-    localStorage.setItem('campuspilot_admin_aptitude', JSON.stringify(aptitudeQuestions))
-    localStorage.setItem('campuspilot_admin_students', JSON.stringify(studentsList))
-  }, [companies, alumniList, studyGroups, aiApplyJobs, mentorsList, mockTests, skillsList, rolePaths, resumeTemplates, interviewQuestions, aptitudeQuestions, studentsList])
+    localStorage.setItem('campuspilot_admin_students_db', JSON.stringify(students))
+    localStorage.setItem('campuspilot_admin_skills_db', JSON.stringify(skills))
+    localStorage.setItem('campuspilot_admin_jobs_db', JSON.stringify(jobs))
+    localStorage.setItem('campuspilot_admin_notes_db', JSON.stringify(notes))
+    localStorage.setItem('campuspilot_admin_companies_db', JSON.stringify(companies))
+    localStorage.setItem('campuspilot_admin_mentors_db', JSON.stringify(mentors))
+    localStorage.setItem('campuspilot_admin_mentor_reqs_db', JSON.stringify(mentorRequests))
+    localStorage.setItem('campuspilot_admin_tests_db', JSON.stringify(tests))
+    localStorage.setItem('campuspilot_admin_applications_db', JSON.stringify(aiApplications))
+    localStorage.setItem('campuspilot_admin_alumni_db', JSON.stringify(alumni))
+    localStorage.setItem('campuspilot_admin_studygroups_db', JSON.stringify(studyGroups))
+    localStorage.setItem('campuspilot_admin_resumes_db', JSON.stringify(resumes))
+    localStorage.setItem('campuspilot_admin_rolepaths_db', JSON.stringify(rolePaths))
+  }, [students, skills, jobs, notes, companies, mentors, mentorRequests, tests, aiApplications, alumni, studyGroups, resumes, rolePaths])
 
-  // ── Generic CRUD Helpers ───────────────────────────────────────
-  const handleDeleteItem = (listSetter, id, itemName) => {
-    if (window.confirm(`Are you sure you want to delete "${itemName}"?`)) {
-      listSetter(prev => prev.filter(item => item.id !== id))
-      toast.success(`Deleted "${itemName}" from database.`)
-    }
-  }
-
-  // ── Modals / Form Inline Inputs ────────────────────────────────
-  const [showAddModal, setShowAddModal] = useState(false)
-  const [formData, setFormData] = useState({})
-
-  const handleOpenAdd = () => {
-    setFormData({})
-    setShowAddModal(true)
-  }
-
-  const handleSaveAdd = (e) => {
+  // ── ADMIN LOGIN HANDLER ───────────────────────────────────────
+  const handleAdminLogin = (e) => {
     e.preventDefault()
-    const newId = `custom_${Date.now()}`
-    const item = { id: newId, ...formData }
-
-    switch (activeSection) {
-      case '15.1':
-        setCompanies(prev => [item, ...prev]); break
-      case '15.2':
-        setAlumniList(prev => [{ ...item, status: 'Verified' }, ...prev]); break
-      case '15.3':
-        setStudyGroups(prev => [{ ...item, members: 1, active: true, reports: 0 }, ...prev]); break
-      case '15.4':
-        setAiApplyJobs(prev => [{ ...item, autoApplyCount: 0, verified: true }, ...prev]); break
-      case '15.5':
-        setMentorsList(prev => [{ ...item, status: 'Approved', reviews: 0, sessionsConducted: 0 }, ...prev]); break
-      case '15.6':
-        setMockTests(prev => [{ ...item, attempts: 0, avgScore: '0%' }, ...prev]); break
-      case '15.7':
-        setSkillsList(prev => [item, ...prev]); break
-      case '15.8':
-        setRolePaths(prev => [item, ...prev]); break
-      case '15.9':
-        setResumeTemplates(prev => [{ ...item, downloads: 0, active: true }, ...prev]); break
-      case '15.10':
-        setAiApplyJobs(prev => [item, ...prev]); break
-      case '15.11':
-        setInterviewQuestions(prev => [item, ...prev]); break
-      case '15.12':
-        setAptitudeQuestions(prev => [item, ...prev]); break
-      case '15.14':
-        setStudentsList(prev => [{
-          ...item,
-          status: 'Active',
-          joinedDate: new Date().toISOString().split('T')[0],
-          lastLogin: 'Just now',
-          xpPoints: 0,
-          streak: 1,
-          loginHistory: [{ timestamp: 'Just now', device: 'Web App', ip: '127.0.0.1' }],
-          skills: item.skills ? item.skills.split(',').map(s => s.trim()) : [],
-          badges: [],
-          testsTaken: [],
-          applications: [],
-          sessionsBooked: [],
-          activities: ['Account created by Administrator']
-        }, ...prev]); break
-      default: break
+    if (authEmail === ADMIN_EMAIL && authPassword === ADMIN_PASS) {
+      setIsAdminAuthenticated(true)
+      localStorage.setItem('campuspilot_admin_auth', 'true')
+      toast.success('👑 Welcome back, Administrator!')
+    } else {
+      toast.error('Invalid Admin Credentials! (Use tarunibabu2006@gmail.com / prawinkumar_0704)')
     }
-
-    setShowAddModal(false)
-    toast.success(`🎉 New item published successfully!`)
   }
 
-  return (
-    <div style={{ padding: '1.5rem', maxWidth: '1250px', margin: '0 auto' }}>
+  const handleAdminLogout = () => {
+    setIsAdminAuthenticated(false)
+    localStorage.removeItem('campuspilot_admin_auth')
+    toast.success('Admin logged out.')
+  }
 
-      {/* ── HEADER BANNER ───────────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }}
-        style={{
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%)',
-          border: '1px solid rgba(139,92,246,0.4)',
-          borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem',
-          boxShadow: '0 8px 32px rgba(124,58,237,0.25)'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-              <span style={{ fontSize: '2.5rem' }}>👑</span>
-              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: 'white', background: 'linear-gradient(135deg, #fff, #c4b5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Enterprise Admin & Master Database Cockpit
-              </h1>
+  // ── DELETE GENERIC HANDLER ────────────────────────────────────
+  const handleDelete = (setter, id, name) => {
+    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+      setter(prev => prev.filter(item => item.id !== id))
+      toast.success(`Deleted "${name}"`)
+    }
+  }
+
+  // ── EXPORT CSV HELPER ─────────────────────────────────────────
+  const handleExportCSV = (data, filename) => {
+    if (!data || !data.length) {
+      toast.error('No data to export!')
+      return
+    }
+    const headers = Object.keys(data[0]).join(',')
+    const rows = data.map(obj => Object.values(obj).map(v => typeof v === 'object' ? JSON.stringify(v).replace(/,/g, ';') : `"${v}"`).join(','))
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n')
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement('a')
+    link.setAttribute('href', encodedUri)
+    link.setAttribute('download', `${filename}_${Date.now()}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    toast.success(`📥 Exported ${filename}.csv`)
+  }
+
+  // ── SAVE MODAL HANDLER ────────────────────────────────────────
+  const handleSaveModal = (e) => {
+    e.preventDefault()
+    const id = modalForm.id || `custom_${Date.now()}`
+    const item = { ...modalForm, id }
+
+    if (modalMode === 'add_student' || modalMode === 'edit_student') {
+      if (modalMode === 'edit_student') {
+        setStudents(prev => prev.map(s => s.id === item.id ? { ...s, ...item } : s))
+      } else {
+        setStudents(prev => [{
+          ...item,
+          loginCount: 1,
+          joined: 'Today',
+          lastLogin: 'Just now',
+          skills: item.skillsInput ? item.skillsInput.split(',').map(s => s.trim()) : ['Python', 'SQL'],
+          achievements: [],
+          activityLog: [{ time: 'Just now', text: 'Account registered by Administrator' }],
+          stats: { totalLogins: 1, coursesCompleted: 0, testsTaken: 0, jobsApplied: 0, xpPoints: 100, badgesEarned: 0, currentStreak: 1 }
+        }, ...prev])
+      }
+    } else if (modalMode === 'add_skill') {
+      setSkills(prev => [{ ...item, courses: 10, students: 0 }, ...prev])
+    } else if (modalMode === 'add_job') {
+      setJobs(prev => [{ ...item, applied: 0, status: 'Active' }, ...prev])
+    } else if (modalMode === 'add_note') {
+      setNotes(prev => [{ ...item, rating: '5.0/5' }, ...prev])
+    } else if (modalMode === 'add_company') {
+      setCompanies(prev => [{ ...item, students: 0, isArchived: true }, ...prev])
+    } else if (modalMode === 'add_mentor') {
+      setMentors(prev => [{ ...item, sessions: '0', rating: 5.0 }, ...prev])
+    } else if (modalMode === 'add_test') {
+      setTests(prev => [{ ...item, students: 0 }, ...prev])
+    } else if (modalMode === 'add_alumni') {
+      setAlumni(prev => [item, ...prev])
+    } else if (modalMode === 'add_role') {
+      setRolePaths(prev => [{ ...item, students: 0 }, ...prev])
+    }
+
+    setModalMode(null)
+    setModalForm({})
+    toast.success('Saved to Database! 🚀')
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // IF NOT AUTHENTICATED AS ADMIN: SHOW ADMIN LOGIN SCREEN
+  // ══════════════════════════════════════════════════════════════
+  if (!isAdminAuthenticated) {
+    return (
+      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+          style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '1.5rem', padding: '2.5rem', maxWidth: '440px', width: '100%', boxShadow: '0 12px 40px rgba(0,0,0,0.5)' }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <span style={{ fontSize: '3rem' }}>👑</span>
+            <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.6rem', margin: '0.5rem 0 0.2rem' }}>Admin Access Only</h2>
+            <p style={{ color: '#c4b5fd', fontSize: '0.85rem' }}>Enter authorized administrator credentials to unlock the master database.</p>
+          </div>
+
+          <form onSubmit={handleAdminLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div>
+              <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Admin Email</label>
+              <input
+                type="email"
+                className="form-input"
+                value={authEmail}
+                onChange={e => setAuthEmail(e.target.value)}
+                required
+                style={{ width: '100%', marginTop: '0.3rem' }}
+              />
             </div>
-            <p style={{ color: '#c4b5fd', margin: 0, fontSize: '0.92rem' }}>
-              Full database CRUD control across 14 modules: Companies, Alumni, Mentors, Tests, Skills, Roles, and Students.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <span style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', padding: '0.35rem 0.85rem', borderRadius: '1rem', fontWeight: '800', fontSize: '0.82rem' }}>
-              🟢 Full DB Access
-            </span>
-            <span style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', padding: '0.35rem 0.85rem', borderRadius: '1rem', fontWeight: '800', fontSize: '0.82rem' }}>
-              ⚡ 14 Modules Live
-            </span>
-          </div>
-        </div>
-
-        {/* Quick Database Stats Ribbon */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.6rem', marginTop: '1.25rem' }}>
-          {[
-            { label: 'Students', val: studentsList.length, icon: '🎓', color: '#60a5fa' },
-            { label: 'Companies', val: companies.length, icon: '🏛️', color: '#f59e0b' },
-            { label: 'Mentors', val: mentorsList.length, icon: '🤝', color: '#34d399' },
-            { label: 'Study Groups', val: studyGroups.length, icon: '👥', color: '#a78bfa' },
-            { label: 'Mock Tests', val: mockTests.length, icon: '📝', color: '#f43f5e' },
-            { label: 'Job Feeds', val: aiApplyJobs.length, icon: '💼', color: '#38bdf8' }
-          ].map(s => (
-            <div key={s.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.75rem', padding: '0.6rem 0.8rem', textAlign: 'center' }}>
-              <div style={{ color: s.color, fontWeight: '900', fontSize: '1.1rem' }}>{s.icon} {s.val}</div>
-              <div style={{ color: '#94a3b8', fontSize: '0.72rem', fontWeight: '600' }}>{s.label}</div>
+            <div>
+              <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Password</label>
+              <input
+                type="password"
+                className="form-input"
+                placeholder="••••••••••••"
+                value={authPassword}
+                onChange={e => setAuthPassword(e.target.value)}
+                required
+                style={{ width: '100%', marginTop: '0.3rem' }}
+              />
             </div>
-          ))}
-        </div>
-      </motion.div>
 
-      {/* ── SECTION NAV TABS (15.1 to 15.14) ────────────────────── */}
-      <div style={{ display: 'flex', gap: '0.45rem', overflowX: 'auto', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
-        {ADMIN_SECTIONS.map(sec => (
-          <button
-            key={sec.id}
-            onClick={() => { setActiveSection(sec.id); setSearchTerm(''); setCategoryFilter('All') }}
-            style={{
-              flexShrink: 0,
-              padding: '0.6rem 1rem',
-              borderRadius: '0.75rem',
-              fontWeight: '700',
-              fontSize: '0.82rem',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              background: activeSection === sec.id ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'rgba(255,255,255,0.05)',
-              color: activeSection === sec.id ? 'white' : '#94a3b8',
-              border: activeSection === sec.id ? '1px solid rgba(139,92,246,0.5)' : '1px solid rgba(255,255,255,0.08)',
-              transition: 'all 0.2s'
-            }}
-          >
-            {sec.icon} {sec.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── CONTROLS: SEARCH & ACTIONS ───────────────────────────── */}
-      {activeSection !== 'analytics' && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
-          <div style={{ display: 'flex', gap: '0.5rem', flex: 1, minWidth: '260px' }}>
-            <input
-              type="text"
-              placeholder={`🔍 Search in ${ADMIN_SECTIONS.find(s => s.id === activeSection)?.label}...`}
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.85rem', outline: 'none' }}
-            />
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button
-              onClick={handleOpenAdd}
-              style={{ padding: '0.65rem 1.2rem', borderRadius: '0.6rem', background: 'linear-gradient(135deg, #059669, #10b981)', color: 'white', border: 'none', fontWeight: '800', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-            >
-              ➕ Add New Entry
+            <button type="submit" className="btn btn-primary btn-full" style={{ padding: '0.8rem', fontWeight: '800', fontSize: '0.95rem', marginTop: '0.5rem', background: 'linear-gradient(135deg, #7c3aed, #2563eb)' }}>
+              Unlock Admin Panel 🚀
             </button>
+          </form>
+
+          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.8rem', marginTop: '1.25rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+            <div><strong>Master Admin:</strong> {ADMIN_EMAIL}</div>
+            <div><strong>Password:</strong> prawinkumar_0704</div>
           </div>
+        </motion.div>
+      </div>
+    )
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // FULL ADMIN PANEL INTERFACE
+  // ══════════════════════════════════════════════════════════════
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1.5rem', padding: '1rem', maxWidth: '1440px', margin: '0 auto', minHeight: '90vh' }}>
+      
+      {/* ── SIDEBAR NAVIGATION ──────────────────────────────────── */}
+      <aside style={{ background: 'linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '1.25rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 'fit-content', position: 'sticky', top: '1rem' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <span style={{ fontSize: '1.8rem' }}>👑</span>
+            <div>
+              <div style={{ color: 'white', fontWeight: '900', fontSize: '1rem' }}>CampusPilot</div>
+              <div style={{ color: '#a78bfa', fontSize: '0.72rem', fontWeight: '700' }}>ADMIN COCKPIT</div>
+            </div>
+          </div>
+
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            {SECTIONS.map(sec => (
+              <button
+                key={sec.id}
+                onClick={() => { setActiveTab(sec.id); setSearchTerm(''); setCategoryFilter('All') }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.6rem 0.85rem',
+                  borderRadius: '0.6rem',
+                  fontWeight: '700',
+                  fontSize: '0.82rem',
+                  textAlign: 'left',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: activeTab === sec.id ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'transparent',
+                  color: activeTab === sec.id ? 'white' : '#94a3b8',
+                  transition: 'all 0.15s'
+                }}
+              >
+                <span>{sec.icon}</span>
+                <span>{sec.label.replace(/^[^\w]+/, '')}</span>
+              </button>
+            ))}
+          </nav>
         </div>
-      )}
 
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.1 ARCHIVES MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.1' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>🏛️ 15.1 Company Archives Management ({companies.length} Records)</h3>
-            <span className="badge badge-info">Bulk Import Ready</span>
-          </div>
+        <button
+          onClick={handleAdminLogout}
+          style={{ marginTop: '1.5rem', padding: '0.6rem', borderRadius: '0.6rem', background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer' }}
+        >
+          🔒 Logout Admin
+        </button>
+      </aside>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: '#94a3b8' }}>
-                  <th style={{ padding: '0.6rem' }}>Company</th>
-                  <th style={{ padding: '0.6rem' }}>Sector</th>
-                  <th style={{ padding: '0.6rem' }}>CTC Package</th>
-                  <th style={{ padding: '0.6rem' }}>Roles & Skills</th>
-                  <th style={{ padding: '0.6rem' }}>Hired</th>
-                  <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {companies.filter(c => !searchTerm || c.name.toLowerCase().includes(searchTerm.toLowerCase())).map(c => (
-                  <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '0.6rem', fontWeight: '700', color: '#60a5fa' }}>{c.name}</td>
-                    <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{c.category}</span></td>
-                    <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{c.ctcFresher || c.avgPkg}</td>
-                    <td style={{ padding: '0.6rem', color: '#cbd5e1', maxWidth: '280px' }}>{c.roles}</td>
-                    <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{c.hired || 50}+</td>
-                    <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                      <button onClick={() => handleDeleteItem(setCompanies, c.id, c.name)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>
-                        🗑️ Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* ── MAIN CONTENT AREA ────────────────────────────────────── */}
+      <main style={{ minWidth: 0 }}>
 
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.2 ALUMNI MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.2' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>🎓 15.2 Alumni Network Management ({alumniList.length} Alumni Mentors)</h3>
-            <span className="badge badge-safe">Verified Alumni</span>
-          </div>
+        {/* ── 1. DASHBOARD 📊 ───────────────────────────────────── */}
+        {activeTab === 'dashboard' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div>
+                  <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.5rem', margin: 0 }}>👑 Admin Dashboard</h2>
+                  <p style={{ color: '#c4b5fd', fontSize: '0.85rem', margin: '0.2rem 0 0' }}>Welcome back, Admin! 🎉 • Last login: {new Date().toLocaleTimeString()} (Verified Session)</p>
+                </div>
+                <span className="badge badge-safe">Real-Time Sync Active</span>
+              </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
-            {alumniList.filter(a => !searchTerm || a.name.toLowerCase().includes(searchTerm.toLowerCase()) || a.company.toLowerCase().includes(searchTerm.toLowerCase())).map(a => (
-              <div key={a.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                  <div>
-                    <div style={{ fontWeight: '800', color: 'white', fontSize: '0.95rem' }}>{a.name}</div>
-                    <div style={{ color: '#60a5fa', fontSize: '0.78rem', fontWeight: '600' }}>{a.role} @ {a.company}</div>
+              {/* 8 Metrics Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
+                {[
+                  { label: 'Students', count: '1,234', change: '+12% this month', icon: '👥', color: '#60a5fa' },
+                  { label: 'Skills', count: '10,456', change: '+8% this month', icon: '📚', color: '#a78bfa' },
+                  { label: 'Jobs', count: '5,678', change: '+15% this month', icon: '💼', color: '#38bdf8' },
+                  { label: 'Notes', count: '100,456', change: '+25% this month', icon: '📝', color: '#f59e0b' },
+                  { label: 'Companies', count: '1,000+', change: '+5% this month', icon: '🏢', color: '#34d399' },
+                  { label: 'Mentors', count: '150', change: '+10% this month', icon: '👨‍🏫', color: '#f43f5e' },
+                  { label: 'Tests', count: '10,000+', change: '+20% this month', icon: '🎯', color: '#fbbf24' },
+                  { label: 'Resumes', count: '856', change: '+7% this month', icon: '📄', color: '#c084fc' }
+                ].map(card => (
+                  <div key={card.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.9rem', padding: '0.85rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{card.icon}</div>
+                    <div style={{ color: card.color, fontWeight: '900', fontSize: '1.2rem' }}>{card.count}</div>
+                    <div style={{ color: 'white', fontWeight: '700', fontSize: '0.78rem' }}>{card.label}</div>
+                    <div style={{ color: '#34d399', fontSize: '0.68rem', fontWeight: '600', marginTop: '0.2rem' }}>{card.change}</div>
                   </div>
-                  <span className="badge badge-safe">{a.status || 'Verified'}</span>
-                </div>
-                <p style={{ color: '#cbd5e1', fontSize: '0.75rem', margin: '0.4rem 0' }}>{a.bio || 'Verified college alumni offering career guidance and company referrals.'}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.75rem' }}>
-                  <span style={{ color: '#fbbf24', fontSize: '0.75rem', fontWeight: '700' }}>⭐ {a.rating || 4.9} ({a.reviews || 40} reviews)</span>
-                  <button onClick={() => handleDeleteItem(setAlumniList, a.id, a.name)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>
-                    🗑️ Remove
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.3 STUDY GROUPS MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.3' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>👥 15.3 Study Groups Moderation & Monitoring ({studyGroups.length} Groups)</h3>
-            <span className="badge badge-info">Real-time Channels</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {studyGroups.map(grp => (
-              <div key={grp.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <div>
-                  <div style={{ fontWeight: '800', color: 'white', fontSize: '0.95rem' }}>{grp.name}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.78rem' }}>Admin: <strong style={{ color: '#c4b5fd' }}>{grp.createdBy}</strong> • Focus: {grp.topic}</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className="badge badge-safe">👥 {grp.members} Members</span>
-                  <span className={`badge ${grp.reports > 0 ? 'badge-danger' : 'badge-safe'}`}>{grp.reports} Flagged</span>
-                  <button onClick={() => handleDeleteItem(setStudyGroups, grp.id, grp.name)} style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.4rem', padding: '0.3rem 0.7rem', fontSize: '0.75rem', cursor: 'pointer', fontWeight: '700' }}>
-                    🗑️ Delete Group
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.4 AI APPLY MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.4' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>⚡ 15.4 AI Auto-Apply Tracker & Job Feeds ({aiApplyJobs.length} Live Openings)</h3>
-            <span className="badge badge-safe">1-Click Apply Ready</span>
-          </div>
-
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: '#94a3b8' }}>
-                  <th style={{ padding: '0.6rem' }}>Company & Role</th>
-                  <th style={{ padding: '0.6rem' }}>Location & CTC</th>
-                  <th style={{ padding: '0.6rem' }}>Applications Sent</th>
-                  <th style={{ padding: '0.6rem' }}>Verification</th>
-                  <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {aiApplyJobs.map(job => (
-                  <tr key={job.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '0.6rem' }}>
-                      <strong style={{ color: '#60a5fa' }}>{job.company}</strong>
-                      <div style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>{job.title || job.role}</div>
-                    </td>
-                    <td style={{ padding: '0.6rem' }}>
-                      <div>{job.location || 'Pan India'}</div>
-                      <div style={{ color: '#fbbf24', fontWeight: '700' }}>{job.salary || '4-8 LPA'}</div>
-                    </td>
-                    <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{job.autoApplyCount || 34} Students</td>
-                    <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">Verified Employer</span></td>
-                    <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                      <button onClick={() => handleDeleteItem(setAiApplyJobs, job.id, `${job.company} - ${job.title || job.role}`)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>
-                        🗑️ Delete
-                      </button>
-                    </td>
-                  </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+              </div>
+            </div>
 
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.5 MENTORS MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.5' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>🤝 15.5 Industry Mentors Database & Approvals ({mentorsList.length} Mentors)</h3>
-            <span className="badge badge-info">100+ Verified</span>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1rem' }}>
-            {mentorsList.filter(m => !searchTerm || m.name.toLowerCase().includes(searchTerm.toLowerCase()) || m.company.toLowerCase().includes(searchTerm.toLowerCase())).map(m => (
-              <div key={m.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
-                  <div>
-                    <div style={{ fontWeight: '800', color: 'white' }}>{m.name}</div>
-                    <div style={{ color: '#60a5fa', fontSize: '0.78rem' }}>{m.role} @ {m.company}</div>
-                  </div>
-                  <span className="badge badge-safe">{m.status || 'Approved'}</span>
-                </div>
-                <div style={{ color: '#94a3b8', fontSize: '0.72rem', marginBottom: '0.5rem' }}>Exp: {m.experience} • Sessions: {m.sessionsConducted || 25}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#fbbf24', fontSize: '0.75rem', fontWeight: '700' }}>⭐ {m.rating || 4.9}</span>
-                  <button onClick={() => handleDeleteItem(setMentorsList, m.id, m.name)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>
-                    🗑️ Remove
-                  </button>
+            {/* Charts & Analytics */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
+              
+              {/* Feature Usage Bar Chart */}
+              <div className="card">
+                <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginBottom: '1rem' }}>📊 Feature Usage Statistics</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  {[
+                    { name: 'Notes Hub (100k+ Notes)', val: 95, color: '#f59e0b' },
+                    { name: 'ATS Resume Builder', val: 88, color: '#34d399' },
+                    { name: 'AI Career Predictor', val: 78, color: '#60a5fa' },
+                    { name: 'Mock Technical & Voice Interview', val: 72, color: '#f43f5e' },
+                    { name: 'Aptitude Test Bank', val: 65, color: '#a78bfa' }
+                  ].map(f => (
+                    <div key={f.name}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.2rem' }}>
+                        <span>{f.name}</span>
+                        <span style={{ fontWeight: 'bold' }}>{f.val}%</span>
+                      </div>
+                      <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '1rem', height: '6px', overflow: 'hidden' }}>
+                        <div style={{ width: `${f.val}%`, height: '100%', background: f.color, borderRadius: '1rem' }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.6 MOCK TESTS MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.6' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>📝 15.6 Company Mock Test Patterns ({mockTests.length} Simulations)</h3>
-            <span className="badge badge-info">TCS / Infosys / Amazon</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {mockTests.map(test => (
-              <div key={test.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <div>
-                  <div style={{ fontWeight: '800', color: 'white', fontSize: '0.95rem' }}>{test.name}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.78rem' }}>Duration: {test.duration} • {test.questions} Questions • Cutoff: {test.cutoff}</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className="badge badge-safe">{test.attempts} Attempts</span>
-                  <span className="badge badge-info">Avg: {test.avgScore}</span>
-                  <button onClick={() => handleDeleteItem(setMockTests, test.id, test.name)} style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.3rem 0.7rem', fontSize: '0.75rem', cursor: 'pointer' }}>
-                    🗑️ Delete
-                  </button>
+              {/* Top Performing Students */}
+              <div className="card">
+                <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginBottom: '1rem' }}>🏆 Top Performing Students</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {students.slice(0, 4).map((st, i) => (
+                    <div key={st.id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.6rem', padding: '0.5rem 0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ color: i === 0 ? '#fbbf24' : '#94a3b8', fontWeight: '900', fontSize: '0.9rem' }}>#{i + 1}</span>
+                        <div>
+                          <div style={{ color: 'white', fontWeight: '700', fontSize: '0.82rem' }}>{st.name}</div>
+                          <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>{st.department}</div>
+                        </div>
+                      </div>
+                      <span style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.8rem' }}>⚡ {st.stats?.xpPoints || 1000} XP</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
 
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.7 SKILL HUB MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.7' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>📚 15.7 Skill Hub Modules ({skillsList.length} Skills Active)</h3>
-            <span className="badge badge-info">All Academic Branches</span>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.75rem' }}>
-            {skillsList.filter(s => !searchTerm || s.name.toLowerCase().includes(searchTerm.toLowerCase())).map(s => (
-              <div key={s.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.8rem', padding: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: '700', color: 'white', fontSize: '0.9rem' }}>{s.name}</div>
-                  <span className="badge badge-info" style={{ fontSize: '0.68rem', marginTop: '0.2rem' }}>{s.category}</span>
-                </div>
-                <button onClick={() => handleDeleteItem(setSkillsList, s.id, s.name)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.25rem 0.5rem', fontSize: '0.72rem', cursor: 'pointer' }}>
-                  🗑️
+        {/* ── 2. STUDENT MANAGEMENT 👥 ───────────────────────────── */}
+        {activeTab === 'students' && (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div>
+                <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>👥 Student Management ({students.length} Registered)</h2>
+                <p style={{ color: '#94a3b8', fontSize: '0.78rem', margin: 0 }}>View, search, edit, inspect full profiles, or export student database.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={() => { setModalMode('add_student'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                  ➕ Add Student
+                </button>
+                <button onClick={() => handleExportCSV(students, 'students_database')} className="btn btn-outline" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                  📊 Export CSV
                 </button>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.8 ROLE PATH MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.8' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>🗺️ 15.8 Role Paths & Roadmaps ({rolePaths.length} Presets)</h3>
-            <span className="badge badge-safe">200+ Career Roles</span>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '0.75rem' }}>
-            {rolePaths.filter(r => !searchTerm || r.title.toLowerCase().includes(searchTerm.toLowerCase())).map(r => (
-              <div key={r.title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.9rem', padding: '0.9rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <div style={{ fontWeight: '800', color: 'white', fontSize: '0.9rem' }}>{r.icon} {r.title}</div>
-                  <span className="badge badge-info">{r.category}</span>
-                </div>
-                <div style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>Skills: {r.skills?.join(', ')}</div>
-                <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
-                  <button onClick={() => handleDeleteItem(setRolePaths, r.title, r.title)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.2rem 0.5rem', fontSize: '0.7rem', cursor: 'pointer' }}>
-                    🗑️ Delete Role
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.9 RESUME BUILDER MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.9' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>📄 15.9 ATS Resume Templates Manager</h3>
-            <span className="badge badge-safe">PDF Engine Connected</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {resumeTemplates.map(tmpl => (
-              <div key={tmpl.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: '800', color: 'white', fontSize: '0.95rem' }}>{tmpl.name}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.78rem' }}>Layout: {tmpl.style} • ATS Parser Score: <strong style={{ color: '#34d399' }}>{tmpl.atsScore}</strong></div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span className="badge badge-info">📥 {tmpl.downloads?.toLocaleString()} Exports</span>
-                  <button onClick={() => handleDeleteItem(setResumeTemplates, tmpl.id, tmpl.name)} style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.3rem 0.7rem', fontSize: '0.75rem', cursor: 'pointer' }}>
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.10 JOB PORTAL MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.10' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>💼 15.10 Job Portal & Employer Verification ({aiApplyJobs.length} Jobs)</h3>
-            <span className="badge badge-safe">Scam Filter Active</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-            {aiApplyJobs.map(j => (
-              <div key={j.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.8rem', padding: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: '800', color: '#60a5fa' }}>{j.company} — {j.title || j.role}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>📍 {j.location} • 💰 {j.salary} • Status: <span style={{ color: '#34d399', fontWeight: 'bold' }}>Verified Official</span></div>
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button onClick={() => handleDeleteItem(setAiApplyJobs, j.id, `${j.company} - ${j.title || j.role}`)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>
-                    🗑️ Remove
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.11 MOCK INTERVIEW QUESTION BANK */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.11' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>🎤 15.11 AI Mock Interview Question Bank ({interviewQuestions.length} Questions)</h3>
-            <span className="badge badge-info">Voice Enabled</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {interviewQuestions.map(iq => (
-              <div key={iq.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.9rem', padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
-                  <div style={{ fontWeight: '700', color: 'white', fontSize: '0.92rem' }}>Q: {iq.question}</div>
-                  <span className="badge badge-info">{iq.category}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
-                  <span style={{ color: '#fbbf24', fontSize: '0.75rem' }}>Difficulty: {iq.difficulty} • Expected: {iq.expectedTime}</span>
-                  <button onClick={() => handleDeleteItem(setInterviewQuestions, iq.id, iq.question)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.2rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.12 APTITUDE TEST BANK */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.12' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>🧠 15.12 Aptitude Master Question Bank ({aptitudeQuestions.length} Questions)</h3>
-            <span className="badge badge-info">Quantitative & Logical</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {aptitudeQuestions.map(aq => (
-              <div key={aq.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.9rem', padding: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
-                  <div style={{ fontWeight: '700', color: 'white', fontSize: '0.92rem' }}>Q: {aq.q}</div>
-                  <span className="badge badge-info">{aq.category}</span>
-                </div>
-                <div style={{ color: '#34d399', fontSize: '0.8rem', fontWeight: '600', marginBottom: '0.4rem' }}>Answer: {aq.answer}</div>
-                <div style={{ textAlign: 'right' }}>
-                  <button onClick={() => handleDeleteItem(setAptitudeQuestions, aq.id, aq.q)} style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.2rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>
-                    🗑️ Delete Question
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.13 NOTES HUB MANAGEMENT */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.13' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>✏️ 15.13 Notes Hub Manager (100,000+ Algorithmic Engine)</h3>
-            <span className="badge badge-safe">17 Academic Streams</span>
-          </div>
-          <p style={{ color: '#cbd5e1', fontSize: '0.85rem' }}>
-            Notes Hub is dynamically powered by the <strong>100,000+ Notes Algorithmic Engine</strong> with full PDF export, flashcard studio, and exam question bank. You can also inject custom faculty lecture notes using the <strong>Add New Entry</strong> button above!
-          </p>
-        </div>
-      )}
-
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* 15.14 STUDENT DATABASE — FULL INSPECTOR MODAL */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === '15.14' && (
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <div>
-              <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>👑 15.14 Registered Students Master Directory ({studentsList.length} Students)</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.78rem', margin: 0 }}>Click "🔍 Inspect Student Profile" on any row to view complete login history, tests, badges, and booked sessions.</p>
             </div>
-            <span className="badge badge-safe">Full Student Profiling</span>
-          </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', textAlign: 'left', color: '#94a3b8' }}>
-                  <th style={{ padding: '0.6rem' }}>Student Name</th>
-                  <th style={{ padding: '0.6rem' }}>Email</th>
-                  <th style={{ padding: '0.6rem' }}>Department & Year</th>
-                  <th style={{ padding: '0.6rem' }}>XP Points / Streak</th>
-                  <th style={{ padding: '0.6rem' }}>Last Login</th>
-                  <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {studentsList.filter(st => !searchTerm || st.name.toLowerCase().includes(searchTerm.toLowerCase()) || st.department.toLowerCase().includes(searchTerm.toLowerCase())).map(st => (
-                  <tr key={st.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '0.6rem', fontWeight: '800', color: 'white' }}>{st.name}</td>
-                    <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{st.email}</td>
-                    <td style={{ padding: '0.6rem' }}>
-                      <span className="badge badge-info">{st.department}</span>
-                      <div style={{ color: '#94a3b8', fontSize: '0.72rem' }}>{st.year}</div>
-                    </td>
-                    <td style={{ padding: '0.6rem' }}>
-                      <span style={{ color: '#fbbf24', fontWeight: '800' }}>⚡ {st.xpPoints || 0} XP</span>
-                      <div style={{ color: '#f43f5e', fontSize: '0.72rem' }}>🔥 {st.streak || 0} days</div>
-                    </td>
-                    <td style={{ padding: '0.6rem', color: '#34d399' }}>{st.lastLogin || 'Recent'}</td>
-                    <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                      <button
-                        onClick={() => setSelectedStudentForModal(st)}
-                        style={{ padding: '0.35rem 0.8rem', borderRadius: '0.4rem', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: 'white', border: 'none', fontWeight: '700', fontSize: '0.75rem', cursor: 'pointer', marginRight: '0.4rem' }}
-                      >
-                        🔍 Inspect Profile
-                      </button>
-                      <button
-                        onClick={() => handleDeleteItem(setStudentsList, st.id, st.name)}
-                        style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.35rem 0.6rem', fontSize: '0.75rem', cursor: 'pointer' }}
-                      >
-                        🗑️
-                      </button>
-                    </td>
+            {/* Filter Bar */}
+            <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                placeholder="🔍 Search student name or email..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                style={{ flex: 1, minWidth: '220px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.55rem 0.8rem', color: 'white', fontSize: '0.82rem', outline: 'none' }}
+              />
+              <select
+                value={categoryFilter}
+                onChange={e => setCategoryFilter(e.target.value)}
+                style={{ background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.55rem 0.8rem', color: 'white', fontSize: '0.82rem', outline: 'none' }}
+              >
+                <option value="All">All Departments</option>
+                <option>Computer Science</option>
+                <option>Electronics & Communication</option>
+                <option>Mechanical Engineering</option>
+              </select>
+            </div>
+
+            {/* Student Table View */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Name</th>
+                    <th style={{ padding: '0.6rem' }}>Email</th>
+                    <th style={{ padding: '0.6rem' }}>Dept</th>
+                    <th style={{ padding: '0.6rem' }}>Year</th>
+                    <th style={{ padding: '0.6rem' }}>Login Count</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {students.filter(st => {
+                    const matchSearch = !searchTerm || st.name.toLowerCase().includes(searchTerm.toLowerCase()) || st.email.toLowerCase().includes(searchTerm.toLowerCase())
+                    const matchDept = categoryFilter === 'All' || st.department.includes(categoryFilter)
+                    return matchSearch && matchDept
+                  }).map((st, idx) => (
+                    <tr key={st.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{st.name}</td>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{st.email}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{st.department}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{st.year}</td>
+                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{st.loginCount || 1}</td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => setSelectedStudent(st)} title="View Full Profile" style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer', marginRight: '0.4rem' }}>👁</button>
+                        <button onClick={() => { setModalMode('edit_student'); setModalForm(st) }} title="Edit Student" style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer', marginRight: '0.4rem' }}>✏️</button>
+                        <button onClick={() => handleDelete(setStudents, st.id, st.name)} title="Delete Student" style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ════════════════════════════════════════════════════════════ */}
-      {/* CAMPUS ANALYTICS TAB */}
-      {/* ════════════════════════════════════════════════════════════ */}
-      {activeSection === 'analytics' && (
-        <StudentAnalytics />
-      )}
+        {/* ── 3. SKILL MANAGEMENT 📚 ─────────────────────────────── */}
+        {activeTab === 'skills' && (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>📚 Skill Management ({skills.length} Skills)</h2>
+              <button onClick={() => { setModalMode('add_skill'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                ➕ Add Skill
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Skill Name</th>
+                    <th style={{ padding: '0.6rem' }}>Category</th>
+                    <th style={{ padding: '0.6rem' }}>Level</th>
+                    <th style={{ padding: '0.6rem' }}>Courses</th>
+                    <th style={{ padding: '0.6rem' }}>Students</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {skills.map((sk, idx) => (
+                    <tr key={sk.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '700', color: '#60a5fa' }}>{sk.name}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{sk.category}</span></td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{sk.level}</span></td>
+                      <td style={{ padding: '0.6rem' }}>{sk.courses || 12}</td>
+                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{sk.students || 85}</td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setSkills, sk.id, sk.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-      {/* ── STUDENT PROFILE INSPECTOR MODAL ───────────────────────── */}
+        {/* ── 4. JOB MANAGEMENT 💼 ───────────────────────────────── */}
+        {activeTab === 'jobs' && (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>💼 Job Management ({jobs.length} Postings)</h2>
+              <button onClick={() => { setModalMode('add_job'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                ➕ Post Job
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Company</th>
+                    <th style={{ padding: '0.6rem' }}>Role</th>
+                    <th style={{ padding: '0.6rem' }}>CTC</th>
+                    <th style={{ padding: '0.6rem' }}>Applied</th>
+                    <th style={{ padding: '0.6rem' }}>Status</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jobs.map((jb, idx) => (
+                    <tr key={jb.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '800', color: '#60a5fa' }}>{jb.company}</td>
+                      <td style={{ padding: '0.6rem', color: 'white' }}>{jb.role}</td>
+                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{jb.ctc}</td>
+                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{jb.applied || 20}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{jb.status || 'Active'}</span></td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setJobs, jb.id, `${jb.company} - ${jb.role}`)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 5. NOTES MANAGEMENT 📝 ─────────────────────────────── */}
+        {activeTab === 'notes' && (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>📝 Notes Management (100,000+ Algorithmic Engine Connected)</h2>
+              <button onClick={() => { setModalMode('add_note'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                ➕ Add Note
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Title</th>
+                    <th style={{ padding: '0.6rem' }}>Category</th>
+                    <th style={{ padding: '0.6rem' }}>Level</th>
+                    <th style={{ padding: '0.6rem' }}>Rating</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {notes.map((nt, idx) => (
+                    <tr key={nt.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{nt.title}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{nt.category}</span></td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{nt.level}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>⭐ {nt.rating}</td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setNotes, nt.id, nt.title)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 6. COMPANY MANAGEMENT 🏢 ───────────────────────────── */}
+        {activeTab === 'companies' && (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🏢 Company Management ({companies.length} Companies)</h2>
+              <button onClick={() => { setModalMode('add_company'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                ➕ Add Company
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Company</th>
+                    <th style={{ padding: '0.6rem' }}>Industry</th>
+                    <th style={{ padding: '0.6rem' }}>CTC Package</th>
+                    <th style={{ padding: '0.6rem' }}>Students Hired</th>
+                    <th style={{ padding: '0.6rem' }}>Archive</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {companies.map((cp, idx) => (
+                    <tr key={cp.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '800', color: '#60a5fa' }}>{cp.name}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{cp.industry}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{cp.ctc}</td>
+                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{cp.students}+</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">✅ Live</span></td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setCompanies, cp.id, cp.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 7. MENTOR MANAGEMENT 👨‍🏫 ───────────────────────────── */}
+        {activeTab === 'mentors' && (
+          <div>
+            <div className="card" style={{ marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>👨‍🏫 Verified Industry Mentors ({mentors.length})</h2>
+                <button onClick={() => { setModalMode('add_mentor'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                  ➕ Add Mentor
+                </button>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                      <th style={{ padding: '0.6rem' }}>#</th>
+                      <th style={{ padding: '0.6rem' }}>Name</th>
+                      <th style={{ padding: '0.6rem' }}>Company</th>
+                      <th style={{ padding: '0.6rem' }}>Role</th>
+                      <th style={{ padding: '0.6rem' }}>Sessions</th>
+                      <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mentors.map((m, idx) => (
+                      <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                        <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                        <td style={{ padding: '0.6rem', fontWeight: '800', color: 'white' }}>{m.name}</td>
+                        <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{m.company}</td>
+                        <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{m.role}</td>
+                        <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{m.sessions}</td>
+                        <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                          <button onClick={() => handleDelete(setMentors, m.id, m.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Mentor Requests Moderation */}
+            <div className="card">
+              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.75rem' }}>📨 Mentor Booking Requests Moderation</h3>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                      <th style={{ padding: '0.6rem' }}>#</th>
+                      <th style={{ padding: '0.6rem' }}>Student</th>
+                      <th style={{ padding: '0.6rem' }}>Mentor</th>
+                      <th style={{ padding: '0.6rem' }}>Status</th>
+                      <th style={{ padding: '0.6rem' }}>Date</th>
+                      <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mentorRequests.map((mr, idx) => (
+                      <tr key={mr.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                        <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                        <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{mr.student}</td>
+                        <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{mr.mentor}</td>
+                        <td style={{ padding: '0.6rem' }}>
+                          <span className={`badge ${mr.status === 'Accepted' ? 'badge-safe' : mr.status === 'Rejected' ? 'badge-danger' : 'badge-warning'}`}>{mr.status}</span>
+                        </td>
+                        <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{mr.date}</td>
+                        <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                          {mr.status === 'Pending' && (
+                            <>
+                              <button onClick={() => { setMentorRequests(prev => prev.map(r => r.id === mr.id ? { ...r, status: 'Accepted' } : r)); toast.success('Accepted!') }} style={{ background: 'rgba(34,197,94,0.2)', color: '#34d399', border: 'none', borderRadius: '0.4rem', padding: '0.2rem 0.5rem', marginRight: '0.3rem', cursor: 'pointer' }}>✅ Accept</button>
+                              <button onClick={() => { setMentorRequests(prev => prev.map(r => r.id === mr.id ? { ...r, status: 'Rejected' } : r)); toast.error('Rejected') }} style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.2rem 0.5rem', cursor: 'pointer' }}>❌</button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 8. TEST MANAGEMENT 🎯 ──────────────────────────────── */}
+        {activeTab === 'tests' && (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🎯 Test Management ({tests.length} Simulation Tests)</h2>
+              <button onClick={() => { setModalMode('add_test'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                ➕ Add Test
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Test Name</th>
+                    <th style={{ padding: '0.6rem' }}>Type</th>
+                    <th style={{ padding: '0.6rem' }}>Questions</th>
+                    <th style={{ padding: '0.6rem' }}>Students Attempted</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tests.map((ts, idx) => (
+                    <tr key={ts.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{ts.name}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{ts.type}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{ts.questions} Questions ({ts.duration})</td>
+                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{ts.students}</td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setTests, ts.id, ts.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 9. AI APPLY 🤖 ─────────────────────────────────────── */}
+        {activeTab === 'ai_apply' && (
+          <div className="card">
+            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>🤖 AI Apply Applications View ({aiApplications.length} Dispatched)</h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Student</th>
+                    <th style={{ padding: '0.6rem' }}>Company</th>
+                    <th style={{ padding: '0.6rem' }}>Role</th>
+                    <th style={{ padding: '0.6rem' }}>Status</th>
+                    <th style={{ padding: '0.6rem' }}>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {aiApplications.map((ap, idx) => (
+                    <tr key={ap.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{ap.student}</td>
+                      <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{ap.company}</td>
+                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{ap.role}</td>
+                      <td style={{ padding: '0.6rem' }}><span className={`badge ${ap.status === 'Shortlisted' ? 'badge-safe' : 'badge-info'}`}>{ap.status}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{ap.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 10. ARCHIVE 📦 ─────────────────────────────────────── */}
+        {activeTab === 'archive' && (
+          <div className="card">
+            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>📦 Placement Archive Management (1000+ Companies)</h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Company</th>
+                    <th style={{ padding: '0.6rem' }}>Industry</th>
+                    <th style={{ padding: '0.6rem' }}>Students Hired</th>
+                    <th style={{ padding: '0.6rem' }}>Avg CTC</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {companies.map((cp, idx) => (
+                    <tr key={cp.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '800', color: '#60a5fa' }}>{cp.name}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{cp.industry}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{cp.students}</td>
+                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{cp.ctc}</td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}><span className="badge badge-safe">Verified 🏛️</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 11. ALUMNI 🎓 ──────────────────────────────────────── */}
+        {activeTab === 'alumni' && (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🎓 Alumni Management ({alumni.length} Alumni)</h2>
+              <button onClick={() => { setModalMode('add_alumni'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                ➕ Add Alumni
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Name</th>
+                    <th style={{ padding: '0.6rem' }}>Company</th>
+                    <th style={{ padding: '0.6rem' }}>Role</th>
+                    <th style={{ padding: '0.6rem' }}>Passing Year</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {alumni.map((al, idx) => (
+                    <tr key={al.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{al.name}</td>
+                      <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{al.company}</td>
+                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{al.role}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{al.year} ({al.dept || 'Engg'})</span></td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setAlumni, al.id, al.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 12. STUDY GROUPS 👥 ─────────────────────────────────── */}
+        {activeTab === 'groups' && (
+          <div className="card">
+            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>👥 Study Group Management & Moderation ({studyGroups.length} Active)</h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Group Name</th>
+                    <th style={{ padding: '0.6rem' }}>Members</th>
+                    <th style={{ padding: '0.6rem' }}>Streak</th>
+                    <th style={{ padding: '0.6rem' }}>Activity Status</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {studyGroups.map((g, idx) => (
+                    <tr key={g.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{g.name}</td>
+                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>👥 {g.members}</td>
+                      <td style={{ padding: '0.6rem', color: '#f43f5e', fontWeight: '700' }}>🔥 {g.streak} days</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{g.active}</span></td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setStudyGroups, g.id, g.name)} style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>🗑️ Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 13. RESUMES 📄 ─────────────────────────────────────── */}
+        {activeTab === 'resumes' && (
+          <div className="card">
+            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>📄 Student Resumes & ATS Template Management ({resumes.length})</h2>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Student</th>
+                    <th style={{ padding: '0.6rem' }}>Template</th>
+                    <th style={{ padding: '0.6rem' }}>ATS Parser Score</th>
+                    <th style={{ padding: '0.6rem' }}>Downloads</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resumes.map((res, idx) => (
+                    <tr key={res.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{res.student}</td>
+                      <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{res.template}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{res.score}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>📥 {res.downloads}</td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setResumes, res.id, `${res.student}'s Resume`)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 14. ROLE PATH 🎯 ───────────────────────────────────── */}
+        {activeTab === 'rolepath' && (
+          <div className="card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🎯 Career Role Path Management ({rolePaths.length} Active Presets)</h2>
+              <button onClick={() => { setModalMode('add_role'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
+                ➕ Add Role Path
+              </button>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
+                    <th style={{ padding: '0.6rem' }}>#</th>
+                    <th style={{ padding: '0.6rem' }}>Role Name</th>
+                    <th style={{ padding: '0.6rem' }}>Category</th>
+                    <th style={{ padding: '0.6rem' }}>Required Skills</th>
+                    <th style={{ padding: '0.6rem' }}>Enrolled Students</th>
+                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rolePaths.map((rp, idx) => (
+                    <tr key={rp.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
+                      <td style={{ padding: '0.6rem', fontWeight: '800', color: '#60a5fa' }}>{rp.name}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{rp.category}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{rp.skills} Skills ({rp.salary})</td>
+                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{rp.students}</td>
+                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
+                        <button onClick={() => handleDelete(setRolePaths, rp.id, rp.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── 15. SETTINGS ⚙️ ─────────────────────────────────────── */}
+        {activeTab === 'settings' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="card">
+              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>⚙️ Admin Security & Profile Settings</h2>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <h4 style={{ color: '#60a5fa', fontWeight: '700', fontSize: '0.9rem', marginBottom: '0.5rem' }}>📧 Administrator Profile</h4>
+                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.2rem' }}>Name: <strong>Master Admin</strong></div>
+                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.75rem' }}>Email: <strong>{ADMIN_EMAIL}</strong></div>
+                  <button onClick={() => toast.success('Password update link sent!')} className="btn btn-outline" style={{ fontSize: '0.75rem' }}>Change Password</button>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <h4 style={{ color: '#34d399', fontWeight: '700', fontSize: '0.9rem', marginBottom: '0.5rem' }}>🔒 Security & Session</h4>
+                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>Two-Factor Authentication: <span className="badge badge-safe">Enabled</span></div>
+                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.75rem' }}>Session Timeout: <strong>30 minutes</strong></div>
+                  <button onClick={() => toast.success('Security settings updated!')} className="btn btn-outline" style={{ fontSize: '0.75rem' }}>Update Security</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Backup & Export Database */}
+            <div className="card">
+              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginBottom: '0.75rem' }}>📊 Backup & Export Database</h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Download full production JSON or CSV snapshot of your platform database.</p>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button onClick={() => handleExportCSV(students, 'full_students_backup')} className="btn btn-primary" style={{ fontSize: '0.8rem' }}>📥 Export Student Data (CSV)</button>
+                <button onClick={() => handleExportCSV(companies, 'companies_backup')} className="btn btn-primary" style={{ fontSize: '0.8rem' }}>📥 Export Company Data (CSV)</button>
+                <button onClick={() => handleExportCSV(jobs, 'jobs_backup')} className="btn btn-primary" style={{ fontSize: '0.8rem' }}>📥 Export Jobs Data (CSV)</button>
+              </div>
+            </div>
+
+            {/* Danger Zone */}
+            <div className="card" style={{ borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.05)' }}>
+              <h3 style={{ color: '#f87171', fontWeight: '800', fontSize: '1rem', marginBottom: '0.5rem' }}>⚠️ Danger Zone</h3>
+              <p style={{ color: '#cbd5e1', fontSize: '0.8rem', marginBottom: '0.75rem' }}>Actions here will reset state across tables. Exercise caution.</p>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button onClick={() => { if (window.confirm('Reset all databases to default seed state?')) { localStorage.clear(); window.location.reload(); } }} className="btn btn-danger" style={{ fontSize: '0.8rem' }}>
+                  ⚠️ Reset Database to Defaults
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* ══════════════════════════════════════════════════════════════
+          STUDENT PROFILE INSPECTOR MODAL (👁 Click)
+         ══════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
-        {selectedStudentForModal && (
+        {selectedStudent && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            onClick={() => setSelectedStudentForModal(null)}
+            onClick={() => setSelectedStudent(null)}
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
-              style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.5)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '750px', width: '100%', maxHeight: '85vh', overflowY: 'auto' }}
+              style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.5)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '680px', width: '100%', maxHeight: '85vh', overflowY: 'auto' }}
               onClick={e => e.stopPropagation()}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.75rem' }}>
                 <div>
-                  <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.4rem', margin: 0 }}>
-                    👑 {selectedStudentForModal.name} — Full Student Profile
+                  <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.3rem', margin: 0 }}>
+                    Student Profile — {selectedStudent.name}
                   </h2>
-                  <div style={{ color: '#c4b5fd', fontSize: '0.85rem', marginTop: '0.2rem' }}>
-                    {selectedStudentForModal.email} • {selectedStudentForModal.department} ({selectedStudentForModal.year})
+                  <div style={{ color: '#a78bfa', fontSize: '0.8rem', marginTop: '0.2rem' }}>
+                    {selectedStudent.email} • {selectedStudent.department} ({selectedStudent.year})
                   </div>
                 </div>
-                <button onClick={() => setSelectedStudentForModal(null)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '1rem' }}>✕</button>
+                <button onClick={() => setSelectedStudent(null)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}>✕</button>
               </div>
 
-              {/* Grid Metrics */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.75rem', textAlign: 'center' }}>
-                  <div style={{ color: '#fbbf24', fontWeight: '900', fontSize: '1.3rem' }}>⚡ {selectedStudentForModal.xpPoints} XP</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>Total Experience</div>
-                </div>
-                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.75rem', textAlign: 'center' }}>
-                  <div style={{ color: '#f43f5e', fontWeight: '900', fontSize: '1.3rem' }}>🔥 {selectedStudentForModal.streak} Days</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>Current Streak</div>
-                </div>
-                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.75rem', textAlign: 'center' }}>
-                  <div style={{ color: '#34d399', fontWeight: '900', fontSize: '1.3rem' }}>🏆 {selectedStudentForModal.badges?.length || 0}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>Earned Badges</div>
-                </div>
-                <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '0.75rem', textAlign: 'center' }}>
-                  <div style={{ color: '#60a5fa', fontWeight: '900', fontSize: '1.3rem' }}>💼 {selectedStudentForModal.applications?.length || 0}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>Job Applications</div>
+              {/* 📋 Personal Info */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem', marginBottom: '1rem' }}>
+                <h4 style={{ color: '#60a5fa', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>📋 Personal Info</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
+                  <div>Name: <strong style={{ color: 'white' }}>{selectedStudent.name}</strong></div>
+                  <div>Email: <strong style={{ color: 'white' }}>{selectedStudent.email}</strong></div>
+                  <div>Department: <strong style={{ color: 'white' }}>{selectedStudent.department}</strong></div>
+                  <div>Year: <strong style={{ color: 'white' }}>{selectedStudent.year}</strong></div>
+                  <div>Joined: <strong style={{ color: 'white' }}>{selectedStudent.joined || 'Jan 15, 2024'}</strong></div>
+                  <div>Last Login: <strong style={{ color: '#34d399' }}>{selectedStudent.lastLogin || 'Today'}</strong></div>
                 </div>
               </div>
 
-              {/* Skills */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.9rem', marginBottom: '0.5rem' }}>🔧 Mastered Skills:</h4>
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                  {selectedStudentForModal.skills?.map((s, i) => (
-                    <span key={i} className="badge badge-info">{s}</span>
+              {/* 📚 Skills */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem', marginBottom: '1rem' }}>
+                <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>📚 Skills ({selectedStudent.skills?.length || 0})</h4>
+                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                  {selectedStudent.skills?.map((sk, i) => (
+                    <span key={i} className="badge badge-info" style={{ fontSize: '0.72rem' }}>{sk}</span>
                   ))}
                 </div>
               </div>
 
-              {/* Badges Earned */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.9rem', marginBottom: '0.5rem' }}>🏆 Badges Earned:</h4>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {selectedStudentForModal.badges?.map((b, i) => (
-                    <div key={i} style={{ background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: '0.6rem', padding: '0.35rem 0.75rem', fontSize: '0.78rem', color: '#fbbf24', fontWeight: '700' }}>
-                      {b.icon} {b.name} <span style={{ color: '#94a3b8', fontSize: '0.7rem' }}>({b.earnedAt})</span>
+              {/* 🏆 Achievements & Badges */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem', marginBottom: '1rem' }}>
+                <h4 style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>🏆 Achievements</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                  {selectedStudent.achievements?.map((ach, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem' }}>
+                      <span>{ach.unlocked ? '✅' : '🔒'}</span>
+                      <strong style={{ color: ach.unlocked ? 'white' : '#94a3b8' }}>{ach.name}</strong>
+                      <span style={{ color: '#94a3b8', fontSize: '0.72rem' }}>— {ach.status}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Tests Taken */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.9rem', marginBottom: '0.5rem' }}>📝 Mock Tests & Exam Scores:</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  {selectedStudentForModal.testsTaken?.map((t, i) => (
-                    <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', padding: '0.5rem 0.8rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                      <span style={{ color: 'white', fontWeight: '600' }}>{t.testName}</span>
-                      <span style={{ color: '#34d399', fontWeight: '800' }}>Score: {t.score} (Rank #{t.rank})</span>
+              {/* 📊 Activity Log */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem', marginBottom: '1rem' }}>
+                <h4 style={{ color: '#38bdf8', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>📊 Activity Log</h4>
+                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '0.5rem', padding: '0.6rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                  {selectedStudent.activityLog?.map((act, i) => (
+                    <div key={i} style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
+                      <span style={{ color: '#60a5fa', fontWeight: '600' }}>{act.time}</span> — {act.text}
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Job Applications */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.9rem', marginBottom: '0.5rem' }}>💼 Job & Internship Applications:</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  {selectedStudentForModal.applications?.map((app, i) => (
-                    <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', padding: '0.5rem 0.8rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                      <div>
-                        <strong style={{ color: '#60a5fa' }}>{app.company}</strong> — <span style={{ color: '#cbd5e1' }}>{app.role}</span>
-                      </div>
-                      <span className="badge badge-safe">{app.status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Sessions Booked */}
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.9rem', marginBottom: '0.5rem' }}>🤝 Booked Mentor Sessions:</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                  {selectedStudentForModal.sessionsBooked?.map((sess, i) => (
-                    <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', padding: '0.5rem 0.8rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
-                      <div>
-                        <strong style={{ color: '#34d399' }}>{sess.mentorName}</strong>
-                        <div style={{ color: '#94a3b8', fontSize: '0.72rem' }}>{sess.topic} • 🕒 {sess.scheduledTime}</div>
-                      </div>
-                      <span className="badge badge-safe">{sess.status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Login History */}
-              <div>
-                <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.9rem', marginBottom: '0.5rem' }}>🔒 Device & Login History:</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                  {selectedStudentForModal.loginHistory?.map((log, i) => (
-                    <div key={i} style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '0.4rem', padding: '0.4rem 0.7rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#94a3b8' }}>
-                      <span>🕒 {log.timestamp}</span>
-                      <span>💻 {log.device}</span>
-                      <span>🌐 IP: {log.ip}</span>
-                    </div>
-                  ))}
+              {/* 📈 Stats Box */}
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem' }}>
+                <h4 style={{ color: '#34d399', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>📈 Stats</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
+                  <div>Total Logins: <strong>{selectedStudent.stats?.totalLogins || selectedStudent.loginCount}</strong></div>
+                  <div>Courses Completed: <strong>{selectedStudent.stats?.coursesCompleted || 12}</strong></div>
+                  <div>Tests Taken: <strong>{selectedStudent.stats?.testsTaken || 8}</strong></div>
+                  <div>Jobs Applied: <strong>{selectedStudent.stats?.jobsApplied || 15}</strong></div>
+                  <div>XP Points: <strong style={{ color: '#fbbf24' }}>{selectedStudent.stats?.xpPoints || 1250}</strong></div>
+                  <div>Badges Earned: <strong>{selectedStudent.stats?.badgesEarned || 3}</strong></div>
+                  <div>Current Streak: <strong style={{ color: '#f43f5e' }}>🔥 {selectedStudent.stats?.currentStreak || 5} days</strong></div>
                 </div>
               </div>
             </motion.div>
@@ -1070,80 +1343,78 @@ export default function AdminPanel() {
         )}
       </AnimatePresence>
 
-      {/* ── GENERIC ADD ITEM MODAL ─────────────────────────────────── */}
+      {/* ══════════════════════════════════════════════════════════════
+          GENERIC ADD / EDIT MODAL FOR ALL SECTIONS
+         ══════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
-        {showAddModal && (
+        {modalMode && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            onClick={() => setShowAddModal(false)}
+            onClick={() => setModalMode(null)}
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
-              style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.5)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '560px', width: '100%' }}
+              style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.5)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '520px', width: '100%' }}
               onClick={e => e.stopPropagation()}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>
-                  ➕ Add New to {ADMIN_SECTIONS.find(s => s.id === activeSection)?.label}
+                  📝 {modalMode.replace('_', ' ').toUpperCase()}
                 </h3>
-                <button onClick={() => setShowAddModal(false)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}>✕</button>
+                <button onClick={() => setModalMode(null)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer' }}>✕</button>
               </div>
 
-              <form onSubmit={handleSaveAdd} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <form onSubmit={handleSaveModal} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <div>
-                  <label style={{ color: '#c4b5fd', fontSize: '0.8rem', fontWeight: '700' }}>Title / Name / Header:</label>
+                  <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Name / Title</label>
                   <input
                     type="text"
                     required
-                    placeholder="Enter name or title..."
-                    value={formData.name || formData.title || ''}
-                    onChange={e => setFormData({ ...formData, name: e.target.value, title: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.85rem', outline: 'none', marginTop: '0.2rem' }}
+                    className="form-input"
+                    value={modalForm.name || modalForm.title || ''}
+                    onChange={e => setModalForm({ ...modalForm, name: e.target.value, title: e.target.value })}
+                    style={{ width: '100%', marginTop: '0.2rem' }}
                   />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                   <div>
-                    <label style={{ color: '#c4b5fd', fontSize: '0.8rem', fontWeight: '700' }}>Category / Department / Company:</label>
+                    <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Category / Dept / Role</label>
                     <input
                       type="text"
-                      placeholder="e.g. Computer Science / IT"
-                      value={formData.category || formData.department || formData.company || ''}
-                      onChange={e => setFormData({ ...formData, category: e.target.value, department: e.target.value, company: e.target.value })}
-                      style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.85rem', outline: 'none', marginTop: '0.2rem' }}
+                      className="form-input"
+                      value={modalForm.category || modalForm.department || modalForm.role || ''}
+                      onChange={e => setModalForm({ ...modalForm, category: e.target.value, department: e.target.value, role: e.target.value })}
+                      style={{ width: '100%', marginTop: '0.2rem' }}
                     />
                   </div>
                   <div>
-                    <label style={{ color: '#c4b5fd', fontSize: '0.8rem', fontWeight: '700' }}>Package / Role / Year:</label>
+                    <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>CTC / Level / Year</label>
                     <input
                       type="text"
-                      placeholder="e.g. 6-12 LPA / 4th Year"
-                      value={formData.ctcFresher || formData.salary || formData.role || formData.year || ''}
-                      onChange={e => setFormData({ ...formData, ctcFresher: e.target.value, salary: e.target.value, role: e.target.value, year: e.target.value })}
-                      style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.85rem', outline: 'none', marginTop: '0.2rem' }}
+                      className="form-input"
+                      value={modalForm.ctc || modalForm.level || modalForm.year || modalForm.salary || ''}
+                      onChange={e => setModalForm({ ...modalForm, ctc: e.target.value, level: e.target.value, year: e.target.value, salary: e.target.value })}
+                      style={{ width: '100%', marginTop: '0.2rem' }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ color: '#c4b5fd', fontSize: '0.8rem', fontWeight: '700' }}>Description / Details / Skills:</label>
+                  <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Description / Content / Skills</label>
                   <textarea
                     rows={3}
-                    placeholder="Enter detailed content, required skills, syllabus details..."
-                    value={formData.details || formData.description || formData.roles || ''}
-                    onChange={e => setFormData({ ...formData, details: e.target.value, description: e.target.value, roles: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.85rem', outline: 'none', marginTop: '0.2rem' }}
+                    className="form-textarea"
+                    value={modalForm.description || modalForm.content || modalForm.skillsInput || ''}
+                    onChange={e => setModalForm({ ...modalForm, description: e.target.value, content: e.target.value, skillsInput: e.target.value })}
+                    style={{ width: '100%', marginTop: '0.2rem' }}
                   />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
-                  <button type="submit" style={{ padding: '0.75rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #059669, #10b981)', color: 'white', fontWeight: '800', border: 'none', cursor: 'pointer' }}>
-                    Publish to Database 🚀
-                  </button>
-                  <button type="button" onClick={() => setShowAddModal(false)} style={{ padding: '0.75rem', borderRadius: '0.75rem', background: 'rgba(255,255,255,0.06)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}>
-                    Cancel
-                  </button>
+                  <button type="submit" className="btn btn-primary btn-full">Save Changes 💾</button>
+                  <button type="button" onClick={() => setModalMode(null)} className="btn btn-outline btn-full">Cancel</button>
                 </div>
               </form>
             </motion.div>
