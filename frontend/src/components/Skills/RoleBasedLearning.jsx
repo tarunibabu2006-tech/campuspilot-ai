@@ -67,9 +67,34 @@ function RoleBasedLearning({ onSelectSkill }) {
   const matchPct = requiredSkills.length > 0 ? 33 : 0 // Demo milestone progress
 
   return (
-    <div className="card">
-      <h2 className="card-title">🗺️ Role-Based Structured Learning Path</h2>
-      <p className="card-subtitle">Pick your dream job role from Tech, Non-Tech, Medical, Law, or Arts and start learning!</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #3b0764 50%, #0f172a 100%)',
+        border: '1px solid rgba(192,132,252,0.4)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(147,51,234,0.25)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>🗺️</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #f0abfc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Role Path & Structured Roadmap
+              </h1>
+              <p style={{ margin: '0.25rem 0 0', color: '#e9d5ff', fontSize: '0.92rem' }}>
+                Select your target career role from 200+ domains → Step-by-step modular learning syllabus & project milestones.
+              </p>
+            </div>
+          </div>
+          <span style={{ background: 'linear-gradient(135deg, #c084fc, #9333ea)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            200+ Roles
+          </span>
+        </div>
+      </div>
+
+      <div className="card">
 
       {/* Target Role Selector & Autocomplete */}
       <div className="mb-3">
@@ -144,6 +169,7 @@ function RoleBasedLearning({ onSelectSkill }) {
           )}
         </>
       )}
+      </div>
     </div>
   )
 }

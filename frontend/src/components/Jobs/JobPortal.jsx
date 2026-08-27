@@ -3,24 +3,36 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
+import { useAuth } from '../../context/AuthContext'
 import { SEED_JOBS as EXTERNAL_SEED_JOBS } from '../../data/seedJobs'
 
-const SEED_JOBS = EXTERNAL_SEED_JOBS.map(j => ({
-  id: j.id,
-  role: j.title,
-  company: j.company,
-  location: j.location,
-  salary: j.ctc,
-  experience: j.experience,
-  skills: j.skills.join(', '),
-  matchPct: Math.floor(Math.random() * 20) + 78,
-  verified: j.isVerified,
-  stats: { hired: j.applicants || 120, avgPackage: j.ctc.split('–')[0] || '₹5 LPA', highest: j.ctc.split('–')[1] || '₹10 LPA', topSkills: j.skills.slice(0, 3).join(', ') },
-  applyLink: `https://google.com/search?q=${encodeURIComponent(j.company + ' careers ' + j.title)}`
-}))
-
 export default function JobPortal() {
-  const [jobs, setJobs] = useState(SEED_JOBS)
+  const { user } = useAuth()
+  const userSkills = (user?.skills || []).map(s => s.toLowerCase().trim())
+
+  const [jobs, setJobs] = useState(() => {
+    return EXTERNAL_SEED_JOBS.map(j => {
+      let matchPct = 0
+      if (userSkills.length > 0) {
+        const jobReqs = j.skills.map(s => s.toLowerCase().trim())
+        const matchCount = jobReqs.filter(r => userSkills.some(us => us.includes(r) || r.includes(us))).length
+        matchPct = Math.min(100, Math.round((matchCount / Math.max(1, jobReqs.length)) * 100))
+      }
+      return {
+        id: j.id,
+        role: j.title,
+        company: j.company,
+        location: j.location,
+        salary: j.ctc,
+        experience: j.experience,
+        skills: j.skills.join(', '),
+        matchPct,
+        verified: j.isVerified,
+        stats: { hired: j.applicants || 120, avgPackage: j.ctc.split('–')[0] || '₹5 LPA', highest: j.ctc.split('–')[1] || '₹10 LPA', topSkills: j.skills.slice(0, 3).join(', ') },
+        applyLink: `https://google.com/search?q=${encodeURIComponent(j.company + ' careers ' + j.title)}`
+      }
+    })
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLocation, setSelectedLocation] = useState('All')
   const [savedJobs, setSavedJobs] = useState({})
@@ -75,10 +87,15 @@ export default function JobPortal() {
         style={{ background: 'linear-gradient(135deg, #1e1b4b, #312e81, #1e293b)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(139,92,246,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}
       >
         <div>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem' }}>
-            💼 Verified Campus Placement & Job Portal
-          </h1>
-          <p style={{ color: '#c4b5fd' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', margin: 0 }}>
+              💼 Verified Campus Placement & Job Portal
+            </h1>
+            <span style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+              1,000,000+ Verified Jobs
+            </span>
+          </div>
+          <p style={{ color: '#c4b5fd', margin: 0 }}>
             Direct hiring drives from top MNCs, Product Giants, Core PSUs & verified campus employers.
           </p>
         </div>

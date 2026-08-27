@@ -59,14 +59,14 @@ export default function Leaderboard() {
           const formatted = res.data.students.map((s, idx) => ({
             rank: idx + 1,
             name: s.name || 'Student',
-            department: s.department || 'Computer Science',
-            year: s.year ? `${s.year} Year` : '1st Year',
-            college: s.college || 'Campus Pilot College',
+            department: s.department || 'Not Set',
+            year: s.year || 'Not Set',
+            college: s.college || '',
             xp: s.xp || 0,
             skillsScore: s.skillsScore || (s.skills ? Math.min(100, s.skills.length * 15) : 0),
             interviewScore: s.interviewScore || 0,
             badges: s.badgesCount || (s.badges ? s.badges.length : 0),
-            streak: s.streak || 1,
+            streak: s.streak || 0,
             overallScore: (s.xp || 0) + ((s.skills ? s.skills.length : 0) * 20),
             avatar: s.avatar || null
           })).sort((a, b) => b.xp - a.xp)
@@ -75,15 +75,15 @@ export default function Leaderboard() {
           // Fallback to real logged-in user only
           const currentUserObj = {
             rank: 1,
-            name: user?.name || 'Logged In Student',
-            department: user?.department || 'Computer Science',
-            year: user?.year || '1st Year',
-            college: user?.college || 'My Campus',
+            name: user?.name || 'Student',
+            department: user?.department || 'Not Set',
+            year: user?.year || 'Not Set',
+            college: user?.college || '',
             xp: user?.xp || 0,
             skillsScore: user?.skills ? Math.min(100, user.skills.length * 20) : 0,
             interviewScore: user?.interviewScore || 0,
             badges: user?.badgesCount || (user?.badges ? user.badges.length : 0),
-            streak: user?.streak || 1,
+            streak: user?.streak || 0,
             overallScore: user?.xp || 0,
             avatar: user?.avatar || null
           }
@@ -93,15 +93,15 @@ export default function Leaderboard() {
         // Render real logged in user only
         const currentUserObj = {
           rank: 1,
-          name: user?.name || 'Logged In Student',
-          department: user?.department || 'Computer Science',
-          year: user?.year || '1st Year',
-          college: user?.college || 'My Campus',
+          name: user?.name || 'Student',
+          department: user?.department || 'Not Set',
+          year: user?.year || 'Not Set',
+          college: user?.college || '',
           xp: user?.xp || 0,
           skillsScore: user?.skills ? Math.min(100, user.skills.length * 20) : 0,
           interviewScore: user?.interviewScore || 0,
           badges: user?.badgesCount || (user?.badges ? user.badges.length : 0),
-          streak: user?.streak || 1,
+          streak: user?.streak || 0,
           overallScore: user?.xp || 0,
           avatar: user?.avatar || null
         }
@@ -244,7 +244,7 @@ export default function Leaderboard() {
                   <span style={{ color: 'white', fontWeight: '600', fontSize: '0.85rem' }}>{s.name}</span>
                 </div>
                 <span style={{ color: '#94a3b8', fontSize: '0.78rem', display: 'flex', alignItems: 'center' }}>{s.department}</span>
-                <span style={{ color: '#94a3b8', fontSize: '0.78rem', display: 'flex', alignItems: 'center' }}>{s.year.split(' ')[0] + ' Yr'}</span>
+                <span style={{ color: '#94a3b8', fontSize: '0.78rem', display: 'flex', alignItems: 'center' }}>{s.year}</span>
                 <span style={{ color: '#facc15', fontWeight: '700', fontSize: '0.85rem', display: 'flex', alignItems: 'center' }}>{s.xp}</span>
                 <span style={{ color: '#4ade80', fontSize: '0.85rem', display: 'flex', alignItems: 'center' }}>{Math.round(s.skillsScore)}%</span>
                 <span style={{ color: '#60a5fa', fontSize: '0.85rem', display: 'flex', alignItems: 'center' }}>{Math.round(s.interviewScore)}%</span>

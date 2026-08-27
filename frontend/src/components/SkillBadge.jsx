@@ -71,16 +71,29 @@ function SkillBadge() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Header */}
-      <div className="card" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', border: '1px solid rgba(139,92,246,0.4)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ fontSize: '2.5rem' }}>🏷️</span>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '1.6rem', color: '#fff' }}>Verified Skill Badge & Career Fit Score</h2>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              Cryptographically verified skill certification & role readiness score for top Indian recruiters
-            </p>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #0f172a 100%)',
+        border: '1px solid rgba(139,92,246,0.4)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(139,92,246,0.25)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>🏷️</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #c4b5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Verified Skill Badge & Recruiter Trust Score
+              </h1>
+              <p style={{ margin: '0.25rem 0 0', color: '#a5b4fc', fontSize: '0.92rem' }}>
+                Cryptographically verified skill certification & role readiness score for top Indian product & service recruiters.
+              </p>
+            </div>
           </div>
+          <span style={{ background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            Verified Credential
+          </span>
         </div>
       </div>
 

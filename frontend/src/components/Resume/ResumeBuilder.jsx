@@ -123,21 +123,45 @@ ${formData.experience.map(x => `- ${x.role} at ${x.company} (${x.duration})\n  $
   }
 
   return (
-    <div className="card">
-      <div className="flex justify-between items-center mb-1">
-        <h2 className="card-title" style={{ marginBottom: 0 }}>📄 Premium Resume Builder</h2>
-        <div>
-          <label className="form-label" style={{ display: 'inline', marginRight: '0.5rem' }}>Style Template:</label>
-          <select className="form-select" style={{ display: 'inline-block', width: 'auto', padding: '0.2rem 0.5rem' }} value={template} onChange={e => setTemplate(e.target.value)}>
-            <option value="modern">Modern Professional (Blue & Grey)</option>
-            <option value="minimalist">Minimalist Classic (Serif & Clean)</option>
-            <option value="ats">ATS Optimized Standard (High Pass-Rate)</option>
-            <option value="creative">Creative Portfolio (Purple Accent)</option>
-            <option value="executive">Executive Leadership (Emerald Dark)</option>
-          </select>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 50%, #0f172a 100%)',
+        border: '1px solid rgba(59,130,246,0.4)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(59,130,246,0.25)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>📄</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                AI ATS Resume Builder
+              </h1>
+              <p style={{ margin: '0.25rem 0 0', color: '#bfdbfe', fontSize: '0.92rem' }}>
+                Build ATS-optimized resumes with 5 professional templates, live preview & print/PDF export.
+              </p>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ color: '#93c5fd', fontSize: '0.85rem', fontWeight: '700' }}>Template:</span>
+            <select
+              style={{ background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(59,130,246,0.5)', borderRadius: '0.6rem', padding: '0.4rem 0.8rem', color: 'white', fontSize: '0.85rem', outline: 'none', cursor: 'pointer' }}
+              value={template}
+              onChange={e => setTemplate(e.target.value)}
+            >
+              <option value="modern">Modern Professional (Blue)</option>
+              <option value="minimalist">Minimalist Classic</option>
+              <option value="ats">ATS Optimized Standard</option>
+              <option value="creative">Creative Portfolio (Purple)</option>
+              <option value="executive">Executive Leadership (Emerald)</option>
+            </select>
+          </div>
         </div>
       </div>
-      <p className="card-subtitle">Fill in your contact links (LinkedIn, GitHub, Portfolio), structure skills by categories, and generate click-friendly outputs!</p>
+
+      <div className="card">
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
         {/* Form Inputs */}
@@ -309,6 +333,7 @@ ${formData.experience.map(x => `- ${x.role} at ${x.company} (${x.duration})\n  $
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

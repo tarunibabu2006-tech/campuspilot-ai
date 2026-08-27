@@ -104,9 +104,34 @@ function MockInterview() {
   }
 
   return (
-    <div className="card">
-      <h2 className="card-title">🎤 AI Mock Technical & HR Interview</h2>
-      <p className="card-subtitle">Role-specific technical questions, speech support, and timer limit pressure!</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 50%, #0f172a 100%)',
+        border: '1px solid rgba(96,165,250,0.4)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(59,130,246,0.25)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>🎤</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                AI Mock Interview Simulator
+              </h1>
+              <p style={{ margin: '0.25rem 0 0', color: '#bfdbfe', fontSize: '0.92rem' }}>
+                Role-specific technical & HR questions, speech pronunciation feedback, timer pressure & AI scoring.
+              </p>
+            </div>
+          </div>
+          <span style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            Voice & Text AI
+          </span>
+        </div>
+      </div>
+
+      <div className="card">
 
       {questions.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -217,6 +242,7 @@ function MockInterview() {
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }

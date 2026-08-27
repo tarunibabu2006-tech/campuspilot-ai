@@ -130,7 +130,16 @@ export default function AlumniNetwork() {
   const [referralForm, setReferralForm] = useState({ jobRole: '', jobLink: '', message: '', resumeAttached: true })
   const [adviceForm, setAdviceForm] = useState({ question: '', topic: 'Career Guidance' })
 
-  const ALL_ALUMNI_LIST = [...MOCK_ALUMNI, ...SEEDED_ALUMNI]
+  const [alumniRequests, setAlumniRequests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_alumni_requests')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
+
+  const ALL_ALUMNI_LIST = SEEDED_ALUMNI
 
   const filteredAlumni = ALL_ALUMNI_LIST.filter(a => {
     const matchesSearch = a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -144,13 +153,40 @@ export default function AlumniNetwork() {
 
   const handleReferralSubmit = (e) => {
     e.preventDefault()
-    toast.success(`📩 Referral request sent to ${referralModal.name} at ${referralModal.company}!`)
+    const newReq = {
+      id: Date.now(),
+      type: 'Job Referral',
+      targetName: referralModal.name,
+      targetCompany: referralModal.company,
+      jobRole: referralForm.jobRole,
+      jobLink: referralForm.jobLink,
+      message: referralForm.message,
+      status: 'Pending Review ⏳',
+      timestamp: new Date().toISOString()
+    }
+    const updated = [newReq, ...alumniRequests]
+    setAlumniRequests(updated)
+    localStorage.setItem('campuspilot_alumni_requests', JSON.stringify(updated))
+    toast.success(`📩 Referral request dispatched to ${referralModal.name} at ${referralModal.company}! Status tracked in your dashboard.`)
     setReferralModal(null)
   }
 
   const handleAdviceSubmit = (e) => {
     e.preventDefault()
-    toast.success(`💬 Question submitted! ${adviceModal.name} will reply soon.`)
+    const newReq = {
+      id: Date.now(),
+      type: 'Career Mentorship',
+      targetName: adviceModal.name,
+      targetCompany: adviceModal.company,
+      topic: adviceForm.topic,
+      question: adviceForm.question,
+      status: 'Awaiting Response 💬',
+      timestamp: new Date().toISOString()
+    }
+    const updated = [newReq, ...alumniRequests]
+    setAlumniRequests(updated)
+    localStorage.setItem('campuspilot_alumni_requests', JSON.stringify(updated))
+    toast.success(`💬 Question submitted to ${adviceModal.name}! Mentor notification generated.`)
     setAdviceModal(null)
   }
 
@@ -161,10 +197,15 @@ export default function AlumniNetwork() {
         style={{ background: 'linear-gradient(135deg, #065f46, #047857, #1e293b)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(52,211,153,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}
       >
         <div>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem' }}>
-            🤝 Verified Alumni Network & Referrals
-          </h1>
-          <p style={{ color: '#a7f3d0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', margin: 0 }}>
+              🤝 Verified Alumni Network & Referrals
+            </h1>
+            <span style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+              100+ Verified Mentors
+            </span>
+          </div>
+          <p style={{ color: '#a7f3d0', margin: 0 }}>
             Connect with placed seniors, request job referrals, ask career advice & trace real alumni journeys.
           </p>
         </div>

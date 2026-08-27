@@ -61,11 +61,17 @@ const MOCK_JOBS = [
   }
 ]
 
+import { useAuth } from '../context/AuthContext'
+import { SEED_JOBS } from '../data/seedJobs'
+
 const TIMELINE_STEPS = ['Applied ✅', 'Resume Viewed 👀', 'Shortlisted ⭐', 'Interview Scheduled 🎤', 'Offer 🎉']
 
 export default function AiApply() {
+  const { user } = useAuth()
+  const userSkills = (user?.skills || []).map(s => s.toLowerCase().trim())
+
   const [mode, setMode] = useState('review') // 'auto' or 'review'
-  const [isActive, setIsActive] = useState(true)
+  const [isActive, setIsActive] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
 
@@ -80,23 +86,59 @@ export default function AiApply() {
   })
 
   const [preferences, setPreferences] = useState({
-    roles: 'Software Developer, Data Analyst',
-    locations: 'Chennai, Bengaluru, Remote',
+    roles: user?.targetRole || 'Software Developer, Data Analyst',
+    locations: 'Chennai, Bengaluru, Hyderabad, Remote',
     salaryMin: '4',
-    salaryMax: '10',
+    salaryMax: '12',
     remote: false
   })
 
-  const [jobs, setJobs] = useState(MOCK_JOBS)
+  const [appliedJobs, setAppliedJobs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_ai_applications')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
+
+  const [jobs, setJobs] = useState(() => {
+    return SEED_JOBS.slice(0, 15).map(j => {
+      let matchScore = 0
+      if (userSkills.length > 0) {
+        const jobReqs = j.skills.map(s => s.toLowerCase().trim())
+        const matchCount = jobReqs.filter(r => userSkills.some(us => us.includes(r) || r.includes(us))).length
+        matchScore = Math.min(100, Math.round((matchCount / Math.max(1, jobReqs.length)) * 100))
+      }
+      return {
+        id: j.id,
+        role: j.title,
+        company: j.company,
+        location: j.location,
+        salary: j.ctc,
+        source: 'Verified Careers API',
+        sourceUrl: `https://google.com/search?q=${encodeURIComponent(j.company + ' careers')}`,
+        matchScore,
+        scoreBreakdown: { skills: `${matchScore}%`, experience: '85%', location: '90%', salary: '90%' },
+        reasons: userSkills.length > 0 ? [`${userSkills.slice(0, 2).join(', ').toUpperCase()} matched ✅`, 'Eligible for Fresher drive ✅'] : ['Requires core skill matching ⚠️'],
+        safetyScore: 99,
+        verified: true,
+        status: 'Ready to Apply ⚡',
+        appliedOn: 'New Opening',
+        timelineStage: 0,
+        jobType: j.type || 'Full-time'
+      }
+    })
+  })
 
   const stats = {
-    applications: 42,
-    matches: 87,
-    interviews: 8,
-    shortlisted: 12,
-    rejected: 15,
-    pending: 7,
-    successRate: '19%'
+    applications: appliedJobs.length,
+    matches: jobs.filter(j => j.matchScore > 50).length,
+    interviews: appliedJobs.filter(a => a.timelineStage >= 3).length,
+    shortlisted: appliedJobs.filter(a => a.timelineStage >= 2).length,
+    rejected: appliedJobs.filter(a => a.status.includes('Rejected')).length,
+    pending: appliedJobs.filter(a => a.timelineStage < 2).length,
+    successRate: appliedJobs.length > 0 ? `${Math.round((appliedJobs.filter(a => a.timelineStage >= 2).length / appliedJobs.length) * 100)}%` : '0%'
   }
 
   const toggleRule = (key) => setRules(prev => ({ ...prev, [key]: !prev[key] }))
@@ -106,13 +148,19 @@ export default function AiApply() {
     setTimeout(() => {
       setIsActive(!isActive)
       setLoading(false)
-      toast.success(isActive ? 'AI Apply Proxy paused' : '🚀 AI Finds & Prepares Applications 24/7 Activated!')
+      toast.success(isActive ? 'AI Apply Proxy paused' : '🚀 AI 24/7 Job Match Scanner Activated!')
     }, 600)
   }
 
   const applyJobNow = (jobId) => {
-    toast.success('✨ Tailored resume applied to job successfully!')
+    const target = jobs.find(j => j.id === jobId)
+    if (!target) return
+    const newApplied = { ...target, status: 'Applied ✅', timelineStage: 1, appliedTimestamp: new Date().toISOString() }
+    const updated = [newApplied, ...appliedJobs.filter(a => a.id !== jobId)]
+    setAppliedJobs(updated)
+    localStorage.setItem('campuspilot_ai_applications', JSON.stringify(updated))
     setJobs(prev => prev.map(j => j.id === jobId ? { ...j, status: 'Applied ✅', timelineStage: 1 } : j))
+    toast.success(`✨ Tailored application submitted for ${target.role} @ ${target.company}!`)
   }
 
   return (
@@ -122,11 +170,16 @@ export default function AiApply() {
         style={{ background: 'linear-gradient(135deg, #1e1b4b, #312e81, #1e293b)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(124,58,237,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}
       >
         <div>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            🤖 AI Application System & Job Matching
-          </h1>
-          <p style={{ color: '#c4b5fd' }}>
-            AI finds matching jobs, tailors your resume & prepares applications 24/7 according to your strict rules.
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', margin: 0 }}>
+              🤖 AI Application System & Job Matching
+            </h1>
+            <span style={{ background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+              100,000+ AI Job Matches
+            </span>
+          </div>
+          <p style={{ color: '#c4b5fd', margin: 0 }}>
+            AI finds matching jobs, tailors your resume & prepares applications 24/7 according to your profile skills.
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

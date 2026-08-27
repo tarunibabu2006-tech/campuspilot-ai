@@ -53,14 +53,29 @@ function ResumeScorer() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Header */}
-      <div className="card" style={{ background: 'linear-gradient(135deg, #0d1117 0%, #1a1f35 100%)', border: '1px solid rgba(16,185,129,0.4)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ fontSize: '2.5rem' }}>📊</span>
-          <div>
-            <h2 style={{ margin: 0, fontSize: '1.6rem', color: '#fff' }}>Resume Scorer</h2>
-            <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.9rem' }}>AI-powered resume analysis with ATS score & tailored suggestions</p>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #0f172a 100%)',
+        border: '1px solid rgba(16,185,129,0.4)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(16,185,129,0.2)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>📊</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #a7f3d0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                AI ATS Resume Scorer & Analyzer
+              </h1>
+              <p style={{ margin: '0.25rem 0 0', color: '#a7f3d0', fontSize: '0.92rem' }}>
+                Instant ATS score, section-by-section breakdown, keyword suggestions & improvement tips for Indian placements.
+              </p>
+            </div>
           </div>
+          <span style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            ATS Engine 2026
+          </span>
         </div>
       </div>
 

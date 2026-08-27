@@ -48,11 +48,34 @@ function ChatAssistant({ language }) {
   ]
 
   return (
-    <div className="card chat-container">
-      <div className="flex justify-between items-center pb-2" style={{ borderBottom: '1px solid var(--border-color)' }}>
-        <h2 className="card-title" style={{ marginBottom: 0, fontSize: '1.2rem' }}>🤖 AI Student Assistant</h2>
-        <span className="badge badge-safe">Gemini 1.5 Powered</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #0f172a 100%)',
+        border: '1px solid rgba(99,102,241,0.4)',
+        borderRadius: '1.5rem',
+        padding: '1.75rem',
+        boxShadow: '0 8px 32px rgba(99,102,241,0.25)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>🤖</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #c7d2fe)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                AI Student Campus Copilot
+              </h1>
+              <p style={{ margin: '0.2rem 0 0', color: '#a5b4fc', fontSize: '0.88rem' }}>
+                Ask anything about exams, placement strategies, coding doubt resolutions & college survival in Tamil, Hindi or English.
+              </p>
+            </div>
+          </div>
+          <span style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            Gemini 1.5 Pro
+          </span>
+        </div>
       </div>
+
+      <div className="card chat-container">
 
       <div className="chat-messages">
         {messages.map((msg, i) => (
@@ -97,6 +120,7 @@ function ChatAssistant({ language }) {
           Send 🚀
         </button>
       </form>
+    </div>
     </div>
   )
 }

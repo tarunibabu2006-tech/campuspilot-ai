@@ -116,37 +116,76 @@ export default function AiCareerPredictor() {
     toast.success('🎯 What-If Simulation Complete!')
   }
 
+  const [selectedCategory, setSelectedCategory] = useState('All')
+
+  const PRESET_CATEGORIES = ['All', 'Tech & Development', 'Data & Analytics', 'Non-Tech Business', 'Government & Civil Services', 'Medical & Healthcare', 'Creative & Arts']
+
+  const filteredPresets = selectedCategory === 'All'
+    ? CAREER_ROLE_PRESETS
+    : CAREER_ROLE_PRESETS.filter(p => p.category === selectedCategory)
+
   return (
     <div style={{ padding: '1.5rem', maxWidth: '1100px', margin: '0 auto' }}>
       {/* Header Banner */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
         style={{ background: 'linear-gradient(135deg, #1e1b4b, #311042, #0f172a)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(168,85,247,0.4)' }}
       >
-        <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem' }}>
-          🔮 AI Career Planning & 10-Year Prediction System
-        </h1>
-        <p style={{ color: '#c084fc' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', margin: 0 }}>
+            🔮 AI Career Planning & 10-Year Prediction System
+          </h1>
+          <span style={{ background: 'linear-gradient(135deg, #a855f7, #6366f1)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            50+ Verified Career Presets
+          </span>
+        </div>
+        <p style={{ color: '#c084fc', margin: 0 }}>
           AI multi-path probability, 5-Yr & 10-Yr trajectory, skill gap analysis, salary growth & what-if simulator.
         </p>
       </motion.div>
 
       {/* 1-Click Role Presets */}
       <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.25rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginBottom: '0.75rem' }}>⚡ 1-Click Role Presets (Auto-Fills Profile & Gaps)</h3>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          {PRESETS.map(p => (
-            <button
-              key={p.title} onClick={() => loadPreset(p)}
-              style={{
-                padding: '0.6rem 1.2rem', borderRadius: '0.75rem', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer',
-                background: activePreset.title === p.title ? 'linear-gradient(135deg, #9333ea, #4f46e5)' : 'rgba(255,255,255,0.05)',
-                color: activePreset.title === p.title ? 'white' : '#94a3b8',
-                border: activePreset.title === p.title ? 'none' : '1px solid rgba(255,255,255,0.1)'
-              }}
-            >
-              {p.title}
-            </button>
-          ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.05rem', margin: 0 }}>⚡ 50+ 1-Click Role Presets (Click any to test & forecast!)</h3>
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+            {PRESET_CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                style={{
+                  padding: '0.3rem 0.7rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer',
+                  background: selectedCategory === cat ? 'linear-gradient(135deg, #9333ea, #4f46e5)' : 'rgba(255,255,255,0.05)',
+                  color: selectedCategory === cat ? 'white' : '#94a3b8',
+                  border: selectedCategory === cat ? 'none' : '1px solid rgba(255,255,255,0.1)'
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', maxHeight: '180px', overflowY: 'auto', paddingRight: '0.3rem' }}>
+          {filteredPresets.map(p => {
+            const isSelected = activePreset?.title === p.title
+            return (
+              <button
+                key={p.id || p.title}
+                type="button"
+                onClick={() => loadPreset(p)}
+                style={{
+                  padding: '0.5rem 1rem', borderRadius: '0.75rem', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', transition: 'all 0.2s',
+                  background: isSelected ? 'linear-gradient(135deg, #9333ea, #4f46e5)' : 'rgba(255,255,255,0.05)',
+                  color: isSelected ? 'white' : '#cbd5e1',
+                  border: isSelected ? '1px solid #c084fc' : '1px solid rgba(255,255,255,0.1)',
+                  boxShadow: isSelected ? '0 0 15px rgba(168,85,247,0.4)' : 'none'
+                }}
+              >
+                {isSelected ? '✓ ' : ''}{p.title}
+              </button>
+            )
+          })}
         </div>
       </div>
 

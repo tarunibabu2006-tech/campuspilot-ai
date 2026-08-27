@@ -248,19 +248,25 @@ const MOST_ASKED = [
 export default function CompanyArchives() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDifficulty, setFilterDifficulty] = useState('All')
+  const [filterSector, setFilterSector] = useState('All')
   const [selectedCompany, setSelectedCompany] = useState(null)
   const [aiPrepModal, setAiPrepModal] = useState(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiResponse, setAiResponse] = useState(null)
+  const [visibleCount, setVisibleCount] = useState(30)
 
-  const ALL_ARCHIVE_DATA = [...ARCHIVE_DATA, ...SEEDED_ARCHIVE_DATA]
+  const ALL_ARCHIVE_DATA = SEEDED_ARCHIVE_DATA
 
   const filtered = ALL_ARCHIVE_DATA.filter(c => {
     const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.roles.some(r => r.toLowerCase().includes(searchTerm.toLowerCase()))
+      c.roles.some(r => r.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      c.industry.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesDiff = filterDifficulty === 'All' || c.difficulty === filterDifficulty
-    return matchesSearch && matchesDiff
+    const matchesSector = filterSector === 'All' || c.industry.toLowerCase().includes(filterSector.toLowerCase())
+    return matchesSearch && matchesDiff && matchesSector
   })
+
+  const displayedCompanies = filtered.slice(0, visibleCount)
 
   const generateAiPrep = (company) => {
     setAiPrepModal(company)
@@ -290,25 +296,30 @@ export default function CompanyArchives() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
         style={{ background: 'linear-gradient(135deg, #1e1b4b, #312e81, #1e293b)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(139,92,246,0.3)' }}
       >
-        <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem' }}>
-          🏛️ Company Archives & Placement Intelligence
-        </h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', margin: 0 }}>
+            🏛️ Company Archives & Placement Intelligence
+          </h1>
+          <span style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            1,000+ Indian Companies
+          </span>
+        </div>
         <p style={{ color: '#a5b4fc', marginBottom: '1.25rem' }}>
-          Past placement data, selection processes, CTC trends, previous papers & AI-powered company preparation.
+          Verified past placement statistics, selection processes, CTC trends, past papers & AI-powered company interview preparation.
         </p>
 
         {/* Search & Filters */}
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <input
             type="text"
-            placeholder="🔍 Search company or job role (e.g. TCS, Developer)..."
+            placeholder="🔍 Search from 1,000+ Indian companies (e.g. Google, TCS, L&T, ISRO, HDFC)..."
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={e => { setSearchTerm(e.target.value); setVisibleCount(30); }}
             style={{ flex: 1, minWidth: '240px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.75rem', padding: '0.75rem 1rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
           />
           <select
             value={filterDifficulty}
-            onChange={e => setFilterDifficulty(e.target.value)}
+            onChange={e => { setFilterDifficulty(e.target.value); setVisibleCount(30); }}
             style={{ background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.75rem', padding: '0.75rem 1rem', color: 'white', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
           >
             <option value="All">All Difficulties</option>
@@ -316,12 +327,24 @@ export default function CompanyArchives() {
             <option value="Medium">🟡 Medium</option>
             <option value="Hard">🔴 Hard</option>
           </select>
+          <select
+            value={filterSector}
+            onChange={e => { setFilterSector(e.target.value); setVisibleCount(30); }}
+            style={{ background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.75rem', padding: '0.75rem 1rem', color: 'white', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+          >
+            <option value="All">All Sectors</option>
+            <option value="IT Services">IT Services</option>
+            <option value="Product">Product Tech</option>
+            <option value="PSU">PSU / Govt</option>
+            <option value="Bank">Banking & Finance</option>
+            <option value="Core">Core Engineering</option>
+          </select>
         </div>
       </motion.div>
 
       {/* Frequently Asked Questions Priority Section */}
       <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.25rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ color: '#fbbf24', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.75rem' }}>🔥 Most Asked Interview Questions (Across All Companies)</h3>
+        <h3 style={{ color: '#fbbf24', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.75rem' }}>🔥 Most Asked Interview Questions (Across All 1,000+ Companies)</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.75rem' }}>
           {MOST_ASKED.map(q => (
             <div key={q.question} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.75rem', padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -333,9 +356,14 @@ export default function CompanyArchives() {
       </div>
 
       {/* Company Cards Grid */}
-      <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.3rem', marginBottom: '1rem' }}>🏢 Company Archive Cards ({filtered.length})</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-        {filtered.map((company, index) => (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.3rem', margin: 0 }}>
+          🏢 Company Archive Cards (Showing {displayedCompanies.length} of {filtered.length} Companies)
+        </h2>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
+        {displayedCompanies.map((company, index) => (
           <motion.div
             key={company.id}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -405,6 +433,28 @@ export default function CompanyArchives() {
           </motion.div>
         ))}
       </div>
+
+      {/* Load More Button */}
+      {visibleCount < filtered.length && (
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <button
+            onClick={() => setVisibleCount(prev => prev + 30)}
+            style={{
+              padding: '0.85rem 2rem',
+              background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.75rem',
+              fontWeight: '800',
+              fontSize: '0.95rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 20px rgba(124,58,237,0.4)'
+            }}
+          >
+            Load Next 30 Companies (Showing {displayedCompanies.length} of {filtered.length}) 🚀
+          </button>
+        </div>
+      )}
 
       {/* Full Company Drawer Modal */}
       <AnimatePresence>

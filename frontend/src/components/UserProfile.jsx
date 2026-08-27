@@ -417,34 +417,143 @@ export default function UserProfile() {
         )}
 
         {/* ACHIEVEMENTS TAB */}
-        {activeTab === 'achievements' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem' }}>
-            <h3 style={{ color: 'white', fontWeight: '700', marginBottom: '1.25rem', fontSize: '1.1rem' }}>🏅 Your Unlocked Achievements & Badges</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
-              {[
-                { icon: '🐍', name: 'Python Master', unlocked: true, xp: 80 },
-                { icon: '⚛️', name: 'React Master', unlocked: true, xp: 100 },
-                { icon: '🎤', name: 'Interview Pro', unlocked: true, xp: 120 },
-                { icon: '📄', name: 'Resume Expert', unlocked: false, xp: 90 },
-                { icon: '🔥', name: '30-Day Streak', unlocked: false, xp: 150 },
-                { icon: '🏆', name: 'Top Performer', unlocked: false, xp: 200 },
-                { icon: '🤖', name: 'AI/ML Explorer', unlocked: false, xp: 130 },
-                { icon: '💻', name: 'Coding Champion', unlocked: false, xp: 110 }
-              ].map((badge) => (
-                <div key={badge.name} style={{
-                  textAlign: 'center', padding: '1rem',
-                  background: badge.unlocked ? 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(37,99,235,0.2))' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${badge.unlocked ? 'rgba(139,92,246,0.4)' : 'rgba(255,255,255,0.07)'}`,
-                  borderRadius: '1rem', opacity: badge.unlocked ? 1 : 0.5
-                }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.4rem', filter: badge.unlocked ? 'none' : 'grayscale(100%)' }}>{badge.icon}</div>
-                  <div style={{ color: badge.unlocked ? 'white' : '#64748b', fontWeight: '700', fontSize: '0.8rem', marginBottom: '0.2rem' }}>{badge.name}</div>
-                  <div style={{ color: badge.unlocked ? '#facc15' : '#475569', fontSize: '0.7rem' }}>{badge.unlocked ? `✓ +${badge.xp} XP` : `🔒 ${badge.xp} XP`}</div>
+        {activeTab === 'achievements' && (() => {
+          const userSkills = formData.skills || user?.skills || []
+          const hasSkill = (sk) => userSkills.some(s => s.toLowerCase().includes(sk.toLowerCase()))
+          const userXp = liveStats.xp || 0
+          const userStreak = liveStats.streak || 0
+
+          const ACHIEVEMENTS_DEF = [
+            {
+              icon: '🐍',
+              name: 'Python Master',
+              xp: 80,
+              desc: 'Add Python to profile & score 80%+ in assessment',
+              condition: 'Python in skills + 80 XP',
+              progress: Math.min(100, (hasSkill('Python') ? 50 : 0) + Math.min(50, Math.round((userXp / 80) * 50))),
+              unlocked: hasSkill('Python') && userXp >= 80
+            },
+            {
+              icon: '⚛️',
+              name: 'React Master',
+              xp: 100,
+              desc: 'Add React to skills & earn 100+ XP in frontend tests',
+              condition: 'React in skills + 100 XP',
+              progress: Math.min(100, (hasSkill('React') ? 50 : 0) + Math.min(50, Math.round((userXp / 100) * 50))),
+              unlocked: hasSkill('React') && userXp >= 100
+            },
+            {
+              icon: '🎤',
+              name: 'Interview Pro',
+              xp: 120,
+              desc: 'Complete 5 voice mock interviews & earn 120 XP',
+              condition: '5 Interviews + 120 XP',
+              progress: Math.min(100, Math.round((userXp / 120) * 100)),
+              unlocked: userXp >= 120
+            },
+            {
+              icon: '📄',
+              name: 'Resume Expert',
+              xp: 90,
+              desc: 'Score 90+ on Resume Scorer & upload CV',
+              condition: 'Resume score 90+',
+              progress: Math.min(100, Math.round((userXp / 90) * 100)),
+              unlocked: userXp >= 90
+            },
+            {
+              icon: '🔥',
+              name: '30-Day Streak',
+              xp: 150,
+              desc: 'Login 30 consecutive days on CampusPilot AI',
+              condition: `${userStreak}/30 Days`,
+              progress: Math.min(100, Math.round((userStreak / 30) * 100)),
+              unlocked: userStreak >= 30
+            },
+            {
+              icon: '🏆',
+              name: 'Top Performer',
+              xp: 200,
+              desc: 'Reach top 10 on the campus leaderboard',
+              condition: 'Top 10 Rank',
+              progress: liveStats.rank !== 'Unranked' && parseInt(liveStats.rank) <= 10 ? 100 : Math.min(100, Math.round((userXp / 200) * 100)),
+              unlocked: liveStats.rank !== 'Unranked' && parseInt(liveStats.rank) <= 10
+            },
+            {
+              icon: '🤖',
+              name: 'AI/ML Explorer',
+              xp: 130,
+              desc: 'Complete AI/ML learning path & 5-Yr roadmap',
+              condition: 'AI/ML in skills + Roadmap',
+              progress: Math.min(100, (hasSkill('Machine Learning') || hasSkill('AI') || hasSkill('Python') ? 50 : 0) + Math.min(50, Math.round((userXp / 130) * 50))),
+              unlocked: (hasSkill('Machine Learning') || hasSkill('AI')) && userXp >= 130
+            },
+            {
+              icon: '💻',
+              name: 'Coding Champion',
+              xp: 110,
+              desc: 'Solve 50+ coding problems in aptitude & mock tests',
+              condition: '50 Problems solved',
+              progress: Math.min(100, Math.round((userXp / 110) * 100)),
+              unlocked: userXp >= 110
+            }
+          ]
+
+          const unlockedCount = ACHIEVEMENTS_DEF.filter(a => a.unlocked).length
+
+          return (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <div>
+                  <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🏅 Achievement Badges & Milestones</h3>
+                  <p style={{ color: '#94a3b8', fontSize: '0.82rem', margin: '0.2rem 0 0' }}>Real-time progress based on your actual profile skills, tests, and XP.</p>
                 </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+                <span style={{ background: unlockedCount > 0 ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)', color: unlockedCount > 0 ? '#4ade80' : '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', padding: '0.35rem 0.8rem', borderRadius: '0.6rem', fontWeight: '700', fontSize: '0.82rem' }}>
+                  {unlockedCount} / {ACHIEVEMENTS_DEF.length} Unlocked
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
+                {ACHIEVEMENTS_DEF.map((badge) => (
+                  <div key={badge.name} style={{
+                    padding: '1.25rem',
+                    background: badge.unlocked ? 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(37,99,235,0.2))' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${badge.unlocked ? '#a855f7' : 'rgba(255,255,255,0.08)'}`,
+                    borderRadius: '1rem',
+                    boxShadow: badge.unlocked ? '0 0 20px rgba(168,85,247,0.25)' : 'none'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.6rem' }}>
+                      <div style={{ fontSize: '2.2rem', filter: badge.unlocked ? 'none' : 'grayscale(100%) opacity(0.4)' }}>{badge.icon}</div>
+                      <div>
+                        <div style={{ color: badge.unlocked ? 'white' : '#cbd5e1', fontWeight: '800', fontSize: '0.95rem' }}>{badge.name}</div>
+                        <div style={{ color: badge.unlocked ? '#4ade80' : '#94a3b8', fontSize: '0.72rem', fontWeight: '700' }}>
+                          {badge.unlocked ? '✓ Unlocked' : '🔒 In Progress'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <p style={{ color: '#94a3b8', fontSize: '0.75rem', marginBottom: '0.75rem', minHeight: '34px' }}>{badge.desc}</p>
+
+                    {/* Progress Bar */}
+                    <div style={{ marginBottom: '0.4rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#94a3b8', marginBottom: '0.2rem' }}>
+                        <span>Progress</span>
+                        <span style={{ color: badge.unlocked ? '#4ade80' : '#fbbf24', fontWeight: '700' }}>{badge.progress}%</span>
+                      </div>
+                      <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${badge.progress}%`, background: badge.unlocked ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #7c3aed, #2563eb)', borderRadius: '3px' }} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', paddingTop: '0.4rem', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '0.72rem' }}>
+                      <span style={{ color: '#64748b' }}>Reward</span>
+                      <span style={{ color: '#facc15', fontWeight: '800' }}>+{badge.xp} XP</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )
+        })()}
 
         <button
           type="submit" disabled={loading}

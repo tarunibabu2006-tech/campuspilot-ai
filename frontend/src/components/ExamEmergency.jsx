@@ -108,11 +108,34 @@ function ExamEmergency({ language }) {
   }
 
   return (
-    <div className="card">
-      <h2 className="card-title">📚 Exam Emergency Mode</h2>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-        {Object.values(allSubjects).flat().length}+ subjects • 20+ topics each • AI-powered study plans
-      </p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #701a75 0%, #4a044e 50%, #0f172a 100%)',
+        border: '1px solid rgba(232,121,249,0.4)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(217,70,239,0.25)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>⚡</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #f5d0fe)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Exam Emergency & Revision Planner
+              </h1>
+              <p style={{ margin: '0.25rem 0 0', color: '#f5d0fe', fontSize: '0.92rem' }}>
+                {Object.values(allSubjects).flat().length}+ Subjects across Engineering, Medical, Arts & Commerce • AI Last-Minute Revision & Cheat Sheets.
+              </p>
+            </div>
+          </div>
+          <span style={{ background: 'linear-gradient(135deg, #d946ef, #a21caf)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            Emergency Mode
+          </span>
+        </div>
+      </div>
+
+      <div className="card">
 
       <div className="form-grid" style={{ display: 'grid', gap: '1rem' }}>
         <div>
@@ -188,6 +211,7 @@ function ExamEmergency({ language }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

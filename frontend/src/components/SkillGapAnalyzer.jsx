@@ -33,9 +33,34 @@ function SkillGapAnalyzer({ language }) {
   }
 
   return (
-    <div className="card">
-      <h2 className="card-title">🗺️ Skill Gap Analyzer &amp; Roadmap</h2>
-      <p className="card-subtitle">Compare your current skills against your dream job role and get a 3-month personalized learning roadmap!</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #0f172a 100%)',
+        border: '1px solid rgba(168,85,247,0.4)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(147,51,234,0.25)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>🔍</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #e9d5ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                AI Skill Gap Analyzer & 3-Month Plan
+              </h1>
+              <p style={{ margin: '0.25rem 0 0', color: '#e9d5ff', fontSize: '0.92rem' }}>
+                Compare your current abilities against target job descriptions and bridge technical weaknesses fast.
+              </p>
+            </div>
+          </div>
+          <span style={{ background: 'linear-gradient(135deg, #9333ea, #6366f1)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            Gap Analysis
+          </span>
+        </div>
+      </div>
+
+      <div className="card">
 
       <div className="form-group">
         <label className="form-label">🎯 Search Target Role (All Domains)</label>
@@ -141,6 +166,7 @@ function SkillGapAnalyzer({ language }) {
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }

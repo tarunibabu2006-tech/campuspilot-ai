@@ -99,9 +99,34 @@ function Placements({ language }) {
   }
 
   return (
-    <div className="card">
-      <h2 className="card-title">💼 Coding &amp; Placements Center</h2>
-      <p className="card-subtitle">50+ Target Roles • Company-Specific Prep • DSA &amp; Domain Roadmaps • Mock Questions</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Highlighted Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #065f46 50%, #0f172a 100%)',
+        border: '1px solid rgba(52,211,153,0.4)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 8px 32px rgba(16,185,129,0.25)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>🎯</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #a7f3d0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                Campus Placement & Company Intelligence
+              </h1>
+              <p style={{ margin: '0.25rem 0 0', color: '#a7f3d0', fontSize: '0.92rem' }}>
+                Company-specific placement patterns, eligibility criteria, interview rounds, DSA roadmap & curated mock questions.
+              </p>
+            </div>
+          </div>
+          <span style={{ background: 'linear-gradient(135deg, #10b981, #047857)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            Placement Copilot
+          </span>
+        </div>
+      </div>
+
+      <div className="card">
 
       <div className="form-group" style={{ marginTop: '1.5rem' }}>
         <label className="form-label">1. Choose Domain &amp; Search Target Role</label>
@@ -247,6 +272,7 @@ function Placements({ language }) {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

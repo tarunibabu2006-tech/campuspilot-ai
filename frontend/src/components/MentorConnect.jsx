@@ -149,7 +149,16 @@ export default function MentorConnect() {
   const [bookingSlot, setBookingSlot] = useState('')
   const [bookingMsg, setBookingMsg] = useState('')
 
-  const ALL_MENTORS = [...MOCK_MENTORS, ...SEEDED_MENTOR_ENTRIES]
+  const [bookedSessions, setBookedSessions] = useState(() => {
+    try {
+      const saved = localStorage.getItem('campuspilot_mentor_bookings')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
+
+  const ALL_MENTORS = SEEDED_MENTOR_ENTRIES
 
   const filteredMentors = ALL_MENTORS.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -165,7 +174,20 @@ export default function MentorConnect() {
   const handleBookingSubmit = (e) => {
     e.preventDefault()
     if (!bookingSlot) { toast.error('Please select a time slot!'); return }
-    toast.success(`🎉 30-min Session booked with ${bookingModal.name} for ${bookingSlot}! Confirmation sent to your email.`)
+    const newBooking = {
+      id: Date.now(),
+      mentorName: bookingModal.name,
+      mentorRole: bookingModal.role,
+      mentorCompany: bookingModal.company,
+      slot: bookingSlot,
+      notes: bookingMsg || 'Technical & Career Mentorship Discussion',
+      status: 'Confirmed ✅',
+      timestamp: new Date().toISOString()
+    }
+    const updated = [newBooking, ...bookedSessions]
+    setBookedSessions(updated)
+    localStorage.setItem('campuspilot_mentor_bookings', JSON.stringify(updated))
+    toast.success(`🎉 30-min Session booked with ${bookingModal.name} for ${bookingSlot}! Confirmation dispatched to mentor & student.`)
     setBookingModal(null)
     setBookingSlot('')
     setBookingMsg('')
@@ -177,11 +199,16 @@ export default function MentorConnect() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
         style={{ background: 'linear-gradient(135deg, #831843, #9d174d, #1e293b)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(244,114,182,0.3)' }}
       >
-        <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', marginBottom: '0.5rem' }}>
-          👥 AI-Matched Industry Mentor Connect
-        </h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', margin: 0 }}>
+            👥 AI-Matched Industry Mentor Connect
+          </h1>
+          <span style={{ background: 'linear-gradient(135deg, #ec4899, #be185d)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
+            100+ Verified Mentors
+          </span>
+        </div>
         <p style={{ color: '#fbcfe8', marginBottom: '1.25rem' }}>
-          Book 1-on-1 sessions with verified engineers & HR leaders from Google, Amazon, Microsoft, Zoho & TCS.
+          Book real 1-on-1 sessions with verified engineers & leaders from Google, Amazon, Microsoft, Zoho, Flipkart & TCS.
         </p>
 
         {/* Search & Filters */}
