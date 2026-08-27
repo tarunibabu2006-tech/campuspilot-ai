@@ -542,15 +542,15 @@ export default function AdminPanel() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
                 <div>
                   <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.5rem', margin: 0 }}>👑 Admin Dashboard</h2>
-                  <p style={{ color: '#c4b5fd', fontSize: '0.85rem', margin: '0.2rem 0 0' }}>Welcome back, Admin! 🎉 • Last login: {new Date().toLocaleTimeString()} (Verified Session)</p>
+                  <p style={{ color: '#c4b5fd', fontSize: '0.85rem', margin: '0.2rem 0 0' }}>Welcome back, Admin! 🎉 • Last login: {new Date().toLocaleTimeString()} • <strong style={{color:'#34d399'}}>{students.length} users registered</strong></p>
                 </div>
                 <span className="badge badge-safe">Real-Time Sync Active</span>
               </div>
 
-              {/* 8 Metrics Cards */}
+              {/* 8 Metrics Cards — Students is REAL from DB */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
                 {[
-                  { label: 'Students', count: '1,234', change: '+12% this month', icon: '👥', color: '#60a5fa' },
+                  { label: 'Registered Students', count: students.length, change: `${students.filter(s => s.lastLogin && s.lastLogin.includes('Just now') || s.lastLogin === 'Today' || s.loginCount > 1).length} active today`, icon: '👥', color: '#60a5fa' },
                   { label: 'Skills', count: '10,456', change: '+8% this month', icon: '📚', color: '#a78bfa' },
                   { label: 'Jobs', count: '5,678', change: '+15% this month', icon: '💼', color: '#38bdf8' },
                   { label: 'Notes', count: '100,456', change: '+25% this month', icon: '📝', color: '#f59e0b' },
@@ -623,17 +623,36 @@ export default function AdminPanel() {
           <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
               <div>
-                <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>👥 Student Management ({students.length} Registered)</h2>
-                <p style={{ color: '#94a3b8', fontSize: '0.78rem', margin: 0 }}>View, search, edit, inspect full profiles, or export student database.</p>
+                <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>👥 Student Database</h2>
+                <p style={{ color: '#94a3b8', fontSize: '0.78rem', margin: '0.2rem 0 0' }}>
+                  <span style={{ color: '#34d399', fontWeight: '800', fontSize: '0.9rem' }}>{students.length}</span> students registered &nbsp;•&nbsp;
+                  <span style={{ color: '#fbbf24', fontWeight: '700' }}>Total logins: {students.reduce((sum, s) => sum + (s.loginCount || 1), 0)}</span>
+                  &nbsp;•&nbsp; <span style={{ color: '#c4b5fd' }}>Permanent Records — Cannot be Deleted</span>
+                </p>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button onClick={() => { setModalMode('add_student'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                  ➕ Add Student
+                  ➕ Register Student
                 </button>
                 <button onClick={() => handleExportCSV(students, 'students_database')} className="btn btn-outline" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
                   📊 Export CSV
                 </button>
               </div>
+            </div>
+
+            {/* Stats Row */}
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              {[
+                { label: 'Total Registered', val: students.length, color: '#60a5fa' },
+                { label: 'Total Logins', val: students.reduce((sum, s) => sum + (s.loginCount || 1), 0), color: '#fbbf24' },
+                { label: 'Avg XP', val: Math.round(students.reduce((sum, s) => sum + (s.stats?.xpPoints || 100), 0) / Math.max(1, students.length)), color: '#34d399' },
+                { label: 'Avg Streak (days)', val: Math.round(students.reduce((sum, s) => sum + (s.stats?.currentStreak || 1), 0) / Math.max(1, students.length)), color: '#f43f5e' }
+              ].map(stat => (
+                <div key={stat.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.6rem', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '120px' }}>
+                  <div style={{ color: stat.color, fontWeight: '900', fontSize: '1.3rem' }}>{stat.val}</div>
+                  <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>{stat.label}</div>
+                </div>
+              ))}
             </div>
 
             {/* Filter Bar */}
@@ -654,10 +673,12 @@ export default function AdminPanel() {
                 <option>Computer Science</option>
                 <option>Electronics & Communication</option>
                 <option>Mechanical Engineering</option>
+                <option>Artificial Intelligence</option>
+                <option>Information Technology</option>
               </select>
             </div>
 
-            {/* Student Table View */}
+            {/* Student Table View — NO DELETE BUTTON */}
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                 <thead>
@@ -667,32 +688,38 @@ export default function AdminPanel() {
                     <th style={{ padding: '0.6rem' }}>Email</th>
                     <th style={{ padding: '0.6rem' }}>Dept</th>
                     <th style={{ padding: '0.6rem' }}>Year</th>
-                    <th style={{ padding: '0.6rem' }}>Login Count</th>
+                    <th style={{ padding: '0.6rem' }}>Logins</th>
+                    <th style={{ padding: '0.6rem' }}>Last Active</th>
                     <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {students.filter(st => {
-                    const matchSearch = !searchTerm || st.name.toLowerCase().includes(searchTerm.toLowerCase()) || st.email.toLowerCase().includes(searchTerm.toLowerCase())
-                    const matchDept = categoryFilter === 'All' || st.department.includes(categoryFilter)
+                    const matchSearch = !searchTerm || st.name.toLowerCase().includes(searchTerm.toLowerCase()) || (st.email || '').toLowerCase().includes(searchTerm.toLowerCase())
+                    const matchDept = categoryFilter === 'All' || (st.department || '').includes(categoryFilter)
                     return matchSearch && matchDept
                   }).map((st, idx) => (
                     <tr key={st.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                       <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
                       <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{st.name}</td>
                       <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{st.email}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{st.department}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{st.year}</td>
-                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{st.loginCount || 1}</td>
+                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{st.department || 'N/A'}</span></td>
+                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{st.year || '—'}</td>
+                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{st.loginCount || 1}×</td>
+                      <td style={{ padding: '0.6rem', color: '#34d399', fontSize: '0.75rem' }}>{st.lastLogin || 'N/A'}</td>
                       <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => setSelectedStudent(st)} title="View Full Profile" style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer', marginRight: '0.4rem' }}>👁</button>
-                        <button onClick={() => { setModalMode('edit_student'); setModalForm(st) }} title="Edit Student" style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer', marginRight: '0.4rem' }}>✏️</button>
-                        <button onClick={() => handleDelete(setStudents, st.id, st.name)} title="Delete Student" style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
+                        <button onClick={() => setSelectedStudent(st)} title="View Full Profile" style={{ background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.8rem', cursor: 'pointer', color: '#60a5fa', marginRight: '0.35rem' }}>👁 View</button>
+                        <button onClick={() => { setModalMode('edit_student'); setModalForm(st) }} title="Edit Student" style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.8rem', cursor: 'pointer', color: '#a78bfa' }}>✏️ Edit</button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              {students.length === 0 && (
+                <div style={{ textAlign: 'center', color: '#94a3b8', padding: '2rem', fontSize: '0.9rem' }}>
+                  No students registered yet. Students auto-appear here on first login.
+                </div>
+              )}
             </div>
           </div>
         )}
