@@ -47,6 +47,7 @@ import UserProfile from './components/UserProfile'
 import CompanyArchives from './components/CompanyArchives'
 import AlumniNetwork from './components/AlumniNetwork'
 import Leaderboard from './components/Leaderboard'
+import InstallPwaModal from './components/Common/InstallPwaModal'
 
 function MainApp() {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
@@ -253,6 +254,7 @@ function App() {
       <Toaster position="top-right" toastOptions={{
         style: { background: '#1a1f35', color: '#f0f2f8', border: '1px solid #2a3050' }
       }} />
+      <InstallPwaModal />
       <MainApp />
     </AuthProvider>
   )

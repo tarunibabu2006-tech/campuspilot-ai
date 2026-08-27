@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 import { buildNoteIndex, generateNote, getCategoryList, getNoteStats, NOTE_TAXONOMY } from '../data/notesEngine'
+import { downloadNotePDF } from '../utils/pdfExport'
 
 const PAGE_SIZE = 24
 
@@ -374,7 +375,11 @@ export default function NotesHub() {
                   <span style={{ background: `${levelBadgeColor[fullNote.level]}20`, color: levelBadgeColor[fullNote.level], padding: '0.15rem 0.6rem', borderRadius: '0.4rem', fontSize: '0.72rem', fontWeight: '700' }}>{fullNote.level}</span>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button onClick={() => downloadNotePDF(fullNote)}
+                  style={{ padding: '0.5rem 1rem', borderRadius: '0.6rem', background: 'linear-gradient(135deg, #059669, #10b981)', color: 'white', border: 'none', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  📥 Download PDF
+                </button>
                 <button onClick={() => openFlashcards(selectedNoteItem)}
                   style={{ padding: '0.5rem 1rem', borderRadius: '0.6rem', background: 'rgba(251,191,36,0.1)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer' }}>
                   🧠 Flashcards
