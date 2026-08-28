@@ -51,9 +51,9 @@ const studentSchema = new mongoose.Schema({
   studyGroups: { type: Number, default: 0 },
 
   // Gamification 2.0
-  xpPoints: { type: Number, default: 150 },
+  xpPoints: { type: Number, default: 0 },
   badges: [{ type: String }],
-  streak: { type: Number, default: 3 },
+  streak: { type: Number, default: 0 },
   lastActivityDate: { type: Date, default: Date.now },
   weeklyChallenges: [{
     challenge: { type: String },

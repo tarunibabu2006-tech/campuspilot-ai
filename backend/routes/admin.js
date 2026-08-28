@@ -67,6 +67,23 @@ async function safeFind(Model, query = {}, opts = {}) {
   } catch { return [] }
 }
 
+// Helper: Compute real earned student XP (never fake 150)
+function computeRealStudentXP(s) {
+  const activityCount = (s.activities || []).length
+  const feats = s.featureUsage || {}
+  const totalFeatureActions = Object.values(feats).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0)
+
+  if (activityCount === 0 && totalFeatureActions === 0 && !s.testsTaken) {
+    return 0 // Zero when student hasn't started anything
+  }
+
+  if (s.xpPoints && s.xpPoints !== 150) {
+    return s.xpPoints
+  }
+
+  return (s.testsTaken || 0) * 50 + (s.skillHub || 0) * 100 + activityCount * 10
+}
+
 // ════════════════════════════════════════════════════════════════
 // 1. DASHBOARD - Real DB stats
 // ════════════════════════════════════════════════════════════════
@@ -74,10 +91,15 @@ router.get('/dashboard', async (req, res) => {
   try {
     const isDB = mongoose.connection.readyState === 1
 
+    // Quick DB sanitize for legacy default 150
+    if (isDB) {
+      Student.updateMany({ xpPoints: 150 }, { $set: { xpPoints: 0, streak: 0 } }).catch(() => { })
+    }
+
     // Get real student counts
     let dbStudents = []
     try {
-      if (isDB) dbStudents = await Student.find().select('name email department year lastLogin loginCount createdAt xpPoints skills badges').sort({ createdAt: -1 }).lean()
+      if (isDB) dbStudents = await Student.find().select('name email department year lastLogin loginCount createdAt xpPoints skills badges activities').sort({ createdAt: -1 }).lean()
     } catch { }
     const memStudents = Array.from(memoryStudentStore.values())
     const allEmails = new Set()
@@ -108,7 +130,7 @@ router.get('/dashboard', async (req, res) => {
       loginCount: s.loginCount || 1,
       lastLogin: s.lastLogin,
       createdAt: s.createdAt,
-      xpPoints: s.xpPoints || 0,
+      xpPoints: computeRealStudentXP(s),
       skills: s.skills || [],
       badges: s.badges || []
     }))
@@ -194,9 +216,9 @@ router.get('/students', async (req, res) => {
       targetRole: s.targetRole || '',
       linkedin: s.linkedin || '',
       github: s.github || '',
-      xpPoints: s.xpPoints || 0,
+      xpPoints: computeRealStudentXP(s),
       badges: s.badges || [],
-      streak: s.streak || 0,
+      streak: s.streak === 3 ? 0 : (s.streak || 0),
       loginCount: s.loginCount || 1,
       firstLogin: s.firstLogin || s.createdAt,
       lastLogin: s.lastLogin || new Date(),
