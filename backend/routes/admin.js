@@ -67,21 +67,55 @@ async function safeFind(Model, query = {}, opts = {}) {
   } catch { return [] }
 }
 
-// Helper: Compute real earned student XP (never fake 150)
+// ── XP SYSTEM: Earning Rules ─────────────────────────────────────
+// Each action a student ACTUALLY completes earns real XP:
+// Daily Login          → +10 XP
+// Mock Interview       → +75 XP per session
+// Aptitude Test        → +50 XP per test
+// Skill Learning Visit → +20 XP
+// Resume Built         → +50 XP
+// Notes Created        → +15 XP
+// Job Applied          → +30 XP
+// Career GPS Used      → +25 XP
+// Chat / AI Used       → +5 XP
+// Placement Prep       → +20 XP
+// Exam Emergency       → +15 XP
+// Viva Prep            → +15 XP
+// Mentor Connected     → +40 XP
+// Mock Test Taken      → +60 XP
+// ─────────────────────────────────────────────────────────────────
+
 function computeRealStudentXP(s) {
-  const activityCount = (s.activities || []).length
-  const feats = s.featureUsage || {}
-  const totalFeatureActions = Object.values(feats).reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0)
+  // If the stored xpPoints is a clean, real value (not the legacy 150 default), trust it
+  // A "clean" value means student explicitly earned XP via the XP system
+  const stored = s.xpPoints || 0
 
-  if (activityCount === 0 && totalFeatureActions === 0 && !s.testsTaken) {
-    return 0 // Zero when student hasn't started anything
+  // These are legacy/inflated values that need to be recalculated
+  const isFakeValue = stored === 150 || stored === 1220
+
+  if (stored > 0 && !isFakeValue) {
+    return stored // Real earned XP already stored — trust it
   }
 
-  if (s.xpPoints && s.xpPoints !== 150) {
-    return s.xpPoints
-  }
+  // Recalculate from meaningful feature usage counts only
+  const loginXP = (Math.min(s.loginCount || 0, 100)) * 10       // +10 per unique login (max 100)
+  const mockInterviewXP = (s.mockInterview || 0) * 75
+  const aptitudeXP = (s.aptitudeTest || 0) * 50
+  const skillXP = (s.skillHub || 0) * 20
+  const resumeXP = Math.min(s.resumeBuilder || 0, 3) * 50        // max 3 resumes counted
+  const notesXP = Math.min(s.notesHub || 0, 20) * 15            // max 20 notes
+  const jobXP = (s.jobPortal || 0) * 30
+  const careerGpsXP = Math.min(s.careerGps || 0, 5) * 25
+  const placementXP = (s.placementPrep || 0) * 20
+  const examXP = (s.examEmergency || 0) * 15
+  const vivaXP = (s.vivaPrep || 0) * 15
+  const mentorXP = (s.mentorConnect || 0) * 40
+  const mockTestXP = (s.mockTests || 0) * 60
 
-  return (s.testsTaken || 0) * 50 + (s.skillHub || 0) * 100 + activityCount * 10
+  const total = loginXP + mockInterviewXP + aptitudeXP + skillXP + resumeXP +
+    notesXP + jobXP + careerGpsXP + placementXP + examXP + vivaXP + mentorXP + mockTestXP
+
+  return total
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -91,9 +125,12 @@ router.get('/dashboard', async (req, res) => {
   try {
     const isDB = mongoose.connection.readyState === 1
 
-    // Quick DB sanitize for legacy default 150
+    // Quick DB sanitize: clear legacy fake defaults (150, inflated activity-counts)
     if (isDB) {
-      Student.updateMany({ xpPoints: 150 }, { $set: { xpPoints: 0, streak: 0 } }).catch(() => { })
+      Student.updateMany(
+        { xpPoints: { $in: [150, 1220] } },
+        { $set: { xpPoints: 0, streak: 0 } }
+      ).catch(() => { })
     }
 
     // Get real student counts
@@ -761,6 +798,26 @@ router.get('/students/export/csv', async (req, res) => {
     res.setHeader('Content-Type', 'text/csv')
     res.setHeader('Content-Disposition', 'attachment; filename=campuspilot_students.csv')
     res.send(csv)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// ADMIN UTILITY: Reset ALL student XP to 0 in MongoDB (one-time cleanup)
+// ════════════════════════════════════════════════════════════════
+router.post('/students/reset-xp', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ message: 'MongoDB not connected — in-memory store cleared', cleared: 0 })
+    }
+
+    // Wipe ALL xpPoints in DB to 0 — students must earn real XP going forward
+    const result = await Student.updateMany({}, { $set: { xpPoints: 0, streak: 0 } })
+    res.json({
+      message: `✅ Reset ${result.modifiedCount} students. All XP cleared. Students will earn real XP as they use the platform.`,
+      modifiedCount: result.modifiedCount
+    })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

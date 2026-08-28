@@ -11,7 +11,7 @@ import {
   getAdminAlumni, createAdminAlumni, updateAdminAlumni, deleteAdminAlumni,
   getAdminMentors, createAdminMentor, updateAdminMentor, deleteAdminMentor,
   getAdminTests, createAdminTest, updateAdminTest, deleteAdminTest,
-  getAdminGroups, deleteAdminGroup, getAdminSettings
+  getAdminGroups, deleteAdminGroup, getAdminSettings, resetAllStudentXP
 } from '../../services/api'
 
 // ── Shared styles ─────────────────────────────────────────────────
@@ -322,7 +322,16 @@ function StudentsTab() {
   useEffect(() => { load() }, [load])
 
   const handleEdit = (s) => {
-    setEditValues({ name: s.name, email: s.email, department: s.department, year: s.year, targetRole: s.targetRole, linkedin: s.linkedin, github: s.github })
+    setEditValues({
+      name: s.name,
+      email: s.email,
+      department: s.department,
+      year: s.year,
+      targetRole: s.targetRole,
+      xpPoints: s.xpPoints || 0,
+      linkedin: s.linkedin,
+      github: s.github
+    })
     setEditModal(s)
   }
 
@@ -346,9 +355,21 @@ function StudentsTab() {
     } catch { toast.error('Delete failed') }
   }
 
+  const handleResetXP = async () => {
+    if (window.confirm('Are you sure you want to reset ALL student XP to 0? Every student will start with real 0 XP and only earn points as they actively use features.')) {
+      try {
+        const res = await resetAllStudentXP()
+        toast.success(res.data?.message || 'All student XP reset to 0! ✅')
+        load()
+      } catch {
+        toast.error('Failed to reset XP')
+      }
+    }
+  }
+
   const exportCSV = () => {
     const headers = ['Name', 'Email', 'Department', 'Year', 'XP Points', 'Login Count', 'Last Login']
-    const rows = students.map(s => [s.name, s.email, s.department, s.year, s.xpPoints, s.loginCount, s.lastLogin ? new Date(s.lastLogin).toLocaleDateString() : ''])
+    const rows = students.map(s => [s.name, s.email, s.department, s.year, s.xpPoints || 0, s.loginCount, s.lastLogin ? new Date(s.lastLogin).toLocaleDateString() : ''])
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -365,6 +386,7 @@ function StudentsTab() {
           fields={[
             { key: 'name', label: 'Name' },
             { key: 'email', label: 'Email', type: 'email' },
+            { key: 'xpPoints', label: 'Real XP Points', type: 'number' },
             { key: 'department', label: 'Department' },
             { key: 'year', label: 'Year', type: 'select', options: [{ value: '', label: 'Select Year' }, ...['1', '2', '3', '4'].map(y => ({ value: y, label: `Year ${y}` }))] },
             { key: 'targetRole', label: 'Target Role' },
@@ -381,7 +403,10 @@ function StudentsTab() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
         <h2 style={{ color: 'white', fontWeight: '900', margin: 0 }}>👥 Students ({students.length})</h2>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button onClick={handleResetXP} style={{ ...btnDanger, padding: '0.5rem 0.9rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            🧹 Reset All XP to 0
+          </button>
           <button onClick={exportCSV} style={{ ...btnSuccess, padding: '0.5rem 1rem' }}>📥 Export CSV</button>
           <button onClick={load} style={{ ...btnEdit, padding: '0.5rem 1rem' }}>🔄 Refresh</button>
         </div>

@@ -136,4 +136,7 @@ export const deleteAdminTest = (id) => api.delete(`/admin/tests/${id}`)
 export const getAdminGroups = () => api.get('/admin/groups')
 export const deleteAdminGroup = (id) => api.delete(`/admin/groups/${id}`)
 
+// XP Management
+export const resetAllStudentXP = () => api.post('/admin/students/reset-xp')
+
 export default api
