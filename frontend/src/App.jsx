@@ -47,14 +47,13 @@ import UserProfile from './components/UserProfile'
 import CompanyArchives from './components/CompanyArchives'
 import AlumniNetwork from './components/AlumniNetwork'
 import Leaderboard from './components/Leaderboard'
-import InstallPwaModal from './components/Common/InstallPwaModal'
 
 function MainApp() {
   const { user, logout, isAuthenticated, loading: authLoading } = useAuth()
   const [authMode, setAuthMode] = useState('login')
-  
-  const { 
-    activeTab, setActiveTab, 
+
+  const {
+    activeTab, setActiveTab,
     selectedSkillId, setSelectedSkillId,
     showNotifications, setShowNotifications,
     notificationCount
@@ -144,7 +143,7 @@ function MainApp() {
       case 'job': return <JobChecker language={language} />
       case 'skill': return <SkillGapAnalyzer language={language} />
       case 'chat': return <ChatAssistant language={language} />
-      
+
       // 🌟 FLAGSHIP ENHANCEMENTS
       case 'profile': return <UserProfile />
       case 'leaderboard': return <Leaderboard />
@@ -161,7 +160,7 @@ function MainApp() {
       case 'mentors': return <MentorConnect />
       case 'mock-tests': return <CompanyMockTests />
       case 'student-analytics': return <StudentAnalytics onBack={() => setActiveTab('admin')} />
-      
+
       default: return <Dashboard onNavigate={(tab) => setActiveTab(tab)} />
     }
   }
@@ -201,7 +200,29 @@ function MainApp() {
 
             <LanguageSelector language={language} setLanguage={setLanguage} />
             <div className="flex items-center gap-1 ml-2" style={{ borderLeft: '1px solid var(--border-color)', paddingLeft: '0.75rem' }}>
-              <span className="text-xs font-bold text-blue">👤 {user?.name}</span>
+              {user?.role === 'admin' ? (
+                <button
+                  onClick={() => setActiveTab('admin')}
+                  style={{
+                    background: activeTab === 'admin' ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: activeTab === 'admin' ? '#fff' : '#1a1a1a',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    padding: '0.35rem 0.75rem',
+                    fontSize: '0.75rem',
+                    fontWeight: '900',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    boxShadow: '0 2px 10px rgba(245,158,11,0.4)'
+                  }}
+                >
+                  👑 Admin Panel
+                </button>
+              ) : (
+                <span className="text-xs font-bold text-blue">👤 {user?.name}</span>
+              )}
               <button onClick={logout} className="btn btn-outline" style={{ fontSize: '0.7rem', padding: '0.25rem 0.5rem' }}>
                 {t('logout')} 🚪
               </button>
@@ -254,7 +275,6 @@ function App() {
       <Toaster position="top-right" toastOptions={{
         style: { background: '#1a1f35', color: '#f0f2f8', border: '1px solid #2a3050' }
       }} />
-      <InstallPwaModal />
       <MainApp />
     </AuthProvider>
   )

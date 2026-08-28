@@ -1,192 +1,747 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
 import User from '../models/User.js'
 import Student from '../models/Student.js'
-import { protect } from '../middleware/auth.js'
+import Job from '../models/Job.js'
+import Skill from '../models/Skill.js'
+import Note from '../models/Note.js'
+import Alumni from '../models/Alumni.js'
+import CompanyArchive from '../models/CompanyArchive.js'
+import { protect, adminMiddleware } from '../middleware/auth.js'
 import { memoryStudentStore } from '../middleware/trackActivity.js'
-import logger from '../utils/logger.js'
+
+// Lazy-load new models (they may not exist yet)
+let Mentor, Test, Group
+
+async function getMentorModel() {
+  if (!Mentor) {
+    const m = await import('../models/Mentor.js')
+    Mentor = m.default
+  }
+  return Mentor
+}
+
+async function getTestModel() {
+  if (!Test) {
+    const m = await import('../models/Test.js')
+    Test = m.default
+  }
+  return Test
+}
+
+async function getGroupModel() {
+  if (!Group) {
+    const m = await import('../models/Group.js')
+    Group = m.default
+  }
+  return Group
+}
 
 const router = express.Router()
 
-// ── In-Memory Fallback Stores for Admin CRUD ─────────────────────
-let adminSkills = [
-  { id: 'sk_1', name: 'Python', category: 'Programming', level: 'Advanced', duration: '3 months', courses: 45, students: 234, description: 'Core Python, OOP, decorators, generators, data science libraries' },
-  { id: 'sk_2', name: 'React.js', category: 'Web Development', level: 'Advanced', duration: '2 months', courses: 32, students: 189, description: 'React 18 hooks, Redux Toolkit, Next.js, SSR, performance tuning' },
-  { id: 'sk_3', name: 'SQL & DBMS', category: 'Database', level: 'Intermediate', duration: '1.5 months', courses: 28, students: 156, description: 'Relational algebra, complex JOINs, query optimization, indexing' },
-  { id: 'sk_4', name: 'Docker & Kubernetes', category: 'DevOps', level: 'Intermediate', duration: '2 months', courses: 15, students: 89, description: 'Containerization, pod scaling, ingress, CI/CD orchestration' }
-]
+// ── Admin-only guard: all routes require admin role ─────────────
+router.use(protect, (req, res, next) => {
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' })
+  }
+  next()
+})
 
-let adminJobs = [
-  { id: 'jb_1', company: 'Google India', role: 'SDE-1 (Full Stack)', location: 'Bengaluru / Hyderabad', salary: '₹18–32 LPA', experience: 'Fresher / 0-2 yrs', applied: 45, status: 'Active', applyLink: 'https://careers.google.com' },
-  { id: 'jb_2', company: 'Amazon', role: 'Data Analyst Associate', location: 'Chennai / Hyderabad', salary: '₹14–22 LPA', experience: 'Fresher / 0-1 yr', applied: 32, status: 'Active', applyLink: 'https://amazon.jobs' },
-  { id: 'jb_3', company: 'TCS', role: 'Ninja & Digital Engineer', location: 'Pan India', salary: '₹3.6–7.5 LPA', experience: 'Fresher', applied: 89, status: 'Active', applyLink: 'https://nextstep.tcs.com' }
-]
+// ── Helper: safe DB count ────────────────────────────────────────
+async function safeCount(Model) {
+  try {
+    if (mongoose.connection.readyState !== 1) return 0
+    return await Model.countDocuments()
+  } catch { return 0 }
+}
 
-let adminCompanies = [
-  { id: 'cp_1', name: 'Google India', industry: 'Product / Tech', ctc: '₹18–32 LPA', students: 45, isArchived: true, hq: 'Bengaluru', topSkills: 'DSA, System Design, React, Go' },
-  { id: 'cp_2', name: 'TCS', industry: 'IT Services', ctc: '₹3.6–7.5 LPA', students: 234, isArchived: true, hq: 'Mumbai', topSkills: 'Java, Python, SQL, Aptitude' },
-  { id: 'cp_3', name: 'ONGC', industry: 'PSU / Core', ctc: '₹8–14 LPA', students: 56, isArchived: true, hq: 'Dehradun', topSkills: 'GATE Mechanical, Electrical' }
-]
+async function safeFind(Model, query = {}, opts = {}) {
+  try {
+    if (mongoose.connection.readyState !== 1) return []
+    let q = Model.find(query)
+    if (opts.sort) q = q.sort(opts.sort)
+    if (opts.limit) q = q.limit(opts.limit)
+    if (opts.select) q = q.select(opts.select)
+    return await q.lean()
+  } catch { return [] }
+}
 
-let adminMentors = [
-  { id: 'mt_1', name: 'Siddharth V', company: 'Google India', role: 'Sr. SWE', sessions: '85+', rating: 4.9, email: 'siddharth@google.com', status: 'Approved' },
-  { id: 'mt_2', name: 'Deepika S', company: 'Microsoft', role: 'Lead Data Scientist', sessions: '95+', rating: 4.9, email: 'deepika@microsoft.com', status: 'Approved' },
-  { id: 'mt_3', name: 'Vikram N', company: 'Zoho', role: 'Staff Full Stack', sessions: '150+', rating: 4.8, email: 'vikram@zoho.com', status: 'Approved' }
-]
-
-let adminMentorRequests = [
-  { id: 'mr_1', studentName: 'Rahul Kumar', mentorName: 'Siddharth V (Google)', topic: 'System Design & SDE-1 Roadmap', date: 'Today, 10:30 AM', status: 'Pending' },
-  { id: 'mr_2', studentName: 'Priya Sundar', mentorName: 'Deepika S (Microsoft)', topic: 'Transitioning to Data Science', date: 'Yesterday', status: 'Accepted' },
-  { id: 'mr_3', studentName: 'Amit Ram', mentorName: 'Vikram N (Zoho)', topic: 'React.js & Full Stack Prep', date: '2 days ago', status: 'Rejected' }
-]
-
-let adminTests = [
-  { id: 'ts_1', name: 'Grand All-India Aptitude Master Test', type: 'Aptitude', questions: 50, duration: '60 min', students: 234, cutoff: '75%' },
-  { id: 'ts_2', name: 'TCS NQT Full Simulation Round 2026', type: 'Company Pattern', questions: 80, duration: '90 min', students: 156, cutoff: '70%' },
-  { id: 'ts_3', name: 'DSA & Algorithms Speed Quiz', type: 'Skill Assessment', questions: 20, duration: '30 min', students: 89, cutoff: '80%' }
-]
-
-let adminRolePaths = [
-  { id: 'rp_1', title: 'Frontend Developer (React/Next.js)', category: 'Tech', skillsCount: 15, students: 234, duration: '4 Months', avgSalary: '₹6–14 LPA' },
-  { id: 'rp_2', title: 'Data Scientist & AI Engineer', category: 'Data Science', skillsCount: 18, students: 156, duration: '6 Months', avgSalary: '₹8–18 LPA' },
-  { id: 'rp_3', title: 'Cloud & DevOps Engineer', category: 'DevOps', skillsCount: 12, students: 89, duration: '5 Months', avgSalary: '₹7–16 LPA' }
-]
-
-// ── GET /api/admin/dashboard ────────────────────────────────────
+// ════════════════════════════════════════════════════════════════
+// 1. DASHBOARD - Real DB stats
+// ════════════════════════════════════════════════════════════════
 router.get('/dashboard', async (req, res) => {
   try {
-    const stats = {
-      metrics: {
-        students: { count: '1,234', change: '+12% this month' },
-        skills: { count: '10,456', change: '+8% this month' },
-        jobs: { count: '5,678', change: '+15% this month' },
-        notes: { count: '100,456', change: '+25% this month' },
-        companies: { count: '1,000+', change: '+5% this month' },
-        mentors: { count: '150', change: '+10% this month' },
-        tests: { count: '10,000+', change: '+20% this month' },
-        resumes: { count: '856', change: '+7% this month' }
-      },
-      charts: {
-        registrations: [
-          { month: 'Jan', count: 120 }, { month: 'Feb', count: 180 }, { month: 'Mar', count: 240 },
-          { month: 'Apr', count: 310 }, { month: 'May', count: 420 }, { month: 'Jun', count: 590 },
-          { month: 'Jul', count: 820 }, { month: 'Aug', count: 1234 }
-        ],
-        featureUsage: [
-          { feature: 'Notes Hub', usage: 92 },
-          { feature: 'Resume Builder', usage: 85 },
-          { feature: 'Mock Interview', usage: 78 },
-          { feature: 'Career Predictor', usage: 74 },
-          { feature: 'Aptitude Master', usage: 68 },
-          { feature: 'Study Groups', usage: 61 }
-        ],
-        topStudents: [
-          { name: 'Tarun Babu', dept: 'CSE', xp: 1450, rank: 1, streak: 15 },
-          { name: 'Santhiya S', dept: 'AIDS', xp: 1280, rank: 2, streak: 12 },
-          { name: 'Rahul Kumar', dept: 'CSE', xp: 1120, rank: 3, streak: 9 },
-          { name: 'Priya Sundar', dept: 'ECE', xp: 980, rank: 4, streak: 7 }
-        ]
-      }
+    const isDB = mongoose.connection.readyState === 1
+
+    // Get real student counts
+    let dbStudents = []
+    try {
+      if (isDB) dbStudents = await Student.find().select('name email department year lastLogin loginCount createdAt xpPoints skills badges').sort({ createdAt: -1 }).lean()
+    } catch { }
+    const memStudents = Array.from(memoryStudentStore.values())
+    const allEmails = new Set()
+    const students = [...dbStudents, ...memStudents].filter(s => {
+      if (!s.email || allEmails.has(s.email)) return false
+      allEmails.add(s.email)
+      return true
+    })
+
+    const MentorModel = await getMentorModel()
+    const TestModel = await getTestModel()
+
+    const [
+      totalJobs, totalSkills, totalNotes, totalAlumni,
+      totalCompanies, totalMentors, totalTests
+    ] = await Promise.all([
+      safeCount(Job), safeCount(Skill), safeCount(Note), safeCount(Alumni),
+      safeCount(CompanyArchive), safeCount(MentorModel), safeCount(TestModel)
+    ])
+
+    const recentJobs = await safeFind(Job, {}, { sort: { createdAt: -1 }, limit: 5 })
+    const recentStudents = students.slice(0, 10).map(s => ({
+      _id: s._id || s.id,
+      name: s.name,
+      email: s.email,
+      department: s.department || '',
+      year: s.year || '',
+      loginCount: s.loginCount || 1,
+      lastLogin: s.lastLogin,
+      createdAt: s.createdAt,
+      xpPoints: s.xpPoints || 0,
+      skills: s.skills || [],
+      badges: s.badges || []
+    }))
+
+    // Dept breakdown
+    const deptMap = {}
+    students.forEach(s => {
+      const d = s.department || 'Not Specified'
+      deptMap[d] = (deptMap[d] || 0) + 1
+    })
+    const studentsByDepartment = Object.entries(deptMap).map(([_id, count]) => ({ _id, count })).sort((a, b) => b.count - a.count)
+
+    // Year breakdown
+    const yearMap = {}
+    students.forEach(s => {
+      const y = s.year ? `Year ${s.year}` : 'Not Specified'
+      yearMap[y] = (yearMap[y] || 0) + 1
+    })
+    const studentsByYear = Object.entries(yearMap).map(([_id, count]) => ({ _id, count }))
+
+    // Active last 7 days
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7)
+    const activeStudents = students.filter(s => new Date(s.lastLogin) > weekAgo).length
+
+    res.json({
+      totalStudents: students.length,
+      activeStudents,
+      totalJobs,
+      totalSkills,
+      totalNotes,
+      totalAlumni,
+      totalCompanies,
+      totalMentors,
+      totalTests,
+      totalAdmins: 1,
+      recentStudents,
+      recentJobs,
+      studentsByDepartment,
+      studentsByYear,
+      dbConnected: mongoose.connection.readyState === 1
+    })
+  } catch (error) {
+    console.error('Admin dashboard error:', error)
+    res.status(500).json({ message: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 2. STUDENTS - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/students', async (req, res) => {
+  try {
+    const { search, department, year, page = 1, limit = 50 } = req.query
+    let dbStudents = []
+
+    if (mongoose.connection.readyState === 1) {
+      const query = {}
+      if (search) query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ]
+      if (department && department !== 'All') query.department = department
+      if (year && year !== 'All') query.year = year
+
+      dbStudents = await Student.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit))
+        .lean()
     }
-    res.json(stats)
+
+    const memStudents = Array.from(memoryStudentStore.values())
+    const allEmails = new Set(dbStudents.map(s => s.email))
+    const combined = [...dbStudents, ...memStudents.filter(s => !allEmails.has(s.email))]
+
+    const mapped = combined.map(s => ({
+      _id: s._id || s.id || s.email,
+      name: s.name || s.email?.split('@')[0] || 'Student',
+      email: s.email,
+      department: s.department || '',
+      year: s.year || '',
+      skills: s.skills || [],
+      targetRole: s.targetRole || '',
+      linkedin: s.linkedin || '',
+      github: s.github || '',
+      xpPoints: s.xpPoints || 0,
+      badges: s.badges || [],
+      streak: s.streak || 0,
+      loginCount: s.loginCount || 1,
+      firstLogin: s.firstLogin || s.createdAt,
+      lastLogin: s.lastLogin || new Date(),
+      loginHistory: (s.loginHistory || []).slice(-5),
+      activities: (s.activities || []).slice(-20),
+      featureUsage: {
+        examEmergency: s.examEmergency || 0,
+        vivaPrep: s.vivaPrep || 0,
+        placementPrep: s.placementPrep || 0,
+        skillHub: s.skillHub || 0,
+        resumeBuilder: s.resumeBuilder || 0,
+        jobPortal: s.jobPortal || 0,
+        mockInterview: s.mockInterview || 0,
+        aptitudeTest: s.aptitudeTest || 0,
+        notesHub: s.notesHub || 0,
+        careerGps: s.careerGps || 0,
+        resumeScorer: s.resumeScorer || 0,
+        aiApply: s.aiApply || 0,
+        mentorConnect: s.mentorConnect || 0,
+        mockTests: s.mockTests || 0,
+        careerPredictor: s.careerPredictor || 0,
+        voiceInterview: s.voiceInterview || 0,
+        gamification: s.gamification || 0,
+        studyGroups: s.studyGroups || 0
+      },
+      createdAt: s.createdAt || new Date()
+    }))
+
+    let totalCount = mapped.length
+    if (mongoose.connection.readyState === 1) {
+      try { totalCount = await Student.countDocuments() } catch { }
+    }
+
+    res.json({ students: mapped, total: totalCount, page: parseInt(page), limit: parseInt(limit) })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
 })
 
-// ── STUDENTS CRUD ───────────────────────────────────────────────
-router.get('/students', async (req, res) => {
-  res.json({ students: Array.from(memoryStudentStore.values()) })
+router.get('/students/:id', async (req, res) => {
+  try {
+    let student = null
+    if (mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(req.params.id)) {
+      student = await Student.findById(req.params.id).lean()
+    }
+    if (!student) {
+      student = Array.from(memoryStudentStore.values()).find(s => String(s._id) === req.params.id || s.id === req.params.id || s.email === req.params.id)
+    }
+    if (!student) return res.status(404).json({ error: 'Student not found' })
+    res.json(student)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
-router.post('/students', async (req, res) => {
-  const newStudent = { id: `std_${Date.now()}`, ...req.body, joined: new Date().toISOString() }
-  memoryStudentStore.set(newStudent.id, newStudent)
-  res.status(201).json(newStudent)
+router.put('/students/:id', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const updated = await Student.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true }).lean()
+    if (!updated) return res.status(404).json({ error: 'Student not found' })
+    res.json({ message: 'Student updated', student: updated })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
 router.delete('/students/:id', async (req, res) => {
-  memoryStudentStore.delete(req.params.id)
-  res.json({ success: true, message: 'Student removed successfully' })
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    await Student.findByIdAndDelete(req.params.id)
+    // Also delete from User model
+    try { await User.findOneAndDelete({ _id: req.params.id }) } catch { }
+    res.json({ message: 'Student deleted successfully' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
-// ── SKILLS CRUD ─────────────────────────────────────────────────
-router.get('/skills', (req, res) => res.json(adminSkills))
-router.post('/skills', (req, res) => {
-  const item = { id: `sk_${Date.now()}`, courses: 1, students: 0, ...req.body }
-  adminSkills.unshift(item)
-  res.status(201).json(item)
-})
-router.delete('/skills/:id', (req, res) => {
-  adminSkills = adminSkills.filter(s => s.id !== req.params.id)
-  res.json({ success: true })
-})
-
-// ── JOBS CRUD ───────────────────────────────────────────────────
-router.get('/jobs', (req, res) => res.json(adminJobs))
-router.post('/jobs', (req, res) => {
-  const item = { id: `jb_${Date.now()}`, applied: 0, status: 'Active', ...req.body }
-  adminJobs.unshift(item)
-  res.status(201).json(item)
-})
-router.delete('/jobs/:id', (req, res) => {
-  adminJobs = adminJobs.filter(j => j.id !== req.params.id)
-  res.json({ success: true })
+// Reset student password
+router.post('/students/:id/reset-password', async (req, res) => {
+  try {
+    const { newPassword } = req.body
+    if (!newPassword) return res.status(400).json({ error: 'New password required' })
+    const hashed = await bcrypt.hash(newPassword, 10)
+    await User.findByIdAndUpdate(req.params.id, { password: hashed })
+    res.json({ message: 'Password reset successfully' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
-// ── COMPANIES CRUD ──────────────────────────────────────────────
-router.get('/companies', (req, res) => res.json(adminCompanies))
-router.post('/companies', (req, res) => {
-  const item = { id: `cp_${Date.now()}`, students: 0, isArchived: true, ...req.body }
-  adminCompanies.unshift(item)
-  res.status(201).json(item)
-})
-router.delete('/companies/:id', (req, res) => {
-  adminCompanies = adminCompanies.filter(c => c.id !== req.params.id)
-  res.json({ success: true })
+// ════════════════════════════════════════════════════════════════
+// 3. JOBS - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/jobs', async (req, res) => {
+  try {
+    const { search, status, page = 1, limit = 50 } = req.query
+    const query = {}
+    if (search) query.$or = [
+      { company: { $regex: search, $options: 'i' } },
+      { role: { $regex: search, $options: 'i' } }
+    ]
+    if (status && status !== 'all') query.status = status
+
+    const [jobs, total] = await Promise.all([
+      safeFind(Job, query, { sort: { createdAt: -1 } }),
+      safeCount(Job)
+    ])
+    res.json({ jobs, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
-// ── MENTORS & REQUESTS CRUD ─────────────────────────────────────
-router.get('/mentors', (req, res) => res.json(adminMentors))
-router.post('/mentors', (req, res) => {
-  const item = { id: `mt_${Date.now()}`, sessions: '0', rating: 5.0, status: 'Approved', ...req.body }
-  adminMentors.unshift(item)
-  res.status(201).json(item)
-})
-router.delete('/mentors/:id', (req, res) => {
-  adminMentors = adminMentors.filter(m => m.id !== req.params.id)
-  res.json({ success: true })
-})
-
-router.get('/mentor-requests', (req, res) => res.json(adminMentorRequests))
-router.put('/mentor-requests/:id', (req, res) => {
-  const { status } = req.body
-  adminMentorRequests = adminMentorRequests.map(r => r.id === req.params.id ? { ...r, status } : r)
-  res.json({ success: true })
+router.post('/jobs', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const job = new Job({ ...req.body, postedBy: 'admin', verified: true, isVerified: true })
+    await job.save()
+    res.status(201).json({ message: 'Job created', job })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
-// ── TESTS CRUD ──────────────────────────────────────────────────
-router.get('/tests', (req, res) => res.json(adminTests))
-router.post('/tests', (req, res) => {
-  const item = { id: `ts_${Date.now()}`, students: 0, ...req.body }
-  adminTests.unshift(item)
-  res.status(201).json(item)
-})
-router.delete('/tests/:id', (req, res) => {
-  adminTests = adminTests.filter(t => t.id !== req.params.id)
-  res.json({ success: true })
+router.put('/jobs/:id', async (req, res) => {
+  try {
+    const job = await Job.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    if (!job) return res.status(404).json({ error: 'Job not found' })
+    res.json({ message: 'Job updated', job })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
-// ── ROLE PATHS CRUD ─────────────────────────────────────────────
-router.get('/rolepaths', (req, res) => res.json(adminRolePaths))
-router.post('/rolepaths', (req, res) => {
-  const item = { id: `rp_${Date.now()}`, students: 0, ...req.body }
-  adminRolePaths.unshift(item)
-  res.status(201).json(item)
+router.delete('/jobs/:id', async (req, res) => {
+  try {
+    await Job.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Job deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
-router.delete('/rolepaths/:id', (req, res) => {
-  adminRolePaths = adminRolePaths.filter(r => r.id !== req.params.id)
-  res.json({ success: true })
+
+// ════════════════════════════════════════════════════════════════
+// 4. SKILLS - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/skills', async (req, res) => {
+  try {
+    const { search, category, page = 1, limit = 50 } = req.query
+    const query = {}
+    if (search) query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { category: { $regex: search, $options: 'i' } }
+    ]
+    if (category && category !== 'all') query.category = category
+    const [skills, total] = await Promise.all([
+      safeFind(Skill, query, { sort: { createdAt: -1 } }),
+      safeCount(Skill)
+    ])
+    res.json({ skills, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post('/skills', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const skill = new Skill(req.body)
+    await skill.save()
+    res.status(201).json({ message: 'Skill created', skill })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.put('/skills/:id', async (req, res) => {
+  try {
+    const skill = await Skill.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    if (!skill) return res.status(404).json({ error: 'Skill not found' })
+    res.json({ message: 'Skill updated', skill })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/skills/:id', async (req, res) => {
+  try {
+    await Skill.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Skill deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// Bulk upload skills
+router.post('/skills/bulk', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const { skills } = req.body
+    if (!Array.isArray(skills)) return res.status(400).json({ error: 'skills must be an array' })
+    const inserted = await Skill.insertMany(skills, { ordered: false })
+    res.status(201).json({ message: `${inserted.length} skills created`, count: inserted.length })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 5. NOTES - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/notes', async (req, res) => {
+  try {
+    const { search, category, page = 1, limit = 50 } = req.query
+    const query = {}
+    if (search) query.$or = [
+      { title: { $regex: search, $options: 'i' } },
+      { category: { $regex: search, $options: 'i' } }
+    ]
+    if (category && category !== 'all') query.category = category
+    const [notes, total] = await Promise.all([
+      safeFind(Note, query, { sort: { createdAt: -1 } }),
+      safeCount(Note)
+    ])
+    res.json({ notes, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post('/notes', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const note = new Note({ ...req.body, author: 'admin' })
+    await note.save()
+    res.status(201).json({ message: 'Note created', note })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.put('/notes/:id', async (req, res) => {
+  try {
+    const note = await Note.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    if (!note) return res.status(404).json({ error: 'Note not found' })
+    res.json({ message: 'Note updated', note })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/notes/:id', async (req, res) => {
+  try {
+    await Note.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Note deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 6. COMPANIES / ARCHIVES - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/companies', async (req, res) => {
+  try {
+    const { search, page = 1, limit = 50 } = req.query
+    const query = {}
+    if (search) query.name = { $regex: search, $options: 'i' }
+    const [companies, total] = await Promise.all([
+      safeFind(CompanyArchive, query, { sort: { createdAt: -1 } }),
+      safeCount(CompanyArchive)
+    ])
+    res.json({ companies, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post('/companies', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const company = new CompanyArchive(req.body)
+    await company.save()
+    res.status(201).json({ message: 'Company created', company })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.put('/companies/:id', async (req, res) => {
+  try {
+    const company = await CompanyArchive.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    if (!company) return res.status(404).json({ error: 'Company not found' })
+    res.json({ message: 'Company updated', company })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/companies/:id', async (req, res) => {
+  try {
+    await CompanyArchive.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Company deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 7. ALUMNI - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/alumni', async (req, res) => {
+  try {
+    const { search } = req.query
+    const query = {}
+    if (search) query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { company: { $regex: search, $options: 'i' } }
+    ]
+    const [alumni, total] = await Promise.all([
+      safeFind(Alumni, query, { sort: { createdAt: -1 } }),
+      safeCount(Alumni)
+    ])
+    res.json({ alumni, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post('/alumni', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const alumni = new Alumni(req.body)
+    await alumni.save()
+    res.status(201).json({ message: 'Alumni created', alumni })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.put('/alumni/:id', async (req, res) => {
+  try {
+    const alumni = await Alumni.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    if (!alumni) return res.status(404).json({ error: 'Alumni not found' })
+    res.json({ message: 'Alumni updated', alumni })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/alumni/:id', async (req, res) => {
+  try {
+    await Alumni.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Alumni deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 8. MENTORS - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/mentors', async (req, res) => {
+  try {
+    const MentorModel = await getMentorModel()
+    const { search } = req.query
+    const query = {}
+    if (search) query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { company: { $regex: search, $options: 'i' } }
+    ]
+    const [mentors, total] = await Promise.all([
+      safeFind(MentorModel, query, { sort: { createdAt: -1 } }),
+      safeCount(MentorModel)
+    ])
+    res.json({ mentors, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post('/mentors', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const MentorModel = await getMentorModel()
+    const mentor = new MentorModel(req.body)
+    await mentor.save()
+    res.status(201).json({ message: 'Mentor created', mentor })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.put('/mentors/:id', async (req, res) => {
+  try {
+    const MentorModel = await getMentorModel()
+    const mentor = await MentorModel.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    if (!mentor) return res.status(404).json({ error: 'Mentor not found' })
+    res.json({ message: 'Mentor updated', mentor })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/mentors/:id', async (req, res) => {
+  try {
+    const MentorModel = await getMentorModel()
+    await MentorModel.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Mentor deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 9. TESTS / MOCK TESTS - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/tests', async (req, res) => {
+  try {
+    const TestModel = await getTestModel()
+    const { search, type } = req.query
+    const query = {}
+    if (search) query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { company: { $regex: search, $options: 'i' } }
+    ]
+    if (type && type !== 'all') query.type = type
+    const [tests, total] = await Promise.all([
+      safeFind(TestModel, query, { sort: { createdAt: -1 } }),
+      safeCount(TestModel)
+    ])
+    res.json({ tests, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post('/tests', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const TestModel = await getTestModel()
+    const test = new TestModel(req.body)
+    await test.save()
+    res.status(201).json({ message: 'Test created', test })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.put('/tests/:id', async (req, res) => {
+  try {
+    const TestModel = await getTestModel()
+    const test = await TestModel.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    if (!test) return res.status(404).json({ error: 'Test not found' })
+    res.json({ message: 'Test updated', test })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/tests/:id', async (req, res) => {
+  try {
+    const TestModel = await getTestModel()
+    await TestModel.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Test deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 10. STUDY GROUPS - View & Delete
+// ════════════════════════════════════════════════════════════════
+router.get('/groups', async (req, res) => {
+  try {
+    const GroupModel = await getGroupModel()
+    const groups = await safeFind(GroupModel, {}, { sort: { createdAt: -1 } })
+    const total = await safeCount(GroupModel)
+    res.json({ groups, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/groups/:id', async (req, res) => {
+  try {
+    const GroupModel = await getGroupModel()
+    await GroupModel.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Group deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 11. SYSTEM SETTINGS & ADMIN MANAGEMENT
+// ════════════════════════════════════════════════════════════════
+router.get('/settings', async (req, res) => {
+  res.json({
+    adminEmail: process.env.ADMIN_EMAIL || 'tarunibabu2006@gmail.com',
+    platformName: 'CampusPilot AI',
+    dbConnected: mongoose.connection.readyState === 1,
+    dbStatus: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown',
+    nodeEnv: process.env.NODE_ENV || 'development',
+    version: '2.0.0',
+    features: {
+      googleAuth: !!process.env.GOOGLE_CLIENT_ID,
+      geminiAI: !!process.env.GEMINI_API_KEY,
+      redis: !!process.env.REDIS_URL
+    }
+  })
+})
+
+// Export student CSV data
+router.get('/students/export/csv', async (req, res) => {
+  try {
+    let students = []
+    if (mongoose.connection.readyState === 1) {
+      students = await Student.find().lean()
+    }
+    const memStudents = Array.from(memoryStudentStore.values())
+    const allEmails = new Set(students.map(s => s.email))
+    const all = [...students, ...memStudents.filter(s => !allEmails.has(s.email))]
+
+    const headers = ['Name', 'Email', 'Department', 'Year', 'Skills', 'XP Points', 'Login Count', 'Last Login', 'Joined']
+    const rows = all.map(s => [
+      s.name || '',
+      s.email || '',
+      s.department || '',
+      s.year || '',
+      (s.skills || []).join('; '),
+      s.xpPoints || 0,
+      s.loginCount || 1,
+      s.lastLogin ? new Date(s.lastLogin).toLocaleDateString() : '',
+      s.createdAt ? new Date(s.createdAt).toLocaleDateString() : ''
+    ])
+
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', 'attachment; filename=campuspilot_students.csv')
+    res.send(csv)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 })
 
 export default router

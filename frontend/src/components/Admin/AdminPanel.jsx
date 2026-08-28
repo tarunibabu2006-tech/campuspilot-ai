@@ -1,1453 +1,906 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { useAuth } from '../../context/AuthContext'
-import { SEED_COMPANIES } from '../../data/seedCompanies'
-import { SEED_MENTORS } from '../../data/seedMentors'
-import { CAREER_ROLE_PRESETS } from '../../data/seedRoles'
-import { SEED_SKILLS } from '../../data/seedSkills'
-import { SEED_JOBS } from '../../data/seedJobs'
-import StudentAnalytics from './StudentAnalytics'
+import {
+  getAdminDashboard, getAdminStudents, getAdminStudent,
+  updateAdminStudent, deleteAdminStudent, resetStudentPassword,
+  getAdminJobs, createAdminJob, updateAdminJob, deleteAdminJob,
+  getAdminSkills, createAdminSkill, updateAdminSkill, deleteAdminSkill,
+  getAdminNotes, createAdminNote, updateAdminNote, deleteAdminNote,
+  getAdminCompanies, createAdminCompany, updateAdminCompany, deleteAdminCompany,
+  getAdminAlumni, createAdminAlumni, updateAdminAlumni, deleteAdminAlumni,
+  getAdminMentors, createAdminMentor, updateAdminMentor, deleteAdminMentor,
+  getAdminTests, createAdminTest, updateAdminTest, deleteAdminTest,
+  getAdminGroups, deleteAdminGroup, getAdminSettings
+} from '../../services/api'
 
-// ── ADMIN CREDENTIALS CONSTANTS ─────────────────────────────────
-const ADMIN_EMAIL = 'tarunibabu2006@gmail.com'
-const ADMIN_PASS = 'prawinkumar_0704'
+// ── Shared styles ─────────────────────────────────────────────────
+const card = { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1.25rem' }
+const inputStyle = { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '0.6rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.88rem', outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'inherit' }
+const btnPrimary = { background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: 'white', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '0.6rem', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer' }
+const btnDanger = { background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', padding: '0.4rem 0.8rem', borderRadius: '0.5rem', fontWeight: '700', fontSize: '0.78rem', cursor: 'pointer' }
+const btnEdit = { background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)', padding: '0.4rem 0.8rem', borderRadius: '0.5rem', fontWeight: '700', fontSize: '0.78rem', cursor: 'pointer' }
+const btnSuccess = { background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', padding: '0.4rem 0.8rem', borderRadius: '0.5rem', fontWeight: '700', fontSize: '0.78rem', cursor: 'pointer' }
 
-// ── NAVIGATION SECTIONS (1 to 15) ───────────────────────────────
-const SECTIONS = [
-  { id: 'dashboard', label: '📊 Dashboard', icon: '📊' },
-  { id: 'students', label: '👥 Students', icon: '👥' },
-  { id: 'skills', label: '📚 Skills', icon: '📚' },
-  { id: 'jobs', label: '💼 Jobs', icon: '💼' },
-  { id: 'notes', label: '📝 Notes', icon: '📝' },
-  { id: 'companies', label: '🏢 Companies', icon: '🏢' },
-  { id: 'mentors', label: '👨‍🏫 Mentors', icon: '👨‍🏫' },
-  { id: 'tests', label: '🎯 Tests', icon: '🎯' },
-  { id: 'ai_apply', label: '🤖 AI Apply', icon: '🤖' },
-  { id: 'archive', label: '📦 Archive', icon: '📦' },
-  { id: 'alumni', label: '🎓 Alumni', icon: '🎓' },
-  { id: 'groups', label: '👥 Groups', icon: '👥' },
-  { id: 'resumes', label: '📄 Resumes', icon: '📄' },
-  { id: 'rolepath', label: '🎯 Role Path', icon: '🎯' },
-  { id: 'settings', label: '⚙️ Settings', icon: '⚙️' }
+// ── Sidebar nav items ─────────────────────────────────────────────
+const NAV_ITEMS = [
+  { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+  { id: 'students', icon: '👥', label: 'Students' },
+  { id: 'jobs', icon: '💼', label: 'Jobs' },
+  { id: 'skills', icon: '📚', label: 'Skills' },
+  { id: 'notes', icon: '📝', label: 'Notes' },
+  { id: 'companies', icon: '🏢', label: 'Companies' },
+  { id: 'alumni', icon: '🎓', label: 'Alumni' },
+  { id: 'mentors', icon: '🧑‍🏫', label: 'Mentors' },
+  { id: 'tests', icon: '📋', label: 'Mock Tests' },
+  { id: 'groups', icon: '👥', label: 'Study Groups' },
+  { id: 'settings', icon: '⚙️', label: 'Settings' }
 ]
 
-// ── INITIAL RICH STUDENTS DATA ──────────────────────────────────
-const INITIAL_STUDENTS = [
-  {
-    id: 's1',
-    name: 'Rahul Kumar',
-    email: 'rahul@email.com',
-    department: 'Computer Science',
-    year: '3rd Year',
-    loginCount: 45,
-    joined: 'Jan 15, 2024',
-    lastLogin: 'Today, 10:30 AM',
-    skills: ['Python', 'Java', 'SQL', 'React', 'Node.js', 'Docker', 'AWS', 'DSA', 'Git', 'MongoDB', 'C++', 'System Design'],
-    achievements: [
-      { name: 'Python Master', status: 'Earned', date: 'Jan 2024', unlocked: true },
-      { name: 'React Master', status: 'Earned', date: 'Feb 2024', unlocked: true },
-      { name: 'Interview Pro', status: '3/5 interviews completed', date: 'In Progress', unlocked: false }
-    ],
-    activityLog: [
-      { time: 'Today 10:30', text: 'Logged In' },
-      { time: 'Today 09:15', text: 'Completed Mock Interview (Score 9/10)' },
-      { time: 'Yesterday 16:00', text: 'Applied for SDE-1 at Amazon' },
-      { time: 'Yesterday 14:20', text: 'Completed Python Test (Score 95%)' }
-    ],
-    stats: {
-      totalLogins: 45,
-      coursesCompleted: 12,
-      testsTaken: 8,
-      jobsApplied: 15,
-      xpPoints: 1250,
-      badgesEarned: 3,
-      currentStreak: 5
-    }
-  },
-  {
-    id: 's2',
-    name: 'Priya Sundar',
-    email: 'priya@email.com',
-    department: 'Electronics & Communication',
-    year: '2nd Year',
-    loginCount: 32,
-    joined: 'Feb 10, 2024',
-    lastLogin: 'Yesterday, 04:15 PM',
-    skills: ['C++', 'Python', 'Digital Electronics', 'Verilog', 'VLSI', 'SQL'],
-    achievements: [
-      { name: 'Hardware Hero', status: 'Earned', date: 'Feb 2024', unlocked: true },
-      { name: 'Python Master', status: 'Earned', date: 'Mar 2024', unlocked: true }
-    ],
-    activityLog: [
-      { time: 'Yesterday 04:15', text: 'Logged In' },
-      { time: 'Yesterday 02:30', text: 'Reviewed VLSI Lecture Notes' }
-    ],
-    stats: {
-      totalLogins: 32,
-      coursesCompleted: 8,
-      testsTaken: 5,
-      jobsApplied: 6,
-      xpPoints: 890,
-      badgesEarned: 2,
-      currentStreak: 4
-    }
-  },
-  {
-    id: 's3',
-    name: 'Amit Ram',
-    email: 'amit@email.com',
-    department: 'Mechanical Engineering',
-    year: '4th Year',
-    loginCount: 28,
-    joined: 'Mar 01, 2024',
-    lastLogin: '2 days ago',
-    skills: ['AutoCAD', 'SolidWorks', 'Thermodynamics', 'Fluid Mechanics', 'Python'],
-    achievements: [
-      { name: 'Design Specialist', status: 'Earned', date: 'Mar 2024', unlocked: true }
-    ],
-    activityLog: [
-      { time: '2 days ago', text: 'Calculated Bunk Attendance' }
-    ],
-    stats: {
-      totalLogins: 28,
-      coursesCompleted: 6,
-      testsTaken: 4,
-      jobsApplied: 9,
-      xpPoints: 650,
-      badgesEarned: 1,
-      currentStreak: 2
-    }
-  },
-  {
-    id: 's4',
-    name: 'Tarun Babu',
-    email: 'tarun.babu@college.edu',
-    department: 'Computer Science & Engineering',
-    year: '4th Year',
-    loginCount: 68,
-    joined: 'Jan 05, 2024',
-    lastLogin: 'Today, 01:45 AM',
-    skills: ['React.js', 'Node.js', 'Python', 'SQL', 'FastAPI', 'DSA', 'Docker', 'AWS'],
-    achievements: [
-      { name: 'Python Master', status: 'Earned', date: 'Jan 2024', unlocked: true },
-      { name: 'React Master', status: 'Earned', date: 'Feb 2024', unlocked: true },
-      { name: 'Interview Pro', status: 'Earned', date: 'Mar 2024', unlocked: true }
-    ],
-    activityLog: [
-      { time: 'Today 01:45', text: 'Exported ATS Resume PDF' },
-      { time: 'Today 01:10', text: 'Downloaded 5 Study Notes' }
-    ],
-    stats: {
-      totalLogins: 68,
-      coursesCompleted: 18,
-      testsTaken: 14,
-      jobsApplied: 24,
-      xpPoints: 1850,
-      badgesEarned: 5,
-      currentStreak: 15
-    }
-  }
-]
-
-export default function AdminPanel() {
-  const { user, login } = useAuth()
-  
-  // ── ADMIN AUTH STATE ──────────────────────────────────────────
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
-    return localStorage.getItem('campuspilot_admin_auth') === 'true' || user?.email === ADMIN_EMAIL || user?.role === 'admin'
-  })
-  const [authEmail, setAuthEmail] = useState(ADMIN_EMAIL)
-  const [authPassword, setAuthPassword] = useState('')
-
-  // ── ACTIVE NAVIGATION TAB ─────────────────────────────────────
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const [searchTerm, setSearchTerm] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('All')
-
-  // ── MODALS STATE ──────────────────────────────────────────────
-  const [selectedStudent, setSelectedStudent] = useState(null)
-  const [modalMode, setModalMode] = useState(null) // 'add_student', 'edit_student', 'add_skill', 'add_job', 'add_note', 'add_company', 'add_mentor', 'add_test', 'add_alumni', 'add_role'
-  const [modalForm, setModalForm] = useState({})
-
-  // ── DATABASE STORES WITH LOCALSTORAGE SYNC ─────────────────────
-  const [students, setStudents] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_students_db')
-      return saved ? JSON.parse(saved) : INITIAL_STUDENTS
-    } catch { return INITIAL_STUDENTS }
-  })
-
-  const [skills, setSkills] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_skills_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'sk1', name: 'Python', category: 'Programming', level: 'Adv', duration: '3 months', prereq: 'Basic Logic', courses: 45, students: 234, relatedRoles: 'Data Analyst, AI Engineer, Backend Dev' },
-        { id: 'sk2', name: 'React.js', category: 'Web Dev', level: 'Adv', duration: '2 months', prereq: 'JavaScript ES6', courses: 32, students: 189, relatedRoles: 'Frontend Developer, Full Stack' },
-        { id: 'sk3', name: 'SQL', category: 'Database', level: 'Int', duration: '1.5 months', prereq: 'None', courses: 28, students: 156, relatedRoles: 'Data Analyst, Database Admin' },
-        { id: 'sk4', name: 'Docker', category: 'DevOps', level: 'Int', duration: '1 month', prereq: 'Linux Basics', courses: 15, students: 89, relatedRoles: 'DevOps Engineer, Cloud Architect' },
-        { id: 'sk5', name: 'Data Structures & Algorithms', category: 'Programming', level: 'Adv', duration: '4 months', prereq: 'C++ or Java', courses: 60, students: 410, relatedRoles: 'Software Engineer, SDE-1' }
-      ]
-    } catch { return [] }
-  })
-
-  const [jobs, setJobs] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_jobs_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'jb1', company: 'Google', role: 'SDE-1', ctc: '18-32 LPA', location: 'Bengaluru', experience: 'Fresher', applied: 45, status: 'Active', applyLink: 'https://careers.google.com' },
-        { id: 'jb2', company: 'Amazon', role: 'Data Analyst', ctc: '14-22 LPA', location: 'Hyderabad', experience: '0-1 yr', applied: 32, status: 'Active', applyLink: 'https://amazon.jobs' },
-        { id: 'jb3', company: 'TCS', role: 'Ninja & Digital', ctc: '3.6-7.5 LPA', location: 'Pan India', experience: 'Fresher', applied: 89, status: 'Active', applyLink: 'https://nextstep.tcs.com' },
-        { id: 'jb4', company: 'Infosys', role: 'Power Programmer', ctc: '6-9.5 LPA', location: 'Bengaluru', experience: 'Fresher', applied: 54, status: 'Active', applyLink: 'https://infosys.com' }
-      ]
-    } catch { return [] }
-  })
-
-  const [notes, setNotes] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_notes_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'nt1', title: 'DSA Complete Guide', category: 'CSE', subject: 'Data Structures', level: 'Adv', readTime: '15 min', rating: '4.9/5', content: 'Comprehensive notes covering Arrays, Trees, Graphs, DP, and greedy algorithms with code.' },
-        { id: 'nt2', title: 'DBMS Handbook & SQL', category: 'CSE', subject: 'DBMS', level: 'Int', readTime: '12 min', rating: '4.8/5', content: 'Relational algebra, normal forms 1NF to BCNF, SQL transactions, ACID, indexing.' },
-        { id: 'nt3', title: 'Operating Systems Deep Dive', category: 'CSE', subject: 'Operating Systems', level: 'Int', readTime: '10 min', rating: '4.7/5', content: 'Process management, CPU scheduling algorithms, Deadlocks, Paging, Virtual Memory.' },
-        { id: 'nt4', title: 'Digital Electronics & Logic', category: 'ECE', subject: 'Digital Circuits', level: 'Beg', readTime: '8 min', rating: '4.8/5', content: 'Boolean algebra, logic gates, flip-flops, multiplexers, counters, and registers.' }
-      ]
-    } catch { return [] }
-  })
-
-  const [companies, setCompanies] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_companies_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'cp1', name: 'Google', industry: 'Tech/Product', ctc: '18-32 LPA', students: 45, isArchived: true, hq: 'Bengaluru' },
-        { id: 'cp2', name: 'TCS', industry: 'IT Services', ctc: '3.6-7.5 LPA', students: 234, isArchived: true, hq: 'Mumbai' },
-        { id: 'cp3', name: 'ONGC', industry: 'Oil & Gas / PSU', ctc: '8-14 LPA', students: 56, isArchived: true, hq: 'Dehradun' },
-        { id: 'cp4', name: 'Microsoft', industry: 'Tech/Product', ctc: '16-30 LPA', students: 38, isArchived: true, hq: 'Hyderabad' },
-        { id: 'cp5', name: 'Flipkart', industry: 'E-Commerce', ctc: '14-26 LPA', students: 42, isArchived: true, hq: 'Bengaluru' }
-      ]
-    } catch { return [] }
-  })
-
-  const [mentors, setMentors] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_mentors_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'm1', name: 'Siddharth S', company: 'Google', role: 'Sr. SWE', sessions: '85+', rating: 4.9, email: 'siddharth@google.com' },
-        { id: 'm2', name: 'Deepika S', company: 'Microsoft', role: 'Lead Data Sci', sessions: '95+', rating: 4.9, email: 'deepika@microsoft.com' },
-        { id: 'm3', name: 'Vikram N', company: 'Zoho', role: 'Full Stack Staff', sessions: '150+', rating: 4.8, email: 'vikram@zoho.com' }
-      ]
-    } catch { return [] }
-  })
-
-  const [mentorRequests, setMentorRequests] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_mentor_reqs_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'mr1', student: 'Rahul K', mentor: 'Siddharth S (Google)', status: 'Pending', date: 'Today, 10:30 AM' },
-        { id: 'mr2', student: 'Priya S', mentor: 'Deepika S (Microsoft)', status: 'Accepted', date: 'Yesterday' },
-        { id: 'mr3', student: 'Amit R', mentor: 'Vikram N (Zoho)', status: 'Rejected', date: '2 days ago' }
-      ]
-    } catch { return [] }
-  })
-
-  const [tests, setTests] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_tests_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 't1', name: 'Aptitude Master Test 1', type: 'Aptitude', questions: 50, duration: '60 min', students: 234, cutoff: '75%' },
-        { id: 't2', name: 'TCS NQT Full Mock Test', type: 'Company Pattern', questions: 80, duration: '90 min', students: 156, cutoff: '70%' },
-        { id: 't3', name: 'DSA & Algorithms Quiz 1', type: 'Skill Assessment', questions: 20, duration: '30 min', students: 89, cutoff: '80%' }
-      ]
-    } catch { return [] }
-  })
-
-  const [aiApplications, setAiApplications] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_applications_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'ap1', student: 'Rahul K', company: 'Google', role: 'SDE-1', status: 'Applied', date: 'Today' },
-        { id: 'ap2', student: 'Priya S', company: 'Amazon', role: 'Data Analyst', status: 'Shortlisted', date: 'Yesterday' },
-        { id: 'ap3', student: 'Amit R', company: 'TCS', role: 'Ninja', status: 'Rejected', date: '2 days ago' },
-        { id: 'ap4', student: 'Tarun Babu', company: 'Microsoft', role: 'Software Engineer', status: 'Shortlisted', date: 'Today' }
-      ]
-    } catch { return [] }
-  })
-
-  const [alumni, setAlumni] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_alumni_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'al1', name: 'Karthik S', company: 'Zoho', role: 'Sr. Developer', year: '2024', dept: 'CSE' },
-        { id: 'al2', name: 'Ananya R', company: 'TCS', role: 'Digital Engineer', year: '2024', dept: 'IT' },
-        { id: 'al3', name: 'Mohammed R', company: 'Amazon', role: 'SDE-2', year: '2022', dept: 'CSE' }
-      ]
-    } catch { return [] }
-  })
-
-  const [studyGroups, setStudyGroups] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_studygroups_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'g1', name: 'DSA Masters Room', members: 12, streak: 12, active: '4/4 active', admin: 'Arjun K' },
-        { id: 'g2', name: 'Python AI Squad', members: 8, streak: 8, active: '3/4 active', admin: 'Santhiya S' },
-        { id: 'g3', name: 'Interview Pro Guild', members: 15, streak: 5, active: '4/4 active', admin: 'Tarun B' }
-      ]
-    } catch { return [] }
-  })
-
-  const [resumes, setResumes] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_resumes_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'res1', student: 'Rahul K', template: 'Professional Modern', score: '85%', downloads: 12 },
-        { id: 'res2', student: 'Priya S', template: 'Minimalist Classic', score: '78%', downloads: 8 },
-        { id: 'res3', student: 'Amit R', template: 'ATS-Optimized Standard', score: '92%', downloads: 15 },
-        { id: 'res4', student: 'Tarun Babu', template: 'ATS-Optimized Standard', score: '98%', downloads: 22 }
-      ]
-    } catch { return [] }
-  })
-
-  const [rolePaths, setRolePaths] = useState(() => {
-    try {
-      const saved = localStorage.getItem('campuspilot_admin_rolepaths_db')
-      return saved ? JSON.parse(saved) : [
-        { id: 'rp1', name: 'Frontend Developer', category: 'Tech', skills: 15, students: 234, salary: '₹6–14 LPA' },
-        { id: 'rp2', name: 'Data Scientist & ML Engineer', category: 'Data', skills: 18, students: 156, salary: '₹8–18 LPA' },
-        { id: 'rp3', name: 'Product Marketing Manager', category: 'Business', skills: 12, students: 89, salary: '₹7–15 LPA' }
-      ]
-    } catch { return [] }
-  })
-
-  // ── SYNC TO LOCALSTORAGE ───────────────────────────────────────
-  useEffect(() => {
-    localStorage.setItem('campuspilot_admin_students_db', JSON.stringify(students))
-    localStorage.setItem('campuspilot_admin_skills_db', JSON.stringify(skills))
-    localStorage.setItem('campuspilot_admin_jobs_db', JSON.stringify(jobs))
-    localStorage.setItem('campuspilot_admin_notes_db', JSON.stringify(notes))
-    localStorage.setItem('campuspilot_admin_companies_db', JSON.stringify(companies))
-    localStorage.setItem('campuspilot_admin_mentors_db', JSON.stringify(mentors))
-    localStorage.setItem('campuspilot_admin_mentor_reqs_db', JSON.stringify(mentorRequests))
-    localStorage.setItem('campuspilot_admin_tests_db', JSON.stringify(tests))
-    localStorage.setItem('campuspilot_admin_applications_db', JSON.stringify(aiApplications))
-    localStorage.setItem('campuspilot_admin_alumni_db', JSON.stringify(alumni))
-    localStorage.setItem('campuspilot_admin_studygroups_db', JSON.stringify(studyGroups))
-    localStorage.setItem('campuspilot_admin_resumes_db', JSON.stringify(resumes))
-    localStorage.setItem('campuspilot_admin_rolepaths_db', JSON.stringify(rolePaths))
-  }, [students, skills, jobs, notes, companies, mentors, mentorRequests, tests, aiApplications, alumni, studyGroups, resumes, rolePaths])
-
-  // ── ADMIN LOGIN HANDLER ───────────────────────────────────────
-  const handleAdminLogin = (e) => {
-    e.preventDefault()
-    if (authEmail === ADMIN_EMAIL && authPassword === ADMIN_PASS) {
-      setIsAdminAuthenticated(true)
-      localStorage.setItem('campuspilot_admin_auth', 'true')
-      toast.success('👑 Welcome back, Administrator!')
-    } else {
-      toast.error('Invalid Admin Credentials! (Use tarunibabu2006@gmail.com / prawinkumar_0704)')
-    }
-  }
-
-  const handleAdminLogout = () => {
-    setIsAdminAuthenticated(false)
-    localStorage.removeItem('campuspilot_admin_auth')
-    toast.success('Admin logged out.')
-  }
-
-  // ── DELETE GENERIC HANDLER ────────────────────────────────────
-  const handleDelete = (setter, id, name) => {
-    if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
-      setter(prev => prev.filter(item => item.id !== id))
-      toast.success(`Deleted "${name}"`)
-    }
-  }
-
-  // ── EXPORT CSV HELPER ─────────────────────────────────────────
-  const handleExportCSV = (data, filename) => {
-    if (!data || !data.length) {
-      toast.error('No data to export!')
-      return
-    }
-    const headers = Object.keys(data[0]).join(',')
-    const rows = data.map(obj => Object.values(obj).map(v => typeof v === 'object' ? JSON.stringify(v).replace(/,/g, ';') : `"${v}"`).join(','))
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n')
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement('a')
-    link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `${filename}_${Date.now()}.csv`)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    toast.success(`📥 Exported ${filename}.csv`)
-  }
-
-  // ── SAVE MODAL HANDLER ────────────────────────────────────────
-  const handleSaveModal = (e) => {
-    e.preventDefault()
-    const id = modalForm.id || `custom_${Date.now()}`
-    const item = { ...modalForm, id }
-
-    if (modalMode === 'add_student' || modalMode === 'edit_student') {
-      if (modalMode === 'edit_student') {
-        setStudents(prev => prev.map(s => s.id === item.id ? { ...s, ...item } : s))
-      } else {
-        setStudents(prev => [{
-          ...item,
-          loginCount: 1,
-          joined: 'Today',
-          lastLogin: 'Just now',
-          skills: item.skillsInput ? item.skillsInput.split(',').map(s => s.trim()) : ['Python', 'SQL'],
-          achievements: [],
-          activityLog: [{ time: 'Just now', text: 'Account registered by Administrator' }],
-          stats: { totalLogins: 1, coursesCompleted: 0, testsTaken: 0, jobsApplied: 0, xpPoints: 100, badgesEarned: 0, currentStreak: 1 }
-        }, ...prev])
-      }
-    } else if (modalMode === 'add_skill') {
-      setSkills(prev => [{ ...item, courses: 10, students: 0 }, ...prev])
-    } else if (modalMode === 'add_job') {
-      setJobs(prev => [{ ...item, applied: 0, status: 'Active' }, ...prev])
-    } else if (modalMode === 'add_note') {
-      setNotes(prev => [{ ...item, rating: '5.0/5' }, ...prev])
-    } else if (modalMode === 'add_company') {
-      setCompanies(prev => [{ ...item, students: 0, isArchived: true }, ...prev])
-    } else if (modalMode === 'add_mentor') {
-      setMentors(prev => [{ ...item, sessions: '0', rating: 5.0 }, ...prev])
-    } else if (modalMode === 'add_test') {
-      setTests(prev => [{ ...item, students: 0 }, ...prev])
-    } else if (modalMode === 'add_alumni') {
-      setAlumni(prev => [item, ...prev])
-    } else if (modalMode === 'add_role') {
-      setRolePaths(prev => [{ ...item, students: 0 }, ...prev])
-    }
-
-    setModalMode(null)
-    setModalForm({})
-    toast.success('Saved to Database! 🚀')
-  }
-
-  // ══════════════════════════════════════════════════════════════
-  // IF NOT AUTHENTICATED AS ADMIN: SHOW ADMIN LOGIN SCREEN
-  // ══════════════════════════════════════════════════════════════
-  if (!isAdminAuthenticated) {
-    return (
-      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-          style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '1.5rem', padding: '2.5rem', maxWidth: '440px', width: '100%', boxShadow: '0 12px 40px rgba(0,0,0,0.5)' }}
-        >
-          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-            <span style={{ fontSize: '3rem' }}>👑</span>
-            <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.6rem', margin: '0.5rem 0 0.2rem' }}>Admin Access Only</h2>
-            <p style={{ color: '#c4b5fd', fontSize: '0.85rem' }}>Enter authorized administrator credentials to unlock the master database.</p>
-          </div>
-
-          <form onSubmit={handleAdminLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div>
-              <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Admin Email</label>
-              <input
-                type="email"
-                className="form-input"
-                value={authEmail}
-                onChange={e => setAuthEmail(e.target.value)}
-                required
-                style={{ width: '100%', marginTop: '0.3rem' }}
-              />
-            </div>
-            <div>
-              <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Password</label>
-              <input
-                type="password"
-                className="form-input"
-                placeholder="••••••••••••"
-                value={authPassword}
-                onChange={e => setAuthPassword(e.target.value)}
-                required
-                style={{ width: '100%', marginTop: '0.3rem' }}
-              />
-            </div>
-
-            <button type="submit" className="btn btn-primary btn-full" style={{ padding: '0.8rem', fontWeight: '800', fontSize: '0.95rem', marginTop: '0.5rem', background: 'linear-gradient(135deg, #7c3aed, #2563eb)' }}>
-              Unlock Admin Panel 🚀
-            </button>
-          </form>
-
-          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.8rem', marginTop: '1.25rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-            <div><strong>Master Admin:</strong> {ADMIN_EMAIL}</div>
-            <div><strong>Password:</strong> prawinkumar_0704</div>
-          </div>
-        </motion.div>
-      </div>
-    )
-  }
-
-  // ══════════════════════════════════════════════════════════════
-  // FULL ADMIN PANEL INTERFACE
-  // ══════════════════════════════════════════════════════════════
+// ── Generic Confirm Delete Modal ─────────────────────────────────
+function ConfirmModal({ item, onConfirm, onCancel }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1.5rem', padding: '1rem', maxWidth: '1440px', margin: '0 auto', minHeight: '90vh' }}>
-      
-      {/* ── SIDEBAR NAVIGATION ──────────────────────────────────── */}
-      <aside style={{ background: 'linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '1.25rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 'fit-content', position: 'sticky', top: '1rem' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-            <span style={{ fontSize: '1.8rem' }}>👑</span>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }}
+        style={{ background: '#1e1b4b', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '1.25rem', padding: '2rem', maxWidth: '400px', width: '100%', textAlign: 'center' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+        <h3 style={{ color: 'white', fontWeight: '800', marginBottom: '0.5rem' }}>Confirm Delete</h3>
+        <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>This action cannot be undone. Are you sure you want to delete <strong style={{ color: 'white' }}>{item}</strong>?</p>
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+          <button onClick={onCancel} style={{ ...btnEdit, padding: '0.65rem 1.5rem' }}>Cancel</button>
+          <button onClick={onConfirm} style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', color: 'white', border: 'none', padding: '0.65rem 1.5rem', borderRadius: '0.6rem', fontWeight: '800', cursor: 'pointer' }}>Delete</button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+// ── Generic Form Modal ────────────────────────────────────────────
+function FormModal({ title, fields, values, onChange, onSave, onClose, saving }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', overflowY: 'auto' }}>
+      <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+        style={{ background: 'linear-gradient(135deg, #1e1b4b, #0f172a)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '560px', width: '100%' }}
+        onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h3 style={{ color: 'white', fontWeight: '900', margin: 0, fontSize: '1.2rem' }}>{title}</h3>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '1rem' }}>✕</button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', maxHeight: '60vh', overflowY: 'auto' }}>
+          {fields.map(f => (
+            <div key={f.key}>
+              <label style={{ color: '#94a3b8', fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '0.3rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{f.label}</label>
+              {f.type === 'textarea' ? (
+                <textarea value={values[f.key] || ''} onChange={e => onChange(f.key, e.target.value)}
+                  rows={3} style={{ ...inputStyle, resize: 'vertical' }} placeholder={f.placeholder || ''} />
+              ) : f.type === 'select' ? (
+                <select value={values[f.key] || ''} onChange={e => onChange(f.key, e.target.value)}
+                  style={{ ...inputStyle, cursor: 'pointer' }}>
+                  {f.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              ) : (
+                <input type={f.type || 'text'} value={values[f.key] || ''} onChange={e => onChange(f.key, e.target.value)}
+                  style={inputStyle} placeholder={f.placeholder || ''} />
+              )}
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{ ...btnEdit, padding: '0.65rem 1.25rem' }}>Cancel</button>
+          <button onClick={onSave} disabled={saving} style={{ ...btnPrimary, opacity: saving ? 0.7 : 1 }}>
+            {saving ? '⏳ Saving...' : '✅ Save'}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+// ── Student Detail Modal ─────────────────────────────────────────
+function StudentDetailModal({ student, onClose, onEdit, onDelete }) {
+  if (!student) return null
+  const feats = student.featureUsage || {}
+  const totalUsage = Object.values(feats).reduce((a, b) => a + b, 0)
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', overflowY: 'auto' }}>
+      <motion.div initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }}
+        style={{ background: 'linear-gradient(135deg, #0f172a, #1e1b4b)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '700px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: '800', color: 'white' }}>
+              {(student.name || 'S')[0].toUpperCase()}
+            </div>
             <div>
-              <div style={{ color: 'white', fontWeight: '900', fontSize: '1rem' }}>CampusPilot</div>
-              <div style={{ color: '#a78bfa', fontSize: '0.72rem', fontWeight: '700' }}>ADMIN COCKPIT</div>
+              <h3 style={{ color: 'white', fontWeight: '900', margin: 0 }}>{student.name}</h3>
+              <p style={{ color: '#94a3b8', margin: '0.2rem 0 0', fontSize: '0.85rem' }}>{student.email}</p>
             </div>
           </div>
-
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            {SECTIONS.map(sec => (
-              <button
-                key={sec.id}
-                onClick={() => { setActiveTab(sec.id); setSearchTerm(''); setCategoryFilter('All') }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.6rem',
-                  padding: '0.6rem 0.85rem',
-                  borderRadius: '0.6rem',
-                  fontWeight: '700',
-                  fontSize: '0.82rem',
-                  textAlign: 'left',
-                  border: 'none',
-                  cursor: 'pointer',
-                  background: activeTab === sec.id ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'transparent',
-                  color: activeTab === sec.id ? 'white' : '#94a3b8',
-                  transition: 'all 0.15s'
-                }}
-              >
-                <span>{sec.icon}</span>
-                <span>{sec.label.replace(/^[^\w]+/, '')}</span>
-              </button>
-            ))}
-          </nav>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}>✕</button>
         </div>
 
-        <button
-          onClick={handleAdminLogout}
-          style={{ marginTop: '1.5rem', padding: '0.6rem', borderRadius: '0.6rem', background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', fontWeight: '700', fontSize: '0.8rem', cursor: 'pointer' }}
-        >
-          🔒 Logout Admin
-        </button>
-      </aside>
-
-      {/* ── MAIN CONTENT AREA ────────────────────────────────────── */}
-      <main style={{ minWidth: 0 }}>
-
-        {/* ── 1. DASHBOARD 📊 ───────────────────────────────────── */}
-        {activeTab === 'dashboard' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '1.25rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
-                <div>
-                  <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.5rem', margin: 0 }}>👑 Admin Dashboard</h2>
-                  <p style={{ color: '#c4b5fd', fontSize: '0.85rem', margin: '0.2rem 0 0' }}>Welcome back, Admin! 🎉 • Last login: {new Date().toLocaleTimeString()} • <strong style={{color:'#34d399'}}>{students.length} users registered</strong></p>
-                </div>
-                <span className="badge badge-safe">Real-Time Sync Active</span>
-              </div>
-
-              {/* 8 Metrics Cards — Students is REAL from DB */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
-                {[
-                  { label: 'Registered Students', count: students.length, change: `${students.filter(s => s.lastLogin && s.lastLogin.includes('Just now') || s.lastLogin === 'Today' || s.loginCount > 1).length} active today`, icon: '👥', color: '#60a5fa' },
-                  { label: 'Skills', count: '10,456', change: '+8% this month', icon: '📚', color: '#a78bfa' },
-                  { label: 'Jobs', count: '5,678', change: '+15% this month', icon: '💼', color: '#38bdf8' },
-                  { label: 'Notes', count: '100,456', change: '+25% this month', icon: '📝', color: '#f59e0b' },
-                  { label: 'Companies', count: '1,000+', change: '+5% this month', icon: '🏢', color: '#34d399' },
-                  { label: 'Mentors', count: '150', change: '+10% this month', icon: '👨‍🏫', color: '#f43f5e' },
-                  { label: 'Tests', count: '10,000+', change: '+20% this month', icon: '🎯', color: '#fbbf24' },
-                  { label: 'Resumes', count: '856', change: '+7% this month', icon: '📄', color: '#c084fc' }
-                ].map(card => (
-                  <div key={card.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.9rem', padding: '0.85rem', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{card.icon}</div>
-                    <div style={{ color: card.color, fontWeight: '900', fontSize: '1.2rem' }}>{card.count}</div>
-                    <div style={{ color: 'white', fontWeight: '700', fontSize: '0.78rem' }}>{card.label}</div>
-                    <div style={{ color: '#34d399', fontSize: '0.68rem', fontWeight: '600', marginTop: '0.2rem' }}>{card.change}</div>
-                  </div>
-                ))}
-              </div>
+        {/* Basic Info */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          {[
+            { label: 'Department', value: student.department || 'Not specified' },
+            { label: 'Year', value: student.year ? `Year ${student.year}` : 'Not specified' },
+            { label: 'Target Role', value: student.targetRole || 'Not specified' },
+            { label: 'XP Points', value: `${student.xpPoints || 0} XP` },
+            { label: 'Login Count', value: student.loginCount || 1 },
+            { label: 'Streak', value: `${student.streak || 0} days` },
+            { label: 'First Login', value: student.firstLogin ? new Date(student.firstLogin).toLocaleDateString() : 'N/A' },
+            { label: 'Last Login', value: student.lastLogin ? new Date(student.lastLogin).toLocaleDateString() : 'N/A' }
+          ].map(item => (
+            <div key={item.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem' }}>
+              <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: '700', textTransform: 'uppercase' }}>{item.label}</div>
+              <div style={{ color: 'white', fontWeight: '700', fontSize: '0.88rem', marginTop: '0.15rem' }}>{item.value}</div>
             </div>
+          ))}
+        </div>
 
-            {/* Charts & Analytics */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
-              
-              {/* Feature Usage Bar Chart */}
-              <div className="card">
-                <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginBottom: '1rem' }}>📊 Feature Usage Statistics</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  {[
-                    { name: 'Notes Hub (100k+ Notes)', val: 95, color: '#f59e0b' },
-                    { name: 'ATS Resume Builder', val: 88, color: '#34d399' },
-                    { name: 'AI Career Predictor', val: 78, color: '#60a5fa' },
-                    { name: 'Mock Technical & Voice Interview', val: 72, color: '#f43f5e' },
-                    { name: 'Aptitude Test Bank', val: 65, color: '#a78bfa' }
-                  ].map(f => (
-                    <div key={f.name}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '0.2rem' }}>
-                        <span>{f.name}</span>
-                        <span style={{ fontWeight: 'bold' }}>{f.val}%</span>
-                      </div>
-                      <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '1rem', height: '6px', overflow: 'hidden' }}>
-                        <div style={{ width: `${f.val}%`, height: '100%', background: f.color, borderRadius: '1rem' }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Top Performing Students */}
-              <div className="card">
-                <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginBottom: '1rem' }}>🏆 Top Performing Students</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {students.slice(0, 4).map((st, i) => (
-                    <div key={st.id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.6rem', padding: '0.5rem 0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ color: i === 0 ? '#fbbf24' : '#94a3b8', fontWeight: '900', fontSize: '0.9rem' }}>#{i + 1}</span>
-                        <div>
-                          <div style={{ color: 'white', fontWeight: '700', fontSize: '0.82rem' }}>{st.name}</div>
-                          <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>{st.department}</div>
-                        </div>
-                      </div>
-                      <span style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.8rem' }}>⚡ {st.stats?.xpPoints || 1000} XP</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+        {/* Skills */}
+        {student.skills?.length > 0 && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <h4 style={{ color: '#a78bfa', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Skills</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+              {student.skills.map(s => (
+                <span key={s} style={{ background: 'rgba(124,58,237,0.15)', color: '#c4b5fd', border: '1px solid rgba(124,58,237,0.3)', padding: '0.2rem 0.65rem', borderRadius: '1rem', fontSize: '0.75rem' }}>{s}</span>
+              ))}
             </div>
-          </motion.div>
+          </div>
         )}
 
-        {/* ── 2. STUDENT MANAGEMENT 👥 ───────────────────────────── */}
-        {activeTab === 'students' && (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-              <div>
-                <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>👥 Student Database</h2>
-                <p style={{ color: '#94a3b8', fontSize: '0.78rem', margin: '0.2rem 0 0' }}>
-                  <span style={{ color: '#34d399', fontWeight: '800', fontSize: '0.9rem' }}>{students.length}</span> students registered &nbsp;•&nbsp;
-                  <span style={{ color: '#fbbf24', fontWeight: '700' }}>Total logins: {students.reduce((sum, s) => sum + (s.loginCount || 1), 0)}</span>
-                  &nbsp;•&nbsp; <span style={{ color: '#c4b5fd' }}>Permanent Records — Cannot be Deleted</span>
-                </p>
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button onClick={() => { setModalMode('add_student'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                  ➕ Register Student
-                </button>
-                <button onClick={() => handleExportCSV(students, 'students_database')} className="btn btn-outline" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                  📊 Export CSV
-                </button>
-              </div>
+        {/* Badges */}
+        {student.badges?.length > 0 && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <h4 style={{ color: '#fbbf24', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Badges</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+              {student.badges.map(b => (
+                <span key={b} style={{ background: 'rgba(251,191,36,0.1)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', padding: '0.2rem 0.65rem', borderRadius: '1rem', fontSize: '0.75rem' }}>🏅 {b}</span>
+              ))}
             </div>
+          </div>
+        )}
 
-            {/* Stats Row */}
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-              {[
-                { label: 'Total Registered', val: students.length, color: '#60a5fa' },
-                { label: 'Total Logins', val: students.reduce((sum, s) => sum + (s.loginCount || 1), 0), color: '#fbbf24' },
-                { label: 'Avg XP', val: Math.round(students.reduce((sum, s) => sum + (s.stats?.xpPoints || 100), 0) / Math.max(1, students.length)), color: '#34d399' },
-                { label: 'Avg Streak (days)', val: Math.round(students.reduce((sum, s) => sum + (s.stats?.currentStreak || 1), 0) / Math.max(1, students.length)), color: '#f43f5e' }
-              ].map(stat => (
-                <div key={stat.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.6rem', padding: '0.5rem 1rem', textAlign: 'center', minWidth: '120px' }}>
-                  <div style={{ color: stat.color, fontWeight: '900', fontSize: '1.3rem' }}>{stat.val}</div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>{stat.label}</div>
+        {/* Feature Usage */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h4 style={{ color: '#4ade80', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Feature Usage (Total: {totalUsage})</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.4rem' }}>
+            {Object.entries(feats).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([key, val]) => (
+              <div key={key} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.5rem', padding: '0.45rem 0.7rem', display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1')}</span>
+                <span style={{ color: '#4ade80', fontWeight: '700', fontSize: '0.78rem' }}>{val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Login History */}
+        {student.loginHistory?.length > 0 && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <h4 style={{ color: '#60a5fa', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Login History</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '150px', overflowY: 'auto' }}>
+              {student.loginHistory.slice(-5).reverse().map((l, i) => (
+                <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', padding: '0.4rem 0.75rem', display: 'flex', gap: '1rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+                  <span>📅 {l.date ? new Date(l.date).toLocaleString() : 'N/A'}</span>
+                  {l.device && <span>📱 {l.device}</span>}
+                  {l.ip && <span>🌐 {l.ip}</span>}
                 </div>
               ))}
             </div>
+          </div>
+        )}
 
-            {/* Filter Bar */}
-            <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-              <input
-                type="text"
-                placeholder="🔍 Search student name or email..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                style={{ flex: 1, minWidth: '220px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.55rem 0.8rem', color: 'white', fontSize: '0.82rem', outline: 'none' }}
-              />
-              <select
-                value={categoryFilter}
-                onChange={e => setCategoryFilter(e.target.value)}
-                style={{ background: 'rgba(30,27,75,0.9)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.6rem', padding: '0.55rem 0.8rem', color: 'white', fontSize: '0.82rem', outline: 'none' }}
-              >
-                <option value="All">All Departments</option>
-                <option>Computer Science</option>
-                <option>Electronics & Communication</option>
-                <option>Mechanical Engineering</option>
-                <option>Artificial Intelligence</option>
-                <option>Information Technology</option>
-              </select>
-            </div>
-
-            {/* Student Table View — NO DELETE BUTTON */}
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Name</th>
-                    <th style={{ padding: '0.6rem' }}>Email</th>
-                    <th style={{ padding: '0.6rem' }}>Dept</th>
-                    <th style={{ padding: '0.6rem' }}>Year</th>
-                    <th style={{ padding: '0.6rem' }}>Logins</th>
-                    <th style={{ padding: '0.6rem' }}>Last Active</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {students.filter(st => {
-                    const matchSearch = !searchTerm || st.name.toLowerCase().includes(searchTerm.toLowerCase()) || (st.email || '').toLowerCase().includes(searchTerm.toLowerCase())
-                    const matchDept = categoryFilter === 'All' || (st.department || '').includes(categoryFilter)
-                    return matchSearch && matchDept
-                  }).map((st, idx) => (
-                    <tr key={st.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{st.name}</td>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{st.email}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{st.department || 'N/A'}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{st.year || '—'}</td>
-                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{st.loginCount || 1}×</td>
-                      <td style={{ padding: '0.6rem', color: '#34d399', fontSize: '0.75rem' }}>{st.lastLogin || 'N/A'}</td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => setSelectedStudent(st)} title="View Full Profile" style={{ background: 'rgba(96,165,250,0.15)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.8rem', cursor: 'pointer', color: '#60a5fa', marginRight: '0.35rem' }}>👁 View</button>
-                        <button onClick={() => { setModalMode('edit_student'); setModalForm(st) }} title="Edit Student" style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.8rem', cursor: 'pointer', color: '#a78bfa' }}>✏️ Edit</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {students.length === 0 && (
-                <div style={{ textAlign: 'center', color: '#94a3b8', padding: '2rem', fontSize: '0.9rem' }}>
-                  No students registered yet. Students auto-appear here on first login.
+        {/* Recent Activities */}
+        {student.activities?.length > 0 && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <h4 style={{ color: '#f59e0b', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Recent Activities</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxHeight: '150px', overflowY: 'auto' }}>
+              {student.activities.slice(-10).reverse().map((a, i) => (
+                <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', padding: '0.4rem 0.75rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+                  <span style={{ color: '#fbbf24' }}>{a.action}</span>
+                  {a.page && <span> on <span style={{ color: 'white' }}>{a.page}</span></span>}
+                  {a.timestamp && <span> · {new Date(a.timestamp).toLocaleString()}</span>}
                 </div>
-              )}
+              ))}
             </div>
           </div>
         )}
 
-        {/* ── 3. SKILL MANAGEMENT 📚 ─────────────────────────────── */}
-        {activeTab === 'skills' && (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>📚 Skill Management ({skills.length} Skills)</h2>
-              <button onClick={() => { setModalMode('add_skill'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                ➕ Add Skill
-              </button>
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+          <button onClick={() => onEdit(student)} style={{ ...btnEdit, padding: '0.6rem 1.2rem' }}>✏️ Edit</button>
+          <button onClick={() => onDelete(student)} style={{ ...btnDanger, padding: '0.6rem 1.2rem' }}>🗑️ Delete</button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════
+// DASHBOARD TAB
+// ════════════════════════════════════════════════════════════════
+function AdminDashboard({ dashData, loading }) {
+  if (loading) return <div style={{ textAlign: 'center', padding: '4rem', color: '#64748b' }}>⏳ Loading real data...</div>
+
+  const statCards = [
+    { label: 'Total Students', value: dashData?.totalStudents ?? 0, icon: '👥', color: '#60a5fa' },
+    { label: 'Active (7 days)', value: dashData?.activeStudents ?? 0, icon: '🟢', color: '#4ade80' },
+    { label: 'Total Jobs', value: dashData?.totalJobs ?? 0, icon: '💼', color: '#fbbf24' },
+    { label: 'Total Skills', value: dashData?.totalSkills ?? 0, icon: '📚', color: '#a78bfa' },
+    { label: 'Notes', value: dashData?.totalNotes ?? 0, icon: '📝', color: '#f59e0b' },
+    { label: 'Companies', value: dashData?.totalCompanies ?? 0, icon: '🏢', color: '#34d399' },
+    { label: 'Alumni', value: dashData?.totalAlumni ?? 0, icon: '🎓', color: '#fb7185' },
+    { label: 'Mentors', value: dashData?.totalMentors ?? 0, icon: '🧑‍🏫', color: '#38bdf8' },
+    { label: 'Mock Tests', value: dashData?.totalTests ?? 0, icon: '📋', color: '#f472b6' },
+    { label: 'Admins', value: 1, icon: '👑', color: '#fbbf24' }
+  ]
+
+  return (
+    <div>
+      {/* DB Status */}
+      <div style={{ background: dashData?.dbConnected ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${dashData?.dbConnected ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: '0.75rem', padding: '0.75rem 1.25rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: dashData?.dbConnected ? '#4ade80' : '#f87171' }} />
+        <span style={{ color: dashData?.dbConnected ? '#4ade80' : '#f87171', fontWeight: '700', fontSize: '0.85rem' }}>
+          Database: {dashData?.dbConnected ? '✅ Connected — Showing REAL Data' : '⚠️ Not Connected — Showing partial data from memory'}
+        </span>
+      </div>
+
+      {/* Stat Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+        {statCards.map((s, i) => (
+          <motion.div key={s.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+            style={{ ...card, border: `1px solid ${s.color}30`, background: `${s.color}08` }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '0.4rem' }}>{s.icon}</div>
+            <div style={{ fontSize: '1.8rem', fontWeight: '900', color: s.color, lineHeight: 1 }}>{s.value.toLocaleString()}</div>
+            <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.25rem' }}>{s.label}</div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Recent Students */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+        <div style={card}>
+          <h3 style={{ color: 'white', fontWeight: '800', margin: '0 0 1rem', fontSize: '0.95rem' }}>👥 Recent Students</h3>
+          {(dashData?.recentStudents || []).length === 0
+            ? <p style={{ color: '#64748b', fontSize: '0.85rem' }}>No students registered yet</p>
+            : <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {(dashData?.recentStudents || []).map((s, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem' }}>
+                  <div>
+                    <div style={{ color: 'white', fontWeight: '700', fontSize: '0.85rem' }}>{s.name}</div>
+                    <div style={{ color: '#64748b', fontSize: '0.72rem' }}>{s.email} · {s.department || 'N/A'}</div>
+                  </div>
+                  <span style={{ color: '#a78bfa', fontSize: '0.72rem', fontWeight: '700' }}>
+                    {s.loginCount || 1} logins
+                  </span>
+                </div>
+              ))}
             </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Skill Name</th>
-                    <th style={{ padding: '0.6rem' }}>Category</th>
-                    <th style={{ padding: '0.6rem' }}>Level</th>
-                    <th style={{ padding: '0.6rem' }}>Courses</th>
-                    <th style={{ padding: '0.6rem' }}>Students</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {skills.map((sk, idx) => (
-                    <tr key={sk.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '700', color: '#60a5fa' }}>{sk.name}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{sk.category}</span></td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{sk.level}</span></td>
-                      <td style={{ padding: '0.6rem' }}>{sk.courses || 12}</td>
-                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{sk.students || 85}</td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setSkills, sk.id, sk.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                      </td>
-                    </tr>
+          }
+        </div>
+
+        <div style={card}>
+          <h3 style={{ color: 'white', fontWeight: '800', margin: '0 0 1rem', fontSize: '0.95rem' }}>🏢 Students by Department</h3>
+          {(dashData?.studentsByDepartment || []).length === 0
+            ? <p style={{ color: '#64748b', fontSize: '0.85rem' }}>No department data yet</p>
+            : <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {(dashData?.studentsByDepartment || []).slice(0, 8).map((d, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#cbd5e1', fontSize: '0.82rem' }}>{d._id}</span>
+                  <span style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', padding: '0.15rem 0.6rem', borderRadius: '1rem', fontSize: '0.72rem', fontWeight: '800' }}>{d.count}</span>
+                </div>
+              ))}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════
+// STUDENTS TAB
+// ════════════════════════════════════════════════════════════════
+function StudentsTab() {
+  const [students, setStudents] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [selected, setSelected] = useState(null)
+  const [editModal, setEditModal] = useState(null)
+  const [deleteModal, setDeleteModal] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [editValues, setEditValues] = useState({})
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await getAdminStudents({ search })
+      setStudents(res.data.students || [])
+    } catch { toast.error('Failed to load students') }
+    setLoading(false)
+  }, [search])
+
+  useEffect(() => { load() }, [load])
+
+  const handleEdit = (s) => {
+    setEditValues({ name: s.name, email: s.email, department: s.department, year: s.year, targetRole: s.targetRole, linkedin: s.linkedin, github: s.github })
+    setEditModal(s)
+  }
+
+  const saveEdit = async () => {
+    setSaving(true)
+    try {
+      await updateAdminStudent(editModal._id, editValues)
+      toast.success('Student updated! ✅')
+      setEditModal(null)
+      load()
+    } catch { toast.error('Update failed') }
+    setSaving(false)
+  }
+
+  const handleDelete = async () => {
+    try {
+      await deleteAdminStudent(deleteModal._id)
+      toast.success('Student deleted')
+      setDeleteModal(null)
+      load()
+    } catch { toast.error('Delete failed') }
+  }
+
+  const exportCSV = () => {
+    const headers = ['Name', 'Email', 'Department', 'Year', 'XP Points', 'Login Count', 'Last Login']
+    const rows = students.map(s => [s.name, s.email, s.department, s.year, s.xpPoints, s.loginCount, s.lastLogin ? new Date(s.lastLogin).toLocaleDateString() : ''])
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'students.csv'; a.click()
+    toast.success('CSV exported!')
+  }
+
+  return (
+    <div>
+      {selected && <StudentDetailModal student={selected} onClose={() => setSelected(null)} onEdit={s => { setSelected(null); handleEdit(s) }} onDelete={s => { setSelected(null); setDeleteModal(s) }} />}
+      {deleteModal && <ConfirmModal item={deleteModal.name} onConfirm={handleDelete} onCancel={() => setDeleteModal(null)} />}
+      {editModal && (
+        <FormModal title={`Edit: ${editModal.name}`}
+          fields={[
+            { key: 'name', label: 'Name' },
+            { key: 'email', label: 'Email', type: 'email' },
+            { key: 'department', label: 'Department' },
+            { key: 'year', label: 'Year', type: 'select', options: [{ value: '', label: 'Select Year' }, ...['1', '2', '3', '4'].map(y => ({ value: y, label: `Year ${y}` }))] },
+            { key: 'targetRole', label: 'Target Role' },
+            { key: 'linkedin', label: 'LinkedIn URL' },
+            { key: 'github', label: 'GitHub URL' }
+          ]}
+          values={editValues}
+          onChange={(k, v) => setEditValues(prev => ({ ...prev, [k]: v }))}
+          onSave={saveEdit}
+          onClose={() => setEditModal(null)}
+          saving={saving}
+        />
+      )}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <h2 style={{ color: 'white', fontWeight: '900', margin: 0 }}>👥 Students ({students.length})</h2>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={exportCSV} style={{ ...btnSuccess, padding: '0.5rem 1rem' }}>📥 Export CSV</button>
+          <button onClick={load} style={{ ...btnEdit, padding: '0.5rem 1rem' }}>🔄 Refresh</button>
+        </div>
+      </div>
+
+      <input type="text" placeholder="🔍 Search by name or email..." value={search} onChange={e => setSearch(e.target.value)}
+        style={{ ...inputStyle, marginBottom: '1rem', maxWidth: '400px' }} />
+
+      {loading ? <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>⏳ Loading students...</div> : (
+        students.length === 0
+          ? <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👥</div>
+            <p>No students registered yet. Students will appear here when they login/register.</p>
+          </div>
+          : <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                  {['#', 'Name', 'Email', 'Department', 'Year', 'XP', 'Logins', 'Last Login', 'Actions'].map(h => (
+                    <th key={h} style={{ padding: '0.65rem 0.75rem', color: '#64748b', fontSize: '0.72rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── 4. JOB MANAGEMENT 💼 ───────────────────────────────── */}
-        {activeTab === 'jobs' && (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>💼 Job Management ({jobs.length} Postings)</h2>
-              <button onClick={() => { setModalMode('add_job'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                ➕ Post Job
-              </button>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Company</th>
-                    <th style={{ padding: '0.6rem' }}>Role</th>
-                    <th style={{ padding: '0.6rem' }}>CTC</th>
-                    <th style={{ padding: '0.6rem' }}>Applied</th>
-                    <th style={{ padding: '0.6rem' }}>Status</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {students.map((s, i) => (
+                  <tr key={s._id || i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.15s' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <td style={{ padding: '0.75rem', color: '#64748b', fontSize: '0.78rem' }}>{i + 1}</td>
+                    <td style={{ padding: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.75rem', fontWeight: '800', flexShrink: 0 }}>
+                          {(s.name || 'S')[0].toUpperCase()}
+                        </div>
+                        <span style={{ color: 'white', fontWeight: '700', fontSize: '0.85rem' }}>{s.name}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '0.75rem', color: '#94a3b8', fontSize: '0.8rem' }}>{s.email}</td>
+                    <td style={{ padding: '0.75rem', color: '#94a3b8', fontSize: '0.78rem' }}>{s.department || '—'}</td>
+                    <td style={{ padding: '0.75rem', color: '#94a3b8', fontSize: '0.78rem' }}>{s.year ? `Yr ${s.year}` : '—'}</td>
+                    <td style={{ padding: '0.75rem', color: '#fbbf24', fontSize: '0.78rem', fontWeight: '700' }}>{s.xpPoints || 0}</td>
+                    <td style={{ padding: '0.75rem', color: '#4ade80', fontSize: '0.78rem', fontWeight: '700' }}>{s.loginCount || 1}</td>
+                    <td style={{ padding: '0.75rem', color: '#64748b', fontSize: '0.72rem' }}>{s.lastLogin ? new Date(s.lastLogin).toLocaleDateString() : '—'}</td>
+                    <td style={{ padding: '0.75rem' }}>
+                      <div style={{ display: 'flex', gap: '0.35rem' }}>
+                        <button onClick={() => setSelected(s)} style={btnSuccess}>View</button>
+                        <button onClick={() => handleEdit(s)} style={btnEdit}>Edit</button>
+                        <button onClick={() => setDeleteModal(s)} style={btnDanger}>Del</button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {jobs.map((jb, idx) => (
-                    <tr key={jb.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '800', color: '#60a5fa' }}>{jb.company}</td>
-                      <td style={{ padding: '0.6rem', color: 'white' }}>{jb.role}</td>
-                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{jb.ctc}</td>
-                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{jb.applied || 20}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{jb.status || 'Active'}</span></td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setJobs, jb.id, `${jb.company} - ${jb.role}`)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
-        )}
+      )}
+    </div>
+  )
+}
 
-        {/* ── 5. NOTES MANAGEMENT 📝 ─────────────────────────────── */}
-        {activeTab === 'notes' && (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>📝 Notes Management (100,000+ Algorithmic Engine Connected)</h2>
-              <button onClick={() => { setModalMode('add_note'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                ➕ Add Note
-              </button>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Title</th>
-                    <th style={{ padding: '0.6rem' }}>Category</th>
-                    <th style={{ padding: '0.6rem' }}>Level</th>
-                    <th style={{ padding: '0.6rem' }}>Rating</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {notes.map((nt, idx) => (
-                    <tr key={nt.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{nt.title}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{nt.category}</span></td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{nt.level}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>⭐ {nt.rating}</td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setNotes, nt.id, nt.title)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+// ════════════════════════════════════════════════════════════════
+// GENERIC CRUD TAB (Jobs, Skills, Notes, Companies, Alumni, Mentors, Tests)
+// ════════════════════════════════════════════════════════════════
+function CrudTab({ config }) {
+  const { title, icon, fetchFn, createFn, updateFn, deleteFn, fields, rowRenderer, searchable = true } = config
+  const [items, setItems] = useState([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [modal, setModal] = useState(null) // null | 'create' | 'edit'
+  const [editItem, setEditItem] = useState(null)
+  const [values, setValues] = useState({})
+  const [deleteModal, setDeleteModal] = useState(null)
+  const [saving, setSaving] = useState(false)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const res = await fetchFn({ search })
+      const key = Object.keys(res.data).find(k => Array.isArray(res.data[k]))
+      setItems(res.data[key] || [])
+      setTotal(res.data.total || 0)
+    } catch { toast.error(`Failed to load ${title}`) }
+    setLoading(false)
+  }, [fetchFn, search, title])
+
+  useEffect(() => { load() }, [load])
+
+  const openCreate = () => {
+    const defaults = {}
+    fields.forEach(f => { defaults[f.key] = f.default || '' })
+    setValues(defaults)
+    setEditItem(null)
+    setModal('create')
+  }
+
+  const openEdit = (item) => {
+    const vals = {}
+    fields.forEach(f => { vals[f.key] = item[f.key] || f.default || '' })
+    setValues(vals)
+    setEditItem(item)
+    setModal('edit')
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      if (modal === 'create') {
+        await createFn(values)
+        toast.success(`${title.slice(0, -1)} created! ✅`)
+      } else {
+        await updateFn(editItem._id, values)
+        toast.success(`${title.slice(0, -1)} updated! ✅`)
+      }
+      setModal(null)
+      load()
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Save failed')
+    }
+    setSaving(false)
+  }
+
+  const handleDelete = async () => {
+    try {
+      await deleteFn(deleteModal._id)
+      toast.success('Deleted successfully')
+      setDeleteModal(null)
+      load()
+    } catch { toast.error('Delete failed') }
+  }
+
+  return (
+    <div>
+      {deleteModal && <ConfirmModal item={deleteModal.name || deleteModal.title || deleteModal.role || 'this item'} onConfirm={handleDelete} onCancel={() => setDeleteModal(null)} />}
+      {modal && (
+        <FormModal
+          title={modal === 'create' ? `Add New ${icon}` : `Edit ${icon}`}
+          fields={fields}
+          values={values}
+          onChange={(k, v) => setValues(prev => ({ ...prev, [k]: v }))}
+          onSave={handleSave}
+          onClose={() => setModal(null)}
+          saving={saving}
+        />
+      )}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <h2 style={{ color: 'white', fontWeight: '900', margin: 0 }}>{icon} {title} <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: '500' }}>({total.toLocaleString()})</span></h2>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={load} style={{ ...btnEdit, padding: '0.5rem 0.9rem' }}>🔄 Refresh</button>
+          {createFn && <button onClick={openCreate} style={{ ...btnPrimary }}>{icon} Add New</button>}
+        </div>
+      </div>
+
+      {searchable && (
+        <input type="text" placeholder={`🔍 Search ${title.toLowerCase()}...`} value={search} onChange={e => setSearch(e.target.value)}
+          style={{ ...inputStyle, marginBottom: '1rem', maxWidth: '400px' }} />
+      )}
+
+      {loading ? <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>⏳ Loading...</div> :
+        items.length === 0
+          ? <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{icon}</div>
+            <p>No {title.toLowerCase()} found. {createFn ? `Click "${icon} Add New" to add one.` : ''}</p>
           </div>
-        )}
-
-        {/* ── 6. COMPANY MANAGEMENT 🏢 ───────────────────────────── */}
-        {activeTab === 'companies' && (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🏢 Company Management ({companies.length} Companies)</h2>
-              <button onClick={() => { setModalMode('add_company'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                ➕ Add Company
-              </button>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Company</th>
-                    <th style={{ padding: '0.6rem' }}>Industry</th>
-                    <th style={{ padding: '0.6rem' }}>CTC Package</th>
-                    <th style={{ padding: '0.6rem' }}>Students Hired</th>
-                    <th style={{ padding: '0.6rem' }}>Archive</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {companies.map((cp, idx) => (
-                    <tr key={cp.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '800', color: '#60a5fa' }}>{cp.name}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{cp.industry}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{cp.ctc}</td>
-                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{cp.students}+</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">✅ Live</span></td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setCompanies, cp.id, cp.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          : <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {items.map((item, i) => (
+              <motion.div key={item._id || i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}
+                style={{ ...card, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', padding: '0.85rem 1.1rem' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {rowRenderer(item)}
+                </div>
+                <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
+                  {updateFn && <button onClick={() => openEdit(item)} style={btnEdit}>✏️ Edit</button>}
+                  {deleteFn && <button onClick={() => setDeleteModal(item)} style={btnDanger}>🗑️ Del</button>}
+                </div>
+              </motion.div>
+            ))}
           </div>
-        )}
+      }
+    </div>
+  )
+}
 
-        {/* ── 7. MENTOR MANAGEMENT 👨‍🏫 ───────────────────────────── */}
-        {activeTab === 'mentors' && (
+// ════════════════════════════════════════════════════════════════
+// SETTINGS TAB
+// ════════════════════════════════════════════════════════════════
+function SettingsTab() {
+  const [settings, setSettings] = useState(null)
+  useEffect(() => {
+    getAdminSettings().then(r => setSettings(r.data)).catch(() => { })
+  }, [])
+
+  return (
+    <div>
+      <h2 style={{ color: 'white', fontWeight: '900', margin: '0 0 1.5rem' }}>⚙️ System Settings</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        {settings && Object.entries({
+          'Admin Email': settings.adminEmail,
+          'Platform': settings.platformName,
+          'Database': settings.dbStatus,
+          'Environment': settings.nodeEnv,
+          'Version': settings.version,
+          'Google Auth': settings.features?.googleAuth ? '✅ Enabled' : '❌ Not configured',
+          'Gemini AI': settings.features?.geminiAI ? '✅ Enabled' : '❌ Not configured',
+          'Redis': settings.features?.redis ? '✅ Connected' : '❌ Not configured'
+        }).map(([k, v]) => (
+          <div key={k} style={card}>
+            <div style={{ color: '#64748b', fontSize: '0.72rem', fontWeight: '700', textTransform: 'uppercase', marginBottom: '0.25rem' }}>{k}</div>
+            <div style={{ color: 'white', fontWeight: '700', fontSize: '0.9rem' }}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ ...card, marginTop: '1.25rem', background: 'rgba(251,191,36,0.05)', border: '1px solid rgba(251,191,36,0.2)' }}>
+        <h4 style={{ color: '#fbbf24', fontWeight: '800', margin: '0 0 0.75rem' }}>👑 Admin Credentials</h4>
+        <div style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.7 }}>
+          <div><strong style={{ color: 'white' }}>Email:</strong> tarunibabu2006@gmail.com</div>
+          <div><strong style={{ color: 'white' }}>Password:</strong> Set via ADMIN_PASSWORD env variable (default: prawinkumar_0704)</div>
+          <div><strong style={{ color: 'white' }}>Role:</strong> Admin (full access)</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════
+// MAIN ADMIN PANEL
+// ════════════════════════════════════════════════════════════════
+export default function AdminPanel() {
+  const [activeNav, setActiveNav] = useState('dashboard')
+  const [dashData, setDashData] = useState(null)
+  const [dashLoading, setDashLoading] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  useEffect(() => {
+    if (activeNav === 'dashboard') {
+      setDashLoading(true)
+      getAdminDashboard().then(r => { setDashData(r.data); setDashLoading(false) }).catch(() => setDashLoading(false))
+    }
+  }, [activeNav])
+
+  // CRUD configs for each tab
+  const CRUD_CONFIGS = {
+    jobs: {
+      title: 'Jobs', icon: '💼',
+      fetchFn: getAdminJobs, createFn: createAdminJob, updateFn: updateAdminJob, deleteFn: deleteAdminJob,
+      fields: [
+        { key: 'company', label: 'Company Name', placeholder: 'e.g. Google' },
+        { key: 'role', label: 'Job Role', placeholder: 'e.g. Software Engineer' },
+        { key: 'location', label: 'Location', placeholder: 'e.g. Bangalore' },
+        { key: 'ctc', label: 'CTC / Salary', placeholder: 'e.g. 8-15 LPA' },
+        { key: 'experience', label: 'Experience Required', placeholder: 'e.g. Fresher / 1-3 years' },
+        { key: 'type', label: 'Job Type', type: 'select', options: [{ value: 'full-time', label: 'Full-time' }, { value: 'internship', label: 'Internship' }, { value: 'part-time', label: 'Part-time' }, { value: 'contract', label: 'Contract' }] },
+        { key: 'applyLink', label: 'Apply Link / URL', placeholder: 'https://...' },
+        { key: 'description', label: 'Job Description', type: 'textarea', placeholder: 'Job description...' }
+      ],
+      rowRenderer: (item) => (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontWeight: '800', color: 'white', fontSize: '0.92rem' }}>{item.role}</span>
+            <span style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)', padding: '0.1rem 0.55rem', borderRadius: '1rem', fontSize: '0.68rem', fontWeight: '700' }}>{item.status || 'active'}</span>
+            {item.verified && <span style={{ color: '#60a5fa', fontSize: '0.68rem' }}>✅ Verified</span>}
+          </div>
+          <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: '0.15rem' }}>
+            🏢 {item.company} · 📍 {item.location || 'N/A'} · 💰 {item.ctc || 'N/A'} · 👔 {item.type || 'Full-time'}
+          </div>
+        </div>
+      )
+    },
+    skills: {
+      title: 'Skills', icon: '📚',
+      fetchFn: getAdminSkills, createFn: createAdminSkill, updateFn: updateAdminSkill, deleteFn: deleteAdminSkill,
+      fields: [
+        { key: 'name', label: 'Skill Name', placeholder: 'e.g. React.js' },
+        { key: 'category', label: 'Category', placeholder: 'e.g. Frontend Development' },
+        { key: 'domain', label: 'Domain', placeholder: 'e.g. Web Development' },
+        { key: 'level', label: 'Level', type: 'select', options: [{ value: 'beginner', label: 'Beginner' }, { value: 'intermediate', label: 'Intermediate' }, { value: 'advanced', label: 'Advanced' }] },
+        { key: 'duration', label: 'Duration', placeholder: 'e.g. 4 weeks' },
+        { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Skill description...' }
+      ],
+      rowRenderer: (item) => (
+        <div>
+          <span style={{ fontWeight: '700', color: 'white' }}>{item.name}</span>
+          <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: '0.15rem' }}>
+            📂 {item.category} · 🌐 {item.domain} · ⭐ {item.level} · ⏱️ {item.duration || 'N/A'}
+          </div>
+        </div>
+      )
+    },
+    notes: {
+      title: 'Notes', icon: '📝',
+      fetchFn: getAdminNotes, createFn: createAdminNote, updateFn: updateAdminNote, deleteFn: deleteAdminNote,
+      fields: [
+        { key: 'title', label: 'Note Title', placeholder: 'e.g. Data Structures - Arrays' },
+        { key: 'category', label: 'Category', placeholder: 'e.g. Computer Science' },
+        { key: 'subject', label: 'Subject', placeholder: 'e.g. Data Structures & Algorithms' },
+        { key: 'readTime', label: 'Read Time', placeholder: 'e.g. 15 min' },
+        { key: 'content', label: 'Content', type: 'textarea', placeholder: 'Note content...' }
+      ],
+      rowRenderer: (item) => (
+        <div>
+          <span style={{ fontWeight: '700', color: 'white' }}>{item.title}</span>
+          <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: '0.15rem' }}>
+            📂 {item.category} · 📖 {item.subject || 'N/A'} · ⏱️ {item.readTime || 'N/A'}
+          </div>
+        </div>
+      )
+    },
+    companies: {
+      title: 'Companies', icon: '🏢',
+      fetchFn: getAdminCompanies, createFn: createAdminCompany, updateFn: updateAdminCompany, deleteFn: deleteAdminCompany,
+      fields: [
+        { key: 'name', label: 'Company Name', placeholder: 'e.g. Infosys' },
+        { key: 'ctc', label: 'CTC Range', placeholder: 'e.g. 3.5-7 LPA' },
+        { key: 'role', label: 'Primary Role', placeholder: 'e.g. Software Engineer' },
+        { key: 'experiencesCount', label: 'Experience Count', type: 'number', placeholder: '0', default: '0' },
+        { key: 'pastPapersCount', label: 'Past Papers Count', type: 'number', placeholder: '0', default: '0' }
+      ],
+      rowRenderer: (item) => (
+        <div>
+          <span style={{ fontWeight: '700', color: 'white', fontSize: '0.95rem' }}>{item.name}</span>
+          <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: '0.15rem' }}>
+            💰 {item.ctc} · 💼 {item.role} · 📝 {item.pastPapersCount || 0} papers · 💬 {item.experiencesCount || 0} experiences
+          </div>
+        </div>
+      )
+    },
+    alumni: {
+      title: 'Alumni', icon: '🎓',
+      fetchFn: getAdminAlumni, createFn: createAdminAlumni, updateFn: updateAdminAlumni, deleteFn: deleteAdminAlumni,
+      fields: [
+        { key: 'name', label: 'Full Name', placeholder: 'e.g. Rahul Sharma' },
+        { key: 'company', label: 'Company', placeholder: 'e.g. Google' },
+        { key: 'role', label: 'Role / Designation', placeholder: 'e.g. SDE-2' },
+        { key: 'batch', label: 'Batch Year', placeholder: 'e.g. 2023' },
+        { key: 'img', label: 'Avatar Initial', placeholder: 'e.g. R', default: 'A' },
+        { key: 'linkedinUrl', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/...' }
+      ],
+      rowRenderer: (item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '800', fontSize: '0.85rem' }}>
+            {item.img || (item.name || 'A')[0]}
+          </div>
           <div>
-            <div className="card" style={{ marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>👨‍🏫 Verified Industry Mentors ({mentors.length})</h2>
-                <button onClick={() => { setModalMode('add_mentor'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                  ➕ Add Mentor
-                </button>
-              </div>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                      <th style={{ padding: '0.6rem' }}>#</th>
-                      <th style={{ padding: '0.6rem' }}>Name</th>
-                      <th style={{ padding: '0.6rem' }}>Company</th>
-                      <th style={{ padding: '0.6rem' }}>Role</th>
-                      <th style={{ padding: '0.6rem' }}>Sessions</th>
-                      <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mentors.map((m, idx) => (
-                      <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                        <td style={{ padding: '0.6rem', fontWeight: '800', color: 'white' }}>{m.name}</td>
-                        <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{m.company}</td>
-                        <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{m.role}</td>
-                        <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{m.sessions}</td>
-                        <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                          <button onClick={() => handleDelete(setMentors, m.id, m.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <span style={{ fontWeight: '700', color: 'white' }}>{item.name}</span>
+            <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>🏢 {item.company} · 💼 {item.role} · 🎓 Batch {item.batch}</div>
+          </div>
+        </div>
+      )
+    },
+    mentors: {
+      title: 'Mentors', icon: '🧑‍🏫',
+      fetchFn: getAdminMentors, createFn: createAdminMentor, updateFn: updateAdminMentor, deleteFn: deleteAdminMentor,
+      fields: [
+        { key: 'name', label: 'Full Name', placeholder: 'e.g. Priya Menon' },
+        { key: 'email', label: 'Email', type: 'email', placeholder: 'mentor@company.com' },
+        { key: 'company', label: 'Company', placeholder: 'e.g. Amazon' },
+        { key: 'role', label: 'Role', placeholder: 'e.g. Senior SDE' },
+        { key: 'experience', label: 'Experience (years)', type: 'number', placeholder: '5', default: '1' },
+        { key: 'rating', label: 'Rating (1-5)', type: 'number', placeholder: '4.5', default: '4.5' },
+        { key: 'bio', label: 'Bio', type: 'textarea', placeholder: 'Mentor biography...' },
+        { key: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/...' }
+      ],
+      rowRenderer: (item) => (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontWeight: '700', color: 'white' }}>{item.name}</span>
+            <span style={{ background: item.available ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', color: item.available ? '#4ade80' : '#f87171', border: `1px solid ${item.available ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`, padding: '0.1rem 0.5rem', borderRadius: '1rem', fontSize: '0.65rem', fontWeight: '700' }}>
+              {item.available ? 'Available' : 'Busy'}
+            </span>
+            {item.approved && <span style={{ color: '#60a5fa', fontSize: '0.7rem' }}>✅ Approved</span>}
+          </div>
+          <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.15rem' }}>
+            🏢 {item.company} · 💼 {item.role} · ⭐ {item.rating} · {item.experience}yr exp · {item.sessions || 0} sessions
+          </div>
+        </div>
+      )
+    },
+    tests: {
+      title: 'Mock Tests', icon: '📋',
+      fetchFn: getAdminTests, createFn: createAdminTest, updateFn: updateAdminTest, deleteFn: deleteAdminTest,
+      fields: [
+        { key: 'name', label: 'Test Name', placeholder: 'e.g. TCS NQT Mock 2024' },
+        { key: 'company', label: 'Company', placeholder: 'e.g. TCS' },
+        { key: 'type', label: 'Type', type: 'select', options: [{ value: 'aptitude', label: 'Aptitude' }, { value: 'technical', label: 'Technical' }, { value: 'coding', label: 'Coding' }, { value: 'hr', label: 'HR' }, { value: 'mock', label: 'Full Mock' }] },
+        { key: 'category', label: 'Category', placeholder: 'e.g. Placement Prep' },
+        { key: 'duration', label: 'Duration (minutes)', type: 'number', placeholder: '60', default: '60' },
+        { key: 'totalMarks', label: 'Total Marks', type: 'number', placeholder: '100', default: '100' },
+        { key: 'difficulty', label: 'Difficulty', type: 'select', options: [{ value: 'easy', label: 'Easy' }, { value: 'medium', label: 'Medium' }, { value: 'hard', label: 'Hard' }] }
+      ],
+      rowRenderer: (item) => (
+        <div>
+          <span style={{ fontWeight: '700', color: 'white' }}>{item.name}</span>
+          <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.15rem' }}>
+            🏢 {item.company} · 📂 {item.type} · ⏱️ {item.duration}min · ⭐ {item.totalMarks}marks · 📊 {item.difficulty} · 🔢 {(item.questions || []).length} Qs · {item.attempts || 0} attempts
+          </div>
+        </div>
+      )
+    },
+    groups: {
+      title: 'Study Groups', icon: '👥',
+      fetchFn: getAdminGroups, createFn: null, updateFn: null, deleteFn: deleteAdminGroup,
+      fields: [],
+      rowRenderer: (item) => (
+        <div>
+          <span style={{ fontWeight: '700', color: 'white' }}>{item.name}</span>
+          <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.15rem' }}>
+            👥 {(item.members || []).length} members · 📝 {(item.messages || []).length} messages · 📅 {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}
+          </div>
+        </div>
+      )
+    }
+  }
 
-            {/* Mentor Requests Moderation */}
-            <div className="card">
-              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', marginBottom: '0.75rem' }}>📨 Mentor Booking Requests Moderation</h3>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                      <th style={{ padding: '0.6rem' }}>#</th>
-                      <th style={{ padding: '0.6rem' }}>Student</th>
-                      <th style={{ padding: '0.6rem' }}>Mentor</th>
-                      <th style={{ padding: '0.6rem' }}>Status</th>
-                      <th style={{ padding: '0.6rem' }}>Date</th>
-                      <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mentorRequests.map((mr, idx) => (
-                      <tr key={mr.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                        <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                        <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{mr.student}</td>
-                        <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{mr.mentor}</td>
-                        <td style={{ padding: '0.6rem' }}>
-                          <span className={`badge ${mr.status === 'Accepted' ? 'badge-safe' : mr.status === 'Rejected' ? 'badge-danger' : 'badge-warning'}`}>{mr.status}</span>
-                        </td>
-                        <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{mr.date}</td>
-                        <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                          {mr.status === 'Pending' && (
-                            <>
-                              <button onClick={() => { setMentorRequests(prev => prev.map(r => r.id === mr.id ? { ...r, status: 'Accepted' } : r)); toast.success('Accepted!') }} style={{ background: 'rgba(34,197,94,0.2)', color: '#34d399', border: 'none', borderRadius: '0.4rem', padding: '0.2rem 0.5rem', marginRight: '0.3rem', cursor: 'pointer' }}>✅ Accept</button>
-                              <button onClick={() => { setMentorRequests(prev => prev.map(r => r.id === mr.id ? { ...r, status: 'Rejected' } : r)); toast.error('Rejected') }} style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.2rem 0.5rem', cursor: 'pointer' }}>❌</button>
-                            </>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+  const currentNavItem = NAV_ITEMS.find(n => n.id === activeNav)
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', position: 'relative' }}>
+
+      {/* ── SIDEBAR ───────────────────────────────────────────────── */}
+      <motion.aside
+        initial={{ x: -20 }} animate={{ x: 0 }}
+        style={{
+          width: sidebarOpen ? '220px' : '64px',
+          flexShrink: 0,
+          background: 'linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%)',
+          borderRight: '1px solid rgba(139,92,246,0.2)',
+          display: 'flex', flexDirection: 'column',
+          transition: 'width 0.25s', overflow: 'hidden',
+          position: 'sticky', top: 0, height: '100vh'
+        }}
+      >
+        {/* Sidebar Header */}
+        <div style={{ padding: '1rem', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <button onClick={() => setSidebarOpen(p => !p)}
+            style={{ background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '0.5rem', width: '32px', height: '32px', color: '#a78bfa', cursor: 'pointer', flexShrink: 0, fontSize: '1rem' }}>
+            ☰
+          </button>
+          {sidebarOpen && (
+            <div>
+              <div style={{ color: 'white', fontWeight: '900', fontSize: '0.88rem', lineHeight: 1.2 }}>Admin Panel</div>
+              <div style={{ color: '#64748b', fontSize: '0.62rem' }}>CampusPilot AI</div>
+            </div>
+          )}
+        </div>
+
+        {/* Admin User */}
+        {sidebarOpen && (
+          <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: '800', color: '#1a1a1a', flexShrink: 0 }}>👑</div>
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.72rem' }}>Admin</div>
+              <div style={{ color: '#64748b', fontSize: '0.62rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>tarunibabu2006@gmail.com</div>
             </div>
           </div>
         )}
 
-        {/* ── 8. TEST MANAGEMENT 🎯 ──────────────────────────────── */}
-        {activeTab === 'tests' && (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🎯 Test Management ({tests.length} Simulation Tests)</h2>
-              <button onClick={() => { setModalMode('add_test'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                ➕ Add Test
-              </button>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Test Name</th>
-                    <th style={{ padding: '0.6rem' }}>Type</th>
-                    <th style={{ padding: '0.6rem' }}>Questions</th>
-                    <th style={{ padding: '0.6rem' }}>Students Attempted</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tests.map((ts, idx) => (
-                    <tr key={ts.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{ts.name}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{ts.type}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{ts.questions} Questions ({ts.duration})</td>
-                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{ts.students}</td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setTests, ts.id, ts.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {/* Nav items */}
+        <nav style={{ flex: 1, padding: '0.5rem', overflowY: 'auto' }}>
+          {NAV_ITEMS.map(item => (
+            <button key={item.id} onClick={() => setActiveNav(item.id)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: '0.75rem',
+                padding: sidebarOpen ? '0.65rem 0.75rem' : '0.65rem', borderRadius: '0.6rem',
+                background: activeNav === item.id ? 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(37,99,235,0.25))' : 'transparent',
+                border: activeNav === item.id ? '1px solid rgba(139,92,246,0.4)' : '1px solid transparent',
+                color: activeNav === item.id ? '#c4b5fd' : '#64748b',
+                cursor: 'pointer', marginBottom: '0.2rem', transition: 'all 0.15s',
+                fontWeight: activeNav === item.id ? '800' : '600', fontSize: '0.84rem',
+                textAlign: 'left', whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={e => { if (activeNav !== item.id) e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+              onMouseLeave={e => { if (activeNav !== item.id) e.currentTarget.style.background = 'transparent' }}
+              title={!sidebarOpen ? item.label : ''}
+            >
+              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
+              {sidebarOpen && <span>{item.label}</span>}
+            </button>
+          ))}
+        </nav>
+
+        {/* Sidebar footer */}
+        {sidebarOpen && (
+          <div style={{ padding: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ color: '#334155', fontSize: '0.62rem', textAlign: 'center' }}>© 2026 CampusPilot AI v2.0</div>
           </div>
         )}
+      </motion.aside>
 
-        {/* ── 9. AI APPLY 🤖 ─────────────────────────────────────── */}
-        {activeTab === 'ai_apply' && (
-          <div className="card">
-            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>🤖 AI Apply Applications View ({aiApplications.length} Dispatched)</h2>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Student</th>
-                    <th style={{ padding: '0.6rem' }}>Company</th>
-                    <th style={{ padding: '0.6rem' }}>Role</th>
-                    <th style={{ padding: '0.6rem' }}>Status</th>
-                    <th style={{ padding: '0.6rem' }}>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {aiApplications.map((ap, idx) => (
-                    <tr key={ap.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{ap.student}</td>
-                      <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{ap.company}</td>
-                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{ap.role}</td>
-                      <td style={{ padding: '0.6rem' }}><span className={`badge ${ap.status === 'Shortlisted' ? 'badge-safe' : 'badge-info'}`}>{ap.status}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{ap.date}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+      {/* ── MAIN CONTENT ─────────────────────────────────────────── */}
+      <main style={{ flex: 1, padding: '1.5rem', overflowX: 'hidden', minWidth: 0 }}>
+
+        {/* Page header */}
+        <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ fontSize: '1.5rem' }}>{currentNavItem?.icon}</span>
+          <div>
+            <h1 style={{ color: 'white', fontWeight: '900', margin: 0, fontSize: '1.3rem' }}>
+              {currentNavItem?.label}
+            </h1>
+            <p style={{ color: '#475569', margin: '0.1rem 0 0', fontSize: '0.75rem' }}>
+              CampusPilot AI Admin Panel · All data from MongoDB database
+            </p>
           </div>
-        )}
+        </div>
 
-        {/* ── 10. ARCHIVE 📦 ─────────────────────────────────────── */}
-        {activeTab === 'archive' && (
-          <div className="card">
-            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>📦 Placement Archive Management (1000+ Companies)</h2>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Company</th>
-                    <th style={{ padding: '0.6rem' }}>Industry</th>
-                    <th style={{ padding: '0.6rem' }}>Students Hired</th>
-                    <th style={{ padding: '0.6rem' }}>Avg CTC</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {companies.map((cp, idx) => (
-                    <tr key={cp.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '800', color: '#60a5fa' }}>{cp.name}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{cp.industry}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{cp.students}</td>
-                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>{cp.ctc}</td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}><span className="badge badge-safe">Verified 🏛️</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── 11. ALUMNI 🎓 ──────────────────────────────────────── */}
-        {activeTab === 'alumni' && (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🎓 Alumni Management ({alumni.length} Alumni)</h2>
-              <button onClick={() => { setModalMode('add_alumni'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                ➕ Add Alumni
-              </button>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Name</th>
-                    <th style={{ padding: '0.6rem' }}>Company</th>
-                    <th style={{ padding: '0.6rem' }}>Role</th>
-                    <th style={{ padding: '0.6rem' }}>Passing Year</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alumni.map((al, idx) => (
-                    <tr key={al.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{al.name}</td>
-                      <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{al.company}</td>
-                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{al.role}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{al.year} ({al.dept || 'Engg'})</span></td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setAlumni, al.id, al.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── 12. STUDY GROUPS 👥 ─────────────────────────────────── */}
-        {activeTab === 'groups' && (
-          <div className="card">
-            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>👥 Study Group Management & Moderation ({studyGroups.length} Active)</h2>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Group Name</th>
-                    <th style={{ padding: '0.6rem' }}>Members</th>
-                    <th style={{ padding: '0.6rem' }}>Streak</th>
-                    <th style={{ padding: '0.6rem' }}>Activity Status</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {studyGroups.map((g, idx) => (
-                    <tr key={g.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{g.name}</td>
-                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>👥 {g.members}</td>
-                      <td style={{ padding: '0.6rem', color: '#f43f5e', fontWeight: '700' }}>🔥 {g.streak} days</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{g.active}</span></td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setStudyGroups, g.id, g.name)} style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171', border: 'none', borderRadius: '0.4rem', padding: '0.25rem 0.6rem', fontSize: '0.72rem', cursor: 'pointer' }}>🗑️ Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── 13. RESUMES 📄 ─────────────────────────────────────── */}
-        {activeTab === 'resumes' && (
-          <div className="card">
-            <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>📄 Student Resumes & ATS Template Management ({resumes.length})</h2>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Student</th>
-                    <th style={{ padding: '0.6rem' }}>Template</th>
-                    <th style={{ padding: '0.6rem' }}>ATS Parser Score</th>
-                    <th style={{ padding: '0.6rem' }}>Downloads</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {resumes.map((res, idx) => (
-                    <tr key={res.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '700', color: 'white' }}>{res.student}</td>
-                      <td style={{ padding: '0.6rem', color: '#60a5fa' }}>{res.template}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-safe">{res.score}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#fbbf24', fontWeight: '700' }}>📥 {res.downloads}</td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setResumes, res.id, `${res.student}'s Resume`)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── 14. ROLE PATH 🎯 ───────────────────────────────────── */}
-        {activeTab === 'rolepath' && (
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', margin: 0 }}>🎯 Career Role Path Management ({rolePaths.length} Active Presets)</h2>
-              <button onClick={() => { setModalMode('add_role'); setModalForm({}) }} className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.5rem 0.9rem' }}>
-                ➕ Add Role Path
-              </button>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem' }}>#</th>
-                    <th style={{ padding: '0.6rem' }}>Role Name</th>
-                    <th style={{ padding: '0.6rem' }}>Category</th>
-                    <th style={{ padding: '0.6rem' }}>Required Skills</th>
-                    <th style={{ padding: '0.6rem' }}>Enrolled Students</th>
-                    <th style={{ padding: '0.6rem', textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rolePaths.map((rp, idx) => (
-                    <tr key={rp.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '0.6rem', color: '#94a3b8' }}>{idx + 1}</td>
-                      <td style={{ padding: '0.6rem', fontWeight: '800', color: '#60a5fa' }}>{rp.name}</td>
-                      <td style={{ padding: '0.6rem' }}><span className="badge badge-info">{rp.category}</span></td>
-                      <td style={{ padding: '0.6rem', color: '#cbd5e1' }}>{rp.skills} Skills ({rp.salary})</td>
-                      <td style={{ padding: '0.6rem', color: '#34d399', fontWeight: '700' }}>{rp.students}</td>
-                      <td style={{ padding: '0.6rem', textAlign: 'right' }}>
-                        <button onClick={() => handleDelete(setRolePaths, rp.id, rp.name)} style={{ background: 'none', border: 'none', fontSize: '1.1rem', cursor: 'pointer' }}>🗑️</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── 15. SETTINGS ⚙️ ─────────────────────────────────────── */}
-        {activeTab === 'settings' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div className="card">
-              <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '1rem' }}>⚙️ Admin Security & Profile Settings</h2>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
-                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <h4 style={{ color: '#60a5fa', fontWeight: '700', fontSize: '0.9rem', marginBottom: '0.5rem' }}>📧 Administrator Profile</h4>
-                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.2rem' }}>Name: <strong>Master Admin</strong></div>
-                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.75rem' }}>Email: <strong>{ADMIN_EMAIL}</strong></div>
-                  <button onClick={() => toast.success('Password update link sent!')} className="btn btn-outline" style={{ fontSize: '0.75rem' }}>Change Password</button>
-                </div>
-
-                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <h4 style={{ color: '#34d399', fontWeight: '700', fontSize: '0.9rem', marginBottom: '0.5rem' }}>🔒 Security & Session</h4>
-                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>Two-Factor Authentication: <span className="badge badge-safe">Enabled</span></div>
-                  <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginBottom: '0.75rem' }}>Session Timeout: <strong>30 minutes</strong></div>
-                  <button onClick={() => toast.success('Security settings updated!')} className="btn btn-outline" style={{ fontSize: '0.75rem' }}>Update Security</button>
-                </div>
-              </div>
-            </div>
-
-            {/* Backup & Export Database */}
-            <div className="card">
-              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginBottom: '0.75rem' }}>📊 Backup & Export Database</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '1rem' }}>Download full production JSON or CSV snapshot of your platform database.</p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <button onClick={() => handleExportCSV(students, 'full_students_backup')} className="btn btn-primary" style={{ fontSize: '0.8rem' }}>📥 Export Student Data (CSV)</button>
-                <button onClick={() => handleExportCSV(companies, 'companies_backup')} className="btn btn-primary" style={{ fontSize: '0.8rem' }}>📥 Export Company Data (CSV)</button>
-                <button onClick={() => handleExportCSV(jobs, 'jobs_backup')} className="btn btn-primary" style={{ fontSize: '0.8rem' }}>📥 Export Jobs Data (CSV)</button>
-              </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="card" style={{ borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.05)' }}>
-              <h3 style={{ color: '#f87171', fontWeight: '800', fontSize: '1rem', marginBottom: '0.5rem' }}>⚠️ Danger Zone</h3>
-              <p style={{ color: '#cbd5e1', fontSize: '0.8rem', marginBottom: '0.75rem' }}>Actions here will reset state across tables. Exercise caution.</p>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button onClick={() => { if (window.confirm('Reset all databases to default seed state?')) { localStorage.clear(); window.location.reload(); } }} className="btn btn-danger" style={{ fontSize: '0.8rem' }}>
-                  ⚠️ Reset Database to Defaults
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Tab content */}
+        <AnimatePresence mode="wait">
+          <motion.div key={activeNav}
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}>
+            {activeNav === 'dashboard' && <AdminDashboard dashData={dashData} loading={dashLoading} />}
+            {activeNav === 'students' && <StudentsTab />}
+            {activeNav === 'settings' && <SettingsTab />}
+            {['jobs', 'skills', 'notes', 'companies', 'alumni', 'mentors', 'tests', 'groups'].includes(activeNav) && (
+              <CrudTab config={CRUD_CONFIGS[activeNav]} />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
-
-      {/* ══════════════════════════════════════════════════════════════
-          STUDENT PROFILE INSPECTOR MODAL (👁 Click)
-         ══════════════════════════════════════════════════════════════ */}
-      <AnimatePresence>
-        {selectedStudent && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            onClick={() => setSelectedStudent(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
-              style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.5)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '680px', width: '100%', maxHeight: '85vh', overflowY: 'auto' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.75rem' }}>
-                <div>
-                  <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.3rem', margin: 0 }}>
-                    Student Profile — {selectedStudent.name}
-                  </h2>
-                  <div style={{ color: '#a78bfa', fontSize: '0.8rem', marginTop: '0.2rem' }}>
-                    {selectedStudent.email} • {selectedStudent.department} ({selectedStudent.year})
-                  </div>
-                </div>
-                <button onClick={() => setSelectedStudent(null)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}>✕</button>
-              </div>
-
-              {/* 📋 Personal Info */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem', marginBottom: '1rem' }}>
-                <h4 style={{ color: '#60a5fa', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>📋 Personal Info</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
-                  <div>Name: <strong style={{ color: 'white' }}>{selectedStudent.name}</strong></div>
-                  <div>Email: <strong style={{ color: 'white' }}>{selectedStudent.email}</strong></div>
-                  <div>Department: <strong style={{ color: 'white' }}>{selectedStudent.department}</strong></div>
-                  <div>Year: <strong style={{ color: 'white' }}>{selectedStudent.year}</strong></div>
-                  <div>Joined: <strong style={{ color: 'white' }}>{selectedStudent.joined || 'Jan 15, 2024'}</strong></div>
-                  <div>Last Login: <strong style={{ color: '#34d399' }}>{selectedStudent.lastLogin || 'Today'}</strong></div>
-                </div>
-              </div>
-
-              {/* 📚 Skills */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem', marginBottom: '1rem' }}>
-                <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>📚 Skills ({selectedStudent.skills?.length || 0})</h4>
-                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                  {selectedStudent.skills?.map((sk, i) => (
-                    <span key={i} className="badge badge-info" style={{ fontSize: '0.72rem' }}>{sk}</span>
-                  ))}
-                </div>
-              </div>
-
-              {/* 🏆 Achievements & Badges */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem', marginBottom: '1rem' }}>
-                <h4 style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>🏆 Achievements</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                  {selectedStudent.achievements?.map((ach, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem' }}>
-                      <span>{ach.unlocked ? '✅' : '🔒'}</span>
-                      <strong style={{ color: ach.unlocked ? 'white' : '#94a3b8' }}>{ach.name}</strong>
-                      <span style={{ color: '#94a3b8', fontSize: '0.72rem' }}>— {ach.status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 📊 Activity Log */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem', marginBottom: '1rem' }}>
-                <h4 style={{ color: '#38bdf8', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>📊 Activity Log</h4>
-                <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '0.5rem', padding: '0.6rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                  {selectedStudent.activityLog?.map((act, i) => (
-                    <div key={i} style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
-                      <span style={{ color: '#60a5fa', fontWeight: '600' }}>{act.time}</span> — {act.text}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 📈 Stats Box */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', padding: '0.85rem' }}>
-                <h4 style={{ color: '#34d399', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.4rem' }}>📈 Stats</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.3rem', fontSize: '0.78rem', color: '#cbd5e1' }}>
-                  <div>Total Logins: <strong>{selectedStudent.stats?.totalLogins || selectedStudent.loginCount}</strong></div>
-                  <div>Courses Completed: <strong>{selectedStudent.stats?.coursesCompleted || 12}</strong></div>
-                  <div>Tests Taken: <strong>{selectedStudent.stats?.testsTaken || 8}</strong></div>
-                  <div>Jobs Applied: <strong>{selectedStudent.stats?.jobsApplied || 15}</strong></div>
-                  <div>XP Points: <strong style={{ color: '#fbbf24' }}>{selectedStudent.stats?.xpPoints || 1250}</strong></div>
-                  <div>Badges Earned: <strong>{selectedStudent.stats?.badgesEarned || 3}</strong></div>
-                  <div>Current Streak: <strong style={{ color: '#f43f5e' }}>🔥 {selectedStudent.stats?.currentStreak || 5} days</strong></div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ══════════════════════════════════════════════════════════════
-          GENERIC ADD / EDIT MODAL FOR ALL SECTIONS
-         ══════════════════════════════════════════════════════════════ */}
-      <AnimatePresence>
-        {modalMode && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            onClick={() => setModalMode(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
-              style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)', border: '1px solid rgba(139,92,246,0.5)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '520px', width: '100%' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ color: 'white', fontWeight: '800', margin: 0 }}>
-                  📝 {modalMode.replace('_', ' ').toUpperCase()}
-                </h3>
-                <button onClick={() => setModalMode(null)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer' }}>✕</button>
-              </div>
-
-              <form onSubmit={handleSaveModal} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <div>
-                  <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Name / Title</label>
-                  <input
-                    type="text"
-                    required
-                    className="form-input"
-                    value={modalForm.name || modalForm.title || ''}
-                    onChange={e => setModalForm({ ...modalForm, name: e.target.value, title: e.target.value })}
-                    style={{ width: '100%', marginTop: '0.2rem' }}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                  <div>
-                    <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Category / Dept / Role</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={modalForm.category || modalForm.department || modalForm.role || ''}
-                      onChange={e => setModalForm({ ...modalForm, category: e.target.value, department: e.target.value, role: e.target.value })}
-                      style={{ width: '100%', marginTop: '0.2rem' }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>CTC / Level / Year</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={modalForm.ctc || modalForm.level || modalForm.year || modalForm.salary || ''}
-                      onChange={e => setModalForm({ ...modalForm, ctc: e.target.value, level: e.target.value, year: e.target.value, salary: e.target.value })}
-                      style={{ width: '100%', marginTop: '0.2rem' }}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{ color: '#cbd5e1', fontSize: '0.8rem', fontWeight: '700' }}>Description / Content / Skills</label>
-                  <textarea
-                    rows={3}
-                    className="form-textarea"
-                    value={modalForm.description || modalForm.content || modalForm.skillsInput || ''}
-                    onChange={e => setModalForm({ ...modalForm, description: e.target.value, content: e.target.value, skillsInput: e.target.value })}
-                    style={{ width: '100%', marginTop: '0.2rem' }}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
-                  <button type="submit" className="btn btn-primary btn-full">Save Changes 💾</button>
-                  <button type="button" onClick={() => setModalMode(null)} className="btn btn-outline btn-full">Cancel</button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }
