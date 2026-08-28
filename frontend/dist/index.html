@@ -13,6 +13,15 @@
     rel="stylesheet">
   <!-- Google Identity Services for device auto-detection -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+  </script>
   <script type="module" crossorigin src="/assets/index-5faf8349.js"></script>
   <link rel="stylesheet" href="/assets/index-3cb4b87a.css">
 </head>
