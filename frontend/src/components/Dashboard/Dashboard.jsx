@@ -195,13 +195,13 @@ export default function Dashboard({ onNavigate }) {
             </div>
           </div>
 
-          {/* Live stats */}
+          {/* Platform stats */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', minWidth: '180px' }}>
             {[
-              { icon: '👥', label: 'Active Students', value: stats.totalStudents, suffix: '+', color: '#60a5fa' },
               { icon: '📚', label: 'Skills Available', value: stats.totalSkills, suffix: '+', color: '#4ade80' },
               { icon: '💼', label: 'Job Openings', value: stats.totalJobs, suffix: '+', color: '#fbbf24' },
               { icon: '📝', label: 'Study Notes', value: 100000, suffix: '+', color: '#a78bfa' },
+              { icon: '🎯', label: 'Career Modules', value: 28, suffix: ' Tools', color: '#60a5fa' },
             ].map(s => (
               <div key={s.label} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '0.75rem', padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.6rem', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <span style={{ fontSize: '1.1rem' }}>{s.icon}</span>
