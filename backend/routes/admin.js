@@ -11,6 +11,9 @@ import CompanyArchive from '../models/CompanyArchive.js'
 import { protect, adminMiddleware } from '../middleware/auth.js'
 import { memoryStudentStore } from '../middleware/trackActivity.js'
 
+import RolePath from '../models/RolePath.js'
+import Resume from '../models/Resume.js'
+
 // Lazy-load new models (they may not exist yet)
 let Mentor, Test, Group
 
@@ -746,6 +749,76 @@ router.delete('/groups/:id', async (req, res) => {
     const GroupModel = await getGroupModel()
     await GroupModel.findByIdAndDelete(req.params.id)
     res.json({ message: 'Group deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 11. ROLE PATHS - Full CRUD
+// ════════════════════════════════════════════════════════════════
+router.get('/rolepaths', async (req, res) => {
+  try {
+    const { search } = req.query
+    const query = {}
+    if (search) query.name = { $regex: search, $options: 'i' }
+    const [rolepaths, total] = await Promise.all([
+      safeFind(RolePath, query, { sort: { createdAt: -1 } }),
+      safeCount(RolePath)
+    ])
+    res.json({ rolepaths, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.post('/rolepaths', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) return res.status(503).json({ error: 'Database not connected' })
+    const rolepath = new RolePath(req.body)
+    await rolepath.save()
+    res.status(201).json({ message: 'Role Path created', rolepath })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.put('/rolepaths/:id', async (req, res) => {
+  try {
+    const rolepath = await RolePath.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true })
+    if (!rolepath) return res.status(404).json({ error: 'Role Path not found' })
+    res.json({ message: 'Role Path updated', rolepath })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/rolepaths/:id', async (req, res) => {
+  try {
+    await RolePath.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Role Path deleted' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// ════════════════════════════════════════════════════════════════
+// 12. USER RESUMES - View & Delete
+// ════════════════════════════════════════════════════════════════
+router.get('/resumes', async (req, res) => {
+  try {
+    const resumes = await safeFind(Resume, {}, { sort: { updatedAt: -1 } })
+    const total = await safeCount(Resume)
+    res.json({ resumes, total })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+})
+
+router.delete('/resumes/:id', async (req, res) => {
+  try {
+    await Resume.findByIdAndDelete(req.params.id)
+    res.json({ message: 'Resume deleted' })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

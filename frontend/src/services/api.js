@@ -136,6 +136,16 @@ export const deleteAdminTest = (id) => api.delete(`/admin/tests/${id}`)
 export const getAdminGroups = () => api.get('/admin/groups')
 export const deleteAdminGroup = (id) => api.delete(`/admin/groups/${id}`)
 
+// Role Paths
+export const getAdminRolePaths = (params) => api.get('/admin/rolepaths', { params })
+export const createAdminRolePath = (data) => api.post('/admin/rolepaths', data)
+export const updateAdminRolePath = (id, data) => api.put(`/admin/rolepaths/${id}`, data)
+export const deleteAdminRolePath = (id) => api.delete(`/admin/rolepaths/${id}`)
+
+// Resumes
+export const getAdminResumes = (params) => api.get('/admin/resumes', { params })
+export const deleteAdminResume = (id) => api.delete(`/admin/resumes/${id}`)
+
 // XP Management
 export const resetAllStudentXP = () => api.post('/admin/students/reset-xp')
 

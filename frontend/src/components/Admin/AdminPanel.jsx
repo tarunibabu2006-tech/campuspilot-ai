@@ -11,6 +11,8 @@ import {
   getAdminAlumni, createAdminAlumni, updateAdminAlumni, deleteAdminAlumni,
   getAdminMentors, createAdminMentor, updateAdminMentor, deleteAdminMentor,
   getAdminTests, createAdminTest, updateAdminTest, deleteAdminTest,
+  getAdminRolePaths, createAdminRolePath, updateAdminRolePath, deleteAdminRolePath,
+  getAdminResumes, deleteAdminResume,
   getAdminGroups, deleteAdminGroup, getAdminSettings, resetAllStudentXP
 } from '../../services/api'
 
@@ -22,18 +24,20 @@ const btnDanger = { background: 'rgba(239,68,68,0.15)', color: '#f87171', border
 const btnEdit = { background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)', padding: '0.4rem 0.8rem', borderRadius: '0.5rem', fontWeight: '700', fontSize: '0.78rem', cursor: 'pointer' }
 const btnSuccess = { background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', padding: '0.4rem 0.8rem', borderRadius: '0.5rem', fontWeight: '700', fontSize: '0.78rem', cursor: 'pointer' }
 
-// ── Sidebar nav items ─────────────────────────────────────────────
+// ── Sidebar nav items (All modules) ───────────────────────────────
 const NAV_ITEMS = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'students', icon: '👥', label: 'Students' },
-  { id: 'jobs', icon: '💼', label: 'Jobs' },
-  { id: 'skills', icon: '📚', label: 'Skills' },
-  { id: 'notes', icon: '📝', label: 'Notes' },
   { id: 'companies', icon: '🏢', label: 'Companies' },
   { id: 'alumni', icon: '🎓', label: 'Alumni' },
+  { id: 'groups', icon: '👥', label: 'Study Groups' },
+  { id: 'jobs', icon: '💼', label: 'Jobs & AI Apply' },
   { id: 'mentors', icon: '🧑‍🏫', label: 'Mentors' },
   { id: 'tests', icon: '📋', label: 'Mock Tests' },
-  { id: 'groups', icon: '👥', label: 'Study Groups' },
+  { id: 'skills', icon: '📚', label: 'Skill Hub' },
+  { id: 'rolepaths', icon: '🎯', label: 'Role Paths' },
+  { id: 'resumes', icon: '📄', label: 'Resumes' },
+  { id: 'notes', icon: '📝', label: 'Notes Hub' },
   { id: 'settings', icon: '⚙️', label: 'Settings' }
 ]
 
@@ -96,119 +100,152 @@ function FormModal({ title, fields, values, onChange, onSave, onClose, saving })
   )
 }
 
-// ── Student Detail Modal ─────────────────────────────────────────
+// ── Student Detail Modal (Full Profile View) ─────────────────────
 function StudentDetailModal({ student, onClose, onEdit, onDelete }) {
   if (!student) return null
   const feats = student.featureUsage || {}
-  const totalUsage = Object.values(feats).reduce((a, b) => a + b, 0)
+  const totalUsage = Object.values(feats).reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0)
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', overflowY: 'auto' }}>
       <motion.div initial={{ scale: 0.92, y: 20 }} animate={{ scale: 1, y: 0 }}
-        style={{ background: 'linear-gradient(135deg, #0f172a, #1e1b4b)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '700px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+        style={{ background: 'linear-gradient(135deg, #0f172a, #1e1b4b)', border: '1px solid rgba(139,92,246,0.4)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '750px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+
+        {/* Modal Top */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: '800', color: 'white' }}>
               {(student.name || 'S')[0].toUpperCase()}
             </div>
             <div>
-              <h3 style={{ color: 'white', fontWeight: '900', margin: 0 }}>{student.name}</h3>
+              <h3 style={{ color: 'white', fontWeight: '900', margin: 0, fontSize: '1.25rem' }}>Student Profile — {student.name}</h3>
               <p style={{ color: '#94a3b8', margin: '0.2rem 0 0', fontSize: '0.85rem' }}>{student.email}</p>
             </div>
           </div>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}>✕</button>
         </div>
 
-        {/* Basic Info */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
-          {[
-            { label: 'Department', value: student.department || 'Not specified' },
-            { label: 'Year', value: student.year ? `Year ${student.year}` : 'Not specified' },
-            { label: 'Target Role', value: student.targetRole || 'Not specified' },
-            { label: 'XP Points', value: `${student.xpPoints || 0} XP` },
-            { label: 'Login Count', value: student.loginCount || 1 },
-            { label: 'Streak', value: `${student.streak || 0} days` },
-            { label: 'First Login', value: student.firstLogin ? new Date(student.firstLogin).toLocaleDateString() : 'N/A' },
-            { label: 'Last Login', value: student.lastLogin ? new Date(student.lastLogin).toLocaleDateString() : 'N/A' }
-          ].map(item => (
-            <div key={item.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem' }}>
-              <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: '700', textTransform: 'uppercase' }}>{item.label}</div>
-              <div style={{ color: 'white', fontWeight: '700', fontSize: '0.88rem', marginTop: '0.15rem' }}>{item.value}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Skills */}
-        {student.skills?.length > 0 && (
-          <div style={{ marginBottom: '1.25rem' }}>
-            <h4 style={{ color: '#a78bfa', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Skills</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-              {student.skills.map(s => (
-                <span key={s} style={{ background: 'rgba(124,58,237,0.15)', color: '#c4b5fd', border: '1px solid rgba(124,58,237,0.3)', padding: '0.2rem 0.65rem', borderRadius: '1rem', fontSize: '0.75rem' }}>{s}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Badges */}
-        {student.badges?.length > 0 && (
-          <div style={{ marginBottom: '1.25rem' }}>
-            <h4 style={{ color: '#fbbf24', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Badges</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-              {student.badges.map(b => (
-                <span key={b} style={{ background: 'rgba(251,191,36,0.1)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', padding: '0.2rem 0.65rem', borderRadius: '1rem', fontSize: '0.75rem' }}>🏅 {b}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Feature Usage */}
+        {/* 1. 📋 PERSONAL INFO */}
         <div style={{ marginBottom: '1.25rem' }}>
-          <h4 style={{ color: '#4ade80', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Feature Usage (Total: {totalUsage})</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.4rem' }}>
-            {Object.entries(feats).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).map(([key, val]) => (
-              <div key={key} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.5rem', padding: '0.45rem 0.7rem', display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'capitalize' }}>{key.replace(/([A-Z])/g, ' $1')}</span>
-                <span style={{ color: '#4ade80', fontWeight: '700', fontSize: '0.78rem' }}>{val}</span>
+          <h4 style={{ color: '#60a5fa', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            📋 Personal Info
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+            {[
+              { label: 'Name', value: student.name },
+              { label: 'Email', value: student.email },
+              { label: 'Department', value: student.department || 'Not specified' },
+              { label: 'Year', value: student.year ? `Year ${student.year}` : 'Not specified' },
+              { label: 'Joined', value: student.createdAt ? new Date(student.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A' },
+              { label: 'Last Login', value: student.lastLogin ? new Date(student.lastLogin).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A' },
+              { label: 'Login Count', value: `${student.loginCount || 1} logins` },
+              { label: 'Target Role', value: student.targetRole || 'Not specified' }
+            ].map(item => (
+              <div key={item.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.6rem', padding: '0.55rem 0.85rem' }}>
+                <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: '700', textTransform: 'uppercase' }}>{item.label}</div>
+                <div style={{ color: 'white', fontWeight: '700', fontSize: '0.85rem', marginTop: '0.15rem' }}>{item.value}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Recent Login History */}
-        {student.loginHistory?.length > 0 && (
-          <div style={{ marginBottom: '1.25rem' }}>
-            <h4 style={{ color: '#60a5fa', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Login History</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', maxHeight: '150px', overflowY: 'auto' }}>
-              {student.loginHistory.slice(-5).reverse().map((l, i) => (
-                <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', padding: '0.4rem 0.75rem', display: 'flex', gap: '1rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-                  <span>📅 {l.date ? new Date(l.date).toLocaleString() : 'N/A'}</span>
-                  {l.device && <span>📱 {l.device}</span>}
-                  {l.ip && <span>🌐 {l.ip}</span>}
+        {/* 2. 📚 SKILLS */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h4 style={{ color: '#a78bfa', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            📚 Skills ({(student.skills || []).length})
+          </h4>
+          {(student.skills || []).length === 0 ? (
+            <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>No skills added yet</p>
+          ) : (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+              {student.skills.map(s => (
+                <span key={s} style={{ background: 'rgba(124,58,237,0.15)', color: '#c4b5fd', border: '1px solid rgba(124,58,237,0.3)', padding: '0.2rem 0.65rem', borderRadius: '1rem', fontSize: '0.75rem', fontWeight: '600' }}>
+                  {s}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 3. 🏆 BADGES & XP */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h4 style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            🏆 Badges & Real XP
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', marginBottom: '0.6rem' }}>
+            <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.85rem' }}>
+              <div style={{ color: '#fbbf24', fontSize: '0.7rem', fontWeight: '700' }}>REAL XP POINTS</div>
+              <div style={{ color: '#fbbf24', fontWeight: '900', fontSize: '1.2rem', marginTop: '0.1rem' }}>{student.xpPoints || 0} XP</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.6rem', padding: '0.6rem 0.85rem' }}>
+              <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: '700' }}>STREAK</div>
+              <div style={{ color: '#4ade80', fontWeight: '900', fontSize: '1.2rem', marginTop: '0.1rem' }}>{student.streak || 0} days</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.6rem', padding: '0.6rem 0.85rem' }}>
+              <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: '700' }}>TOTAL BADGES</div>
+              <div style={{ color: 'white', fontWeight: '900', fontSize: '1.2rem', marginTop: '0.1rem' }}>{(student.badges || []).length}</div>
+            </div>
+          </div>
+          {(student.badges || []).length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+              {student.badges.map(b => (
+                <span key={b} style={{ background: 'rgba(251,191,36,0.1)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.3)', padding: '0.2rem 0.65rem', borderRadius: '1rem', fontSize: '0.75rem' }}>
+                  🏅 {b}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 4. 📈 STATS */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h4 style={{ color: '#4ade80', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            📈 Real Engagement Stats
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '0.5rem' }}>
+            {[
+              { label: 'Tests Taken', value: student.testsTaken || student.mockTests || 0, icon: '📝' },
+              { label: 'Jobs Applied', value: student.jobsApplied || student.jobPortal || 0, icon: '💼' },
+              { label: 'Mock Interviews', value: student.mockInterviews || student.mockInterview || 0, icon: '🎤' },
+              { label: 'Study Groups', value: student.studyGroupsCount || (student.studyGroupList || []).length || 0, icon: '👥' },
+              { label: 'Mentor Sessions', value: student.mentorSessionsCount || (student.mentorSessionList || []).length || 0, icon: '🧑‍🏫' }
+            ].map(st => (
+              <div key={st.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.6rem', padding: '0.55rem 0.75rem', textAlign: 'center' }}>
+                <div style={{ fontSize: '1.2rem' }}>{st.icon}</div>
+                <div style={{ color: 'white', fontWeight: '800', fontSize: '1rem', marginTop: '0.2rem' }}>{st.value}</div>
+                <div style={{ color: '#64748b', fontSize: '0.68rem', marginTop: '0.1rem' }}>{st.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 5. 📊 ACTIVITY LOG & LOGIN TIMELINE */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h4 style={{ color: '#f59e0b', fontWeight: '800', fontSize: '0.85rem', marginBottom: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            📊 Real Activity Log
+          </h4>
+          {(student.activities || []).length === 0 ? (
+            <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>No feature actions logged yet</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxHeight: '160px', overflowY: 'auto' }}>
+              {student.activities.slice(-15).reverse().map((a, i) => (
+                <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', padding: '0.45rem 0.75rem', fontSize: '0.75rem', color: '#94a3b8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ color: '#fbbf24', fontWeight: '700' }}>{a.action}</span>
+                    {a.page && <span> on <span style={{ color: 'white' }}>{a.page}</span></span>}
+                    {a.feature && <span style={{ color: '#60a5fa' }}> ({a.feature})</span>}
+                  </div>
+                  {a.timestamp && <span style={{ fontSize: '0.68rem', color: '#64748b' }}>{new Date(a.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>}
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Recent Activities */}
-        {student.activities?.length > 0 && (
-          <div style={{ marginBottom: '1.25rem' }}>
-            <h4 style={{ color: '#f59e0b', fontWeight: '700', fontSize: '0.82rem', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Recent Activities</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxHeight: '150px', overflowY: 'auto' }}>
-              {student.activities.slice(-10).reverse().map((a, i) => (
-                <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', padding: '0.4rem 0.75rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-                  <span style={{ color: '#fbbf24' }}>{a.action}</span>
-                  {a.page && <span> on <span style={{ color: 'white' }}>{a.page}</span></span>}
-                  {a.timestamp && <span> · {new Date(a.timestamp).toLocaleString()}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-          <button onClick={() => onEdit(student)} style={{ ...btnEdit, padding: '0.6rem 1.2rem' }}>✏️ Edit</button>
-          <button onClick={() => onDelete(student)} style={{ ...btnDanger, padding: '0.6rem 1.2rem' }}>🗑️ Delete</button>
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem' }}>
+          <button onClick={() => onEdit(student)} style={{ ...btnEdit, padding: '0.6rem 1.4rem' }}>✏️ Edit Student</button>
+          <button onClick={() => onDelete(student)} style={{ ...btnDanger, padding: '0.6rem 1.4rem' }}>🗑️ Delete Account</button>
         </div>
       </motion.div>
     </div>
@@ -818,6 +855,43 @@ export default function AdminPanel() {
           </div>
         </div>
       )
+    },
+    rolepaths: {
+      title: 'Role Paths', icon: '🎯',
+      fetchFn: getAdminRolePaths, createFn: createAdminRolePath, updateFn: updateAdminRolePath, deleteFn: deleteAdminRolePath,
+      fields: [
+        { key: 'name', label: 'Role Name', placeholder: 'e.g. AI / ML Engineer' },
+        { key: 'domain', label: 'Domain', placeholder: 'e.g. Artificial Intelligence' },
+        { key: 'salaryRange', label: 'Average Salary Range', placeholder: 'e.g. 10-25 LPA' },
+        { key: 'demandLevel', label: 'Demand Level', type: 'select', options: [{ value: 'Very High', label: 'Very High' }, { value: 'High', label: 'High' }, { value: 'Growing', label: 'Growing' }] },
+        { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Career path overview...' }
+      ],
+      rowRenderer: (item) => (
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontWeight: '700', color: 'white' }}>{item.name}</span>
+            <span style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24', padding: '0.1rem 0.5rem', borderRadius: '1rem', fontSize: '0.68rem', fontWeight: '700' }}>
+              💰 {item.salaryRange || 'Competitive'}
+            </span>
+          </div>
+          <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.15rem' }}>
+            🌐 {item.domain} · 🔥 Demand: {item.demandLevel || 'High'}
+          </div>
+        </div>
+      )
+    },
+    resumes: {
+      title: 'User Resumes', icon: '📄',
+      fetchFn: getAdminResumes, createFn: null, updateFn: null, deleteFn: deleteAdminResume,
+      fields: [],
+      rowRenderer: (item) => (
+        <div>
+          <span style={{ fontWeight: '700', color: 'white' }}>{item.name}</span>
+          <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.15rem' }}>
+            📧 {item.email} · 📱 {item.phone || 'N/A'} · 📅 Updated {item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : 'N/A'}
+          </div>
+        </div>
+      )
     }
   }
 
@@ -920,7 +994,7 @@ export default function AdminPanel() {
             {activeNav === 'dashboard' && <AdminDashboard dashData={dashData} loading={dashLoading} />}
             {activeNav === 'students' && <StudentsTab />}
             {activeNav === 'settings' && <SettingsTab />}
-            {['jobs', 'skills', 'notes', 'companies', 'alumni', 'mentors', 'tests', 'groups'].includes(activeNav) && (
+            {['jobs', 'skills', 'notes', 'companies', 'alumni', 'mentors', 'tests', 'groups', 'rolepaths', 'resumes'].includes(activeNav) && (
               <CrudTab config={CRUD_CONFIGS[activeNav]} />
             )}
           </motion.div>
@@ -929,3 +1003,4 @@ export default function AdminPanel() {
     </div>
   )
 }
+

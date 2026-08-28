@@ -5,10 +5,15 @@ const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   googleId: { type: String },
+  password: { type: String },
+  role: { type: String, default: 'student' },
   department: { type: String, default: '' },
   year: { type: String, default: '' },
   skills: [{ type: String }],
   targetRole: { type: String, default: '' },
+  linkedin: { type: String, default: '' },
+  github: { type: String, default: '' },
+  portfolio: { type: String, default: '' },
 
   // Login Tracking
   loginCount: { type: Number, default: 1 },
@@ -29,7 +34,14 @@ const studentSchema = new mongoose.Schema({
     timestamp: { type: Date, default: Date.now }
   }],
 
-  // Feature Usage Counters
+  // Feature Usage Stats & Stats Summary
+  testsTaken: { type: Number, default: 0 },
+  jobsApplied: { type: Number, default: 0 },
+  mockInterviews: { type: Number, default: 0 },
+  studyGroupsCount: { type: Number, default: 0 },
+  mentorSessionsCount: { type: Number, default: 0 },
+
+  // Feature Counters
   examEmergency: { type: Number, default: 0 },
   vivaPrep: { type: Number, default: 0 },
   placementPrep: { type: Number, default: 0 },
@@ -50,39 +62,20 @@ const studentSchema = new mongoose.Schema({
   gamification: { type: Number, default: 0 },
   studyGroups: { type: Number, default: 0 },
 
-  // Gamification 2.0
+  // Gamification: Clean real XP default = 0
   xpPoints: { type: Number, default: 0 },
   badges: [{ type: String }],
   streak: { type: Number, default: 0 },
   lastActivityDate: { type: Date, default: Date.now },
-  weeklyChallenges: [{
-    challenge: { type: String },
-    xp: { type: Number, default: 50 },
-    completed: { type: Boolean, default: false },
-    date: { type: Date, default: Date.now }
-  }],
 
-  // Career Predictor Data
-  careerPath: [{
-    stage: { type: String },
-    role: { type: String },
-    skills: [{ type: String }],
-    certifications: [{ type: String }],
-    salary: { type: String },
-    timeline: { type: String }
+  // Relations & Sub-docs
+  resumes: [{
+    template: { type: String, default: 'modern' },
+    data: { type: Object },
+    createdAt: { type: Date, default: Date.now }
   }],
-
-  // Voice Interview Data
-  voiceInterviews: [{
-    date: { type: Date, default: Date.now },
-    role: { type: String },
-    score: { type: Number },
-    feedback: { type: String },
-    transcript: { type: String }
-  }],
-
-  // Study Groups
-  groups: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
+  studyGroupList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Group' }],
+  mentorSessionList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Mentor' }],
 
   createdAt: { type: Date, default: Date.now }
 })

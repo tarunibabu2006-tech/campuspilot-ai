@@ -138,25 +138,37 @@ router.post('/google', async (req, res) => {
             googleId: googleId || 'google_' + Date.now(),
             department: user.department || '',
             year: user.year || '',
+            xpPoints: 0, // Starts at exactly 0 XP
+            streak: 0,
             firstLogin: new Date(),
             lastLogin: new Date(),
             loginCount: 1,
             loginHistory: [{
               date: new Date(),
               ip: req.ip || req.headers['x-forwarded-for'] || '',
-              device: req.headers['user-agent'] || ''
+              device: req.headers['user-agent'] || '',
+              browser: req.headers['user-agent'] ? req.headers['user-agent'].slice(0, 100) : 'Browser'
             }]
           })
           await student.save()
-          console.log(`🆕 New student record created in MongoDB: ${email}`)
+          console.log(`🆕 New student record created in MongoDB with 0 XP: ${email}`)
         } else {
+          // Check for daily login bonus (+10 XP)
+          const lastDate = student.lastLogin ? new Date(student.lastLogin).toDateString() : null
+          const todayDate = new Date().toDateString()
+          if (lastDate !== todayDate) {
+            student.xpPoints = (student.xpPoints || 0) + 10 // Daily login reward
+            student.streak = (student.streak || 0) + 1
+          }
           student.loginCount = (student.loginCount || 0) + 1
           student.lastLogin = new Date()
           student.loginHistory.push({
             date: new Date(),
             ip: req.ip || req.headers['x-forwarded-for'] || '',
-            device: req.headers['user-agent'] || ''
+            device: req.headers['user-agent'] || '',
+            browser: req.headers['user-agent'] ? req.headers['user-agent'].slice(0, 100) : 'Browser'
           })
+          if (student.loginHistory.length > 50) student.loginHistory.shift()
           await student.save()
         }
 
