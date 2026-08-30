@@ -61,7 +61,7 @@ export const useLanguage = () => {
     const lang = localStorage.getItem('campuspilot_language') || 'en'
     return {
       language: lang,
-      setLanguage: () => {},
+      setLanguage: () => { },
       t: (key, params = {}) => {
         let text = translations[lang]?.[key] || translations['en']?.[key] || key
         if (typeof params === 'object' && params !== null) {
