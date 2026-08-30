@@ -198,7 +198,7 @@ function MainApp() {
               </span>
             </button>
 
-            <LanguageSelector language={language} setLanguage={setLanguage} />
+            <LanguageSelector />
             <div className="flex items-center gap-1 ml-2" style={{ borderLeft: '1px solid var(--border-color)', paddingLeft: '0.75rem' }}>
               {user?.role === 'admin' ? (
                 <button

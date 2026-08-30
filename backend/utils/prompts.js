@@ -211,4 +211,29 @@ Student's message: ${message}
 
 Respond helpfully in ${lang}. Keep it conversational and student-friendly. Use emojis occasionally.`
 
+// ═══════════════════════════════════════════
+// NOTES HUB: full note content generation (on-demand, cached after first write)
+// ═══════════════════════════════════════════
+export const GENERATE_NOTE_PROMPT = (lang, title, category, subject, level, unit) => `
+${SYSTEM_PROMPTS[lang] || SYSTEM_PROMPTS.en}
+
+Write a complete, accurate study note for a college student on the topic below. This will be shown to a real
+student studying for exams, so the content must be factually correct and genuinely useful — no filler, no
+placeholder text, no invented facts, no fabricated formulas that don't belong to this subject.
+
+Topic: ${title}
+Subject: ${subject} (${category})
+Unit: ${unit || 'N/A'}
+Level: ${level}
+
+Return ONLY valid JSON, no markdown, matching this exact structure:
+{
+  "content": "Full explanatory note content in clear prose/markdown, at least 500 words, covering definitions, core concepts, and (where relevant) real formulas specific to this exact topic, or worked examples.",
+  "readTime": "e.g. 8 min",
+  "flashcards": [
+    { "front": "Question or term", "back": "Concise, accurate answer" }
+  ]
+}
+Include 5-8 flashcards.`
+
 export default SYSTEM_PROMPTS

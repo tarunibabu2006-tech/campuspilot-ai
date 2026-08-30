@@ -1,13 +1,16 @@
 // ============================================================
-// notesEngine.js — Algorithmic 100,000+ Notes Generator
-// Generates notes ON-DEMAND from rich templates (no browser crash)
-// Every note has: title, content, flashcards, exam questions, tags
+// notesEngine.js — Real curriculum topic taxonomy.
+// Used to seed the Notes Hub catalog (topic titles/metadata only — see
+// backend/scripts/seedNoteCatalog.js). Actual note content is written for
+// real by Gemini the first time a student opens a topic and cached from
+// then on (backend/routes/notesHub.js) — nothing here is pre-fabricated
+// content, ratings, or download counts.
 // ============================================================
 
 // ── CATEGORY TAXONOMY ──────────────────────────────────────────
 export const NOTE_TAXONOMY = {
   'Computer Science & Engineering': {
-    icon: '💻', color: '#3b82f6', count: 22000,
+    icon: '💻', color: '#3b82f6',
     subjects: {
       'Data Structures & Algorithms': {
         topics: ['Arrays & Strings', 'Linked Lists', 'Stacks & Queues', 'Trees & BST', 'AVL Trees', 'B-Trees', 'Heap & Priority Queue', 'Graph Algorithms', 'BFS & DFS', 'Dijkstra Algorithm', 'Floyd Warshall', 'Sorting Algorithms', 'Binary Search', 'Dynamic Programming', 'Greedy Algorithms', 'Backtracking', 'Divide & Conquer', 'Hashing', 'Trie', 'Segment Tree', 'Fenwick Tree', 'Union Find', 'Two Pointers', 'Sliding Window', 'Bit Manipulation'],
@@ -62,7 +65,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Electronics & Communication': {
-    icon: '⚡', color: '#f59e0b', count: 12000,
+    icon: '⚡', color: '#f59e0b',
     subjects: {
       'Digital Electronics': {
         topics: ['Number Systems Binary Hex', 'Boolean Algebra', 'Logic Gates', 'Combinational Circuits', 'Multiplexers', 'Decoders & Encoders', 'Flip Flops', 'Sequential Circuits', 'Counters', 'Shift Registers', 'Memory Devices', 'PLDs & CPLDs', 'FPGA', 'ALU Design', 'Control Unit', 'Pipelining', 'Cache Memory', 'Timing Analysis', 'Digital Filters', 'VHDL Basics'],
@@ -97,7 +100,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Mechanical Engineering': {
-    icon: '⚙️', color: '#ef4444', count: 11000,
+    icon: '⚙️', color: '#ef4444',
     subjects: {
       'Thermodynamics': { topics: ['Zeroth Law Temperature', 'First Law Energy', 'Second Law Entropy', 'Carnot Cycle', 'Otto Cycle', 'Diesel Cycle', 'Brayton Cycle', 'Rankine Cycle', 'Refrigeration COP', 'Air Conditioning Psychrometry', 'Combustion Analysis', 'Steam Tables', 'Availability & Exergy', 'Nozzles & Diffusers', 'Compressors', 'Gas Turbines', 'IC Engines', 'Boilers', 'Heat Exchangers', 'Cogeneration'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Laws of Thermodynamics', 'Unit 2: Air Standard Cycles', 'Unit 3: Steam & Power', 'Unit 4: Refrigeration', 'Unit 5: Applied Thermo'] },
       'Fluid Mechanics': { topics: ['Fluid Properties', 'Pascal Law', 'Hydrostatics', 'Continuity Equation', 'Bernoulli Equation', 'Venturimeter', 'Flow Measurement', 'Laminar & Turbulent Flow', 'Reynolds Number', 'Boundary Layer', 'Drag & Lift', 'Pipe Flow Losses', 'Pumps & Turbines', 'Compressible Flow', 'Shock Waves', 'Dimensional Analysis', 'Model Testing', 'Hydraulic Machines', 'CFD Basics', 'Open Channel Flow'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Fluid Statics', 'Unit 2: Fluid Kinematics', 'Unit 3: Fluid Dynamics', 'Unit 4: Viscous Flow', 'Unit 5: Turbomachinery'] },
@@ -107,7 +110,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Civil Engineering': {
-    icon: '🏗️', color: '#10b981', count: 9000,
+    icon: '🏗️', color: '#10b981',
     subjects: {
       'Structural Engineering': { topics: ['Types of Structures', 'Loads & Load Combinations', 'Statics & Equilibrium', 'Shear Force Diagrams', 'Bending Moment Diagrams', 'Slope Deflection Method', 'Moment Distribution', 'Stiffness Matrix Method', 'Truss Analysis', 'Frame Analysis', 'Plastic Analysis', 'Reinforced Concrete Design', 'Steel Design', 'Pre-stressed Concrete', 'Flat Slabs', 'Foundation Types', 'Pile Foundations', 'Retaining Walls', 'Bridge Design', 'Earthquake Engineering'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Structural Analysis', 'Unit 2: RCC Design', 'Unit 3: Steel Design', 'Unit 4: Foundations', 'Unit 5: Special Structures'] },
       'Geotechnical Engineering': { topics: ['Soil Classification', 'Index Properties', 'Soil Compaction', 'Permeability Darcys Law', 'Seepage & Flow Nets', 'Effective Stress Principle', 'Consolidation Theory', 'Shear Strength', 'Triaxial Test', 'Direct Shear Test', 'Slope Stability', 'Bearing Capacity', 'Settlement Analysis', 'Pile Capacity', 'Sheet Piles', 'Ground Improvement', 'Geosynthetics', 'Rock Mechanics', 'Tunneling', 'Geotechnical Earthquake'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Soil Properties', 'Unit 2: Seepage & Stress', 'Unit 3: Shear & Consolidation', 'Unit 4: Foundation Design', 'Unit 5: Ground Improvement'] },
@@ -117,7 +120,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Electrical Engineering': {
-    icon: '🔌', color: '#8b5cf6', count: 8000,
+    icon: '🔌', color: '#8b5cf6',
     subjects: {
       'Power Systems': { topics: ['Power System Structure', 'Transmission Lines', 'Line Parameters', 'ABCD Parameters', 'Power Flow', 'Bus Admittance Matrix', 'Gauss Seidel', 'Newton Raphson', 'Fault Analysis', 'Symmetrical Components', 'Zero Positive Negative Sequence', 'Circuit Breakers', 'Relays & Protection', 'Distance Relay', 'Differential Relay', 'Power System Stability', 'Swing Equation', 'Equal Area Criterion', 'FACTS Devices', 'HVDC Transmission'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Transmission Lines', 'Unit 2: Power Flow', 'Unit 3: Fault Analysis', 'Unit 4: Protection', 'Unit 5: Stability & FACTS'] },
       'Electrical Machines': { topics: ['DC Generator', 'DC Motor', 'Motor Starters', 'Speed Control DC', 'Single Phase Transformer', 'Three Phase Transformer', 'Transformer Testing', 'Induction Motor Principle', 'Slip & Torque', 'Speed Control IM', 'Synchronous Generator', 'Synchronous Motor', 'Reluctance Motor', 'Stepper Motor', 'Permanent Magnet Motors', 'BLDC Motor', 'Universal Motor', 'Special Machines', 'Motor Selection', 'Energy Efficient Motors'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: DC Machines', 'Unit 2: Transformers', 'Unit 3: Induction Machines', 'Unit 4: Synchronous Machines', 'Unit 5: Special Machines'] },
@@ -127,7 +130,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Physics': {
-    icon: '🔭', color: '#06b6d4', count: 7000,
+    icon: '🔭', color: '#06b6d4',
     subjects: {
       'Classical Mechanics': { topics: ['Newtons Laws', 'Kinematics', 'Projectile Motion', 'Circular Motion', 'Work Energy Power', 'Conservation Laws', 'Momentum & Impulse', 'Rotational Motion', 'Torque & Angular Momentum', 'Simple Harmonic Motion', 'Damped Oscillation', 'Wave Motion', 'Sound Waves', 'Doppler Effect', 'Fluid Statics', 'Fluid Dynamics', 'Gravitation', 'Keplers Laws', 'Satellites', 'Elasticity'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Kinematics', 'Unit 2: Dynamics', 'Unit 3: Energy & Momentum', 'Unit 4: Rotation & Oscillation', 'Unit 5: Fluids & Gravitation'] },
       'Electromagnetism': { topics: ['Coulombs Law', 'Electric Field', 'Gauss Law', 'Electric Potential', 'Capacitors', 'Dielectrics', 'Current & Resistance', 'Ohms Law', 'Kirchhoff Laws', 'Magnetic Field', 'Biot Savart Law', 'Amperes Law', 'Faradays Law', 'Lenz Law', 'Inductance', 'AC Circuits', 'LCR Circuits', 'Electromagnetic Waves', 'Maxwells Equations', 'Poynting Vector'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Electrostatics', 'Unit 2: Current Electricity', 'Unit 3: Magnetism', 'Unit 4: Electromagnetic Induction', 'Unit 5: Electromagnetic Waves'] },
@@ -137,7 +140,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Chemistry': {
-    icon: '🧪', color: '#84cc16', count: 5500,
+    icon: '🧪', color: '#84cc16',
     subjects: {
       'Organic Chemistry': { topics: ['IUPAC Nomenclature', 'Isomerism', 'Hydrocarbons Alkanes', 'Alkenes & Alkynes', 'Aromatic Compounds', 'Benzene & Derivatives', 'Substitution Reactions SN1 SN2', 'Elimination E1 E2', 'Addition Reactions', 'Oxidation & Reduction', 'Carboxylic Acids', 'Esters & Amides', 'Carbonyl Chemistry', 'Grignard Reagent', 'Organometallic', 'Stereochemistry', 'Chirality', 'Reactions Mechanisms', 'Natural Products', 'Drug Synthesis'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Fundamentals', 'Unit 2: Hydrocarbons', 'Unit 3: Functional Groups', 'Unit 4: Reactions & Mechanisms', 'Unit 5: Special Topics'] },
       'Physical Chemistry': { topics: ['States of Matter', 'Gas Laws', 'Kinetic Theory Gases', 'Real Gases van der Waals', 'Solutions Colligative Properties', 'Thermodynamics Chemical', 'Gibbs Free Energy', 'Electrochemistry', 'Galvanic Cells', 'Nernst Equation', 'Electrolysis', 'Chemical Kinetics', 'Rate Laws', 'Activation Energy', 'Catalysis', 'Photochemistry', 'Surface Chemistry', 'Adsorption', 'Colloids', 'Nuclear Chemistry'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: States & Solutions', 'Unit 2: Thermodynamics', 'Unit 3: Electrochemistry', 'Unit 4: Kinetics', 'Unit 5: Surface & Nuclear'] },
@@ -145,7 +148,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Biology': {
-    icon: '🧬', color: '#22c55e', count: 5500,
+    icon: '🧬', color: '#22c55e',
     subjects: {
       'Cell Biology': { topics: ['Cell Theory', 'Prokaryotic vs Eukaryotic', 'Cell Membrane Structure', 'Membrane Transport', 'Organelles & Functions', 'Nucleus & DNA', 'Mitochondria', 'Chloroplasts', 'Endoplasmic Reticulum', 'Golgi Apparatus', 'Lysosomes & Vacuoles', 'Cell Division Mitosis', 'Meiosis', 'Cell Cycle Regulation', 'Cancer & Oncogenes', 'Stem Cells', 'Cell Signaling', 'Signal Transduction', 'Apoptosis', 'Cellular Respiration'], levels: ['Beginner', 'Intermediate'], units: ['Unit 1: Cell Structure', 'Unit 2: Membrane & Transport', 'Unit 3: Organelles', 'Unit 4: Cell Division', 'Unit 5: Cell Signaling'] },
       'Genetics': { topics: ['Mendels Laws', 'Monohybrid Cross', 'Dihybrid Cross', 'Linkage & Crossing Over', 'Sex Determination', 'Mutations Types', 'DNA Structure Watson Crick', 'DNA Replication', 'Transcription mRNA', 'Translation Ribosomes', 'Genetic Code', 'Operon Model', 'Gene Regulation', 'Recombinant DNA', 'PCR Technique', 'DNA Fingerprinting', 'Genomics', 'Proteomics', 'Epigenetics', 'CRISPR Cas9'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Mendelian Genetics', 'Unit 2: Molecular Genetics', 'Unit 3: Gene Expression', 'Unit 4: Recombinant DNA', 'Unit 5: Genomics'] },
@@ -154,7 +157,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Mathematics': {
-    icon: '📐', color: '#f97316', count: 6000,
+    icon: '📐', color: '#f97316',
     subjects: {
       'Calculus': { topics: ['Limits & Continuity', 'Differentiation Rules', 'Chain Rule', 'Implicit Differentiation', 'Applications of Derivatives', 'Maxima & Minima', 'Integration Basics', 'Integration by Parts', 'Trigonometric Integration', 'Partial Fractions', 'Improper Integrals', 'Double Integrals', 'Triple Integrals', 'Line Integrals', 'Surface Integrals', 'Greens Theorem', 'Stokes Theorem', 'Divergence Theorem', 'Taylor Series', 'Fourier Series'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Differential Calculus', 'Unit 2: Integral Calculus', 'Unit 3: Multivariable Calculus', 'Unit 4: Vector Calculus', 'Unit 5: Series Expansions'] },
       'Linear Algebra': { topics: ['Matrices & Determinants', 'Cramer Rule', 'Gauss Elimination', 'LU Decomposition', 'Vector Spaces', 'Linear Independence', 'Basis & Dimension', 'Linear Transformations', 'Eigenvalues & Eigenvectors', 'Diagonalization', 'Inner Product Spaces', 'Gram-Schmidt', 'QR Decomposition', 'SVD', 'Matrix Norms', 'Positive Definite Matrices', 'Spectral Theorem', 'Applications in ML', 'Graph Theory Linear Algebra', 'Numerical Linear Algebra'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Matrices', 'Unit 2: Vector Spaces', 'Unit 3: Linear Maps', 'Unit 4: Eigenvalues', 'Unit 5: Applications'] },
@@ -163,7 +166,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'History': {
-    icon: '📜', color: '#92400e', count: 5000,
+    icon: '📜', color: '#92400e',
     subjects: {
       'Ancient Indian History': { topics: ['Indus Valley Civilization', 'Harappa & Mohenjo Daro', 'Vedic Age', 'Rig Veda', 'Mahajanapadas', 'Rise of Magadha', 'Mauryan Empire', 'Ashoka & Dhamma', 'Post Mauryan Period', 'Kushana Empire', 'Gupta Golden Age', 'Sangam Literature', 'South Indian Kingdoms', 'Pallava Dynasty', 'Chalukyas', 'Social Structure Caste', 'Religious Movements Buddhism', 'Jainism Origins', 'Economic History Ancient', 'Art & Architecture Ancient'], levels: ['Beginner', 'Intermediate'], units: ['Unit 1: Prehistoric India', 'Unit 2: Vedic Period', 'Unit 3: Mahajanapadas', 'Unit 4: Mauryas & Guptas', 'Unit 5: Regional Kingdoms'] },
       'Medieval Indian History': { topics: ['Rajput Kingdoms', 'Delhi Sultanate', 'Qutbuddin Aibak', 'Iltutmish', 'Alauddin Khalji', 'Tughlaq Dynasty', 'Vijayanagara Empire', 'Bahmani Kingdom', 'Mughal Empire Foundation', 'Akbars Administration', 'Din I Ilahi', 'Mughal Art & Culture', 'Aurangzeb Policy', 'Maratha Rise Shivaji', 'Maratha Confederacy', 'Sikh Gurus', 'Sikhism Foundations', 'Bhakti Movement', 'Sufi Movement', 'Decline Mughal'], levels: ['Beginner', 'Intermediate'], units: ['Unit 1: Rajputs & Sultanate', 'Unit 2: Mughal Empire', 'Unit 3: Regional Powers', 'Unit 4: Religious Movements', 'Unit 5: Decline & Transition'] },
@@ -171,21 +174,21 @@ export const NOTE_TAXONOMY = {
     }
   },
   'English Literature': {
-    icon: '📚', color: '#db2777', count: 5000,
+    icon: '📚', color: '#db2777',
     subjects: {
       'British Literature': { topics: ['Old English Beowulf', 'Chaucer Canterbury Tales', 'Renaissance Shakespeare', 'Elizabethan Drama', 'Metaphysical Poetry', 'John Milton Paradise Lost', 'Restoration Comedy', 'Augustan Period', 'Samuel Johnson', 'Romantic Age Wordsworth', 'Keats & Shelley', 'Byron & Coleridge', 'Victorian Novel Dickens', 'George Eliot Middlemarch', 'Hardy & the Rural', 'Oscar Wilde', 'George Bernard Shaw', 'Modern Literature Woolf', 'T.S. Eliot Wasteland', 'Post Modern British'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Medieval & Renaissance', 'Unit 2: 17th & 18th Century', 'Unit 3: Romantic Period', 'Unit 4: Victorian Literature', 'Unit 5: Modern & Contemporary'] },
       'American Literature': { topics: ['Puritanism & Early America', 'Hawthorne Scarlet Letter', 'Emerson Transcendentalism', 'Thoreau Walden', 'Whitman Leaves of Grass', 'Mark Twain Huck Finn', 'Realism & Naturalism', 'Henry James', 'Edith Wharton', 'Harlem Renaissance', 'Langston Hughes', 'Hemingway Lost Generation', 'Fitzgerald Great Gatsby', 'Faulkner Sound Fury', 'Southern Gothic', 'Post WWII Literature', 'Salinger Catcher Rye', 'Beat Generation Kerouac', 'Sylvia Plath Confessional', 'Contemporary American'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Colonial to 19th Century', 'Unit 2: Realism & Naturalism', 'Unit 3: Modernism', 'Unit 4: Mid 20th Century', 'Unit 5: Contemporary'] }
     }
   },
   'Political Science': {
-    icon: '🏛️', color: '#1d4ed8', count: 4000,
+    icon: '🏛️', color: '#1d4ed8',
     subjects: {
       'Indian Polity': { topics: ['Constitutional History', 'Constituent Assembly', 'Preamble Significance', 'Fundamental Rights Part III', 'Fundamental Duties', 'DPSP Part IV', 'Parliament Structure', 'Lok Sabha & Rajya Sabha', 'Legislative Process', 'President Powers', 'Prime Minister Council', 'Supreme Court', 'Judicial Review', 'High Courts', 'Federal Structure', 'Centre-State Relations', 'Emergency Provisions', 'Constitutional Amendments', 'Local Self Government', 'Electoral System'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Constitution Making', 'Unit 2: Fundamental Rights', 'Unit 3: Parliament & Executive', 'Unit 4: Judiciary', 'Unit 5: Federal Structure'] },
       'International Relations': { topics: ['Theories of IR Realism', 'Liberalism in IR', 'Constructivism', 'India Foreign Policy', 'Non Alignment Movement', 'SAARC & Regional Bodies', 'United Nations System', 'Security Council', 'WTO & Trade', 'IMF & World Bank', 'Nuclear Non-Proliferation', 'Climate Diplomacy', 'India US Relations', 'India China Relations', 'India Pakistan Relations', 'Russia India Relations', 'ASEAN', 'G20 & G7', 'Geopolitics', 'Soft Power'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: IR Theories', 'Unit 2: Indian Foreign Policy', 'Unit 3: International Organizations', 'Unit 4: Bilateral Relations', 'Unit 5: Contemporary Issues'] }
     }
   },
   'Commerce & Accounting': {
-    icon: '📊', color: '#0369a1', count: 6000,
+    icon: '📊', color: '#0369a1',
     subjects: {
       'Financial Accounting': { topics: ['Journal Entries', 'Ledger Accounts', 'Trial Balance', 'Trading Account', 'Profit & Loss Account', 'Balance Sheet', 'Bank Reconciliation Statement', 'Depreciation Straight Line', 'Written Down Value', 'Depreciation Company Act', 'Inventory FIFO LIFO', 'Consignment Accounts', 'Joint Venture', 'Bills of Exchange', 'Partnership Accounts', 'Company Final Accounts', 'Amalgamation', 'Absorption', 'Reconstruction', 'Indian Accounting Standards Ind AS'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Basic Accounting', 'Unit 2: Final Accounts', 'Unit 3: Special Accounts', 'Unit 4: Company Accounts', 'Unit 5: Advanced Accounting'] },
       'Cost & Management Accounting': { topics: ['Cost Classification', 'Cost Sheet Preparation', 'Material Cost Control', 'Labour Cost Methods', 'Overhead Absorption', 'Marginal Costing', 'Breakeven Analysis', 'Budgetary Control', 'Flexible Budget', 'Standard Costing', 'Variance Analysis Material', 'Variance Analysis Labour', 'Activity Based Costing ABC', 'Transfer Pricing', 'Responsibility Accounting', 'Divisional Performance', 'Working Capital Management', 'Capital Budgeting NPV', 'IRR', 'Payback Period'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Cost Concepts', 'Unit 2: Cost Methods', 'Unit 3: Marginal & Budgetary', 'Unit 4: Standard Costing', 'Unit 5: Management Decisions'] },
@@ -193,7 +196,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Finance & Economics': {
-    icon: '💰', color: '#b45309', count: 6000,
+    icon: '💰', color: '#b45309',
     subjects: {
       'Corporate Finance': { topics: ['Time Value of Money', 'NPV & IRR', 'Payback Period', 'Profitability Index', 'Capital Budgeting', 'Capital Structure Theories', 'Modigliani Miller', 'Dividend Policy', 'Walter Model', 'Gordon Model', 'Cost of Capital WACC', 'Leverage Operating', 'Financial Leverage', 'EPS EBIT Analysis', 'Mergers & Acquisitions', 'Corporate Governance', 'Corporate Valuation DCF', 'EVA Economic Value Added', 'Working Capital Cycle', 'Cash Management'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Investment Decisions', 'Unit 2: Financing Decisions', 'Unit 3: Dividend Decisions', 'Unit 4: Corporate Valuation', 'Unit 5: Advanced Corporate Finance'] },
       'Macroeconomics': { topics: ['National Income GDP GNP', 'NNP & NDP', 'Consumption Function', 'Savings Function', 'Investment & Multiplier', 'Keynesian Theory', 'IS-LM Model', 'Aggregate Demand Supply', 'Inflation Types', 'Phillips Curve', 'Unemployment Types', 'Fiscal Policy', 'Monetary Policy', 'RBI Functions', 'Banking System', 'Money Supply M1 M2 M3', 'Balance of Payments', 'Foreign Exchange', 'IMF & World Bank', 'Indian Economy Overview'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: National Income', 'Unit 2: Consumption & Investment', 'Unit 3: Macro Policies', 'Unit 4: Money & Banking', 'Unit 5: International Economics'] },
@@ -201,7 +204,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Management': {
-    icon: '🎯', color: '#7c3aed', count: 10000,
+    icon: '🎯', color: '#7c3aed',
     subjects: {
       'Human Resource Management': { topics: ['HRM Introduction', 'Job Analysis & Design', 'Recruitment & Selection', 'Interview Techniques', 'Induction & Onboarding', 'Training & Development', 'Performance Appraisal', '360 Degree Feedback', 'Compensation & Benefits', 'Job Evaluation', 'Employee Relations', 'Industrial Relations', 'Trade Unions', 'Grievance Handling', 'Collective Bargaining', 'HR Planning', 'Succession Planning', 'Talent Management', 'HR Analytics', 'Strategic HRM'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: HRM Basics', 'Unit 2: Recruitment & Selection', 'Unit 3: Training & Performance', 'Unit 4: Compensation', 'Unit 5: Strategic HRM'] },
       'Marketing Management': { topics: ['Marketing Concepts', 'Market Research', 'Consumer Behavior', 'Segmentation Targeting Positioning', 'Product Life Cycle', 'Branding & Brand Equity', 'Pricing Strategies', 'Distribution Channels', 'Promotion Mix', 'Advertising Strategies', 'Sales Management', 'Digital Marketing', 'SEO & SEM', 'Social Media Marketing', 'Content Marketing', 'Email Marketing', 'Customer Relationship CRM', 'B2B Marketing', 'International Marketing', 'Marketing Metrics'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Marketing Fundamentals', 'Unit 2: STP & Product', 'Unit 3: Pricing & Distribution', 'Unit 4: Promotion', 'Unit 5: Digital & Strategic Marketing'] },
@@ -210,7 +213,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Medical & Healthcare': {
-    icon: '🏥', color: '#dc2626', count: 15000,
+    icon: '🏥', color: '#dc2626',
     subjects: {
       'Anatomy': { topics: ['Skeletal System Bones', 'Joints & Articulations', 'Muscular System Types', 'Upper Limb Muscles', 'Lower Limb Muscles', 'Cardiovascular System Heart', 'Arteries & Veins', 'Lymphatic System', 'Respiratory System Lungs', 'Digestive System GI Tract', 'Liver & Pancreas', 'Urinary System Kidneys', 'Male Reproductive Anatomy', 'Female Reproductive Anatomy', 'Nervous System CNS', 'Brain Anatomy Lobes', 'Spinal Cord', 'Cranial Nerves', 'Endocrine Glands', 'Special Sense Organs Eye Ear'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Musculoskeletal', 'Unit 2: Cardiovascular', 'Unit 3: Respiratory & Digestive', 'Unit 4: Nervous System', 'Unit 5: Endocrine & Reproductive'] },
       'Physiology': { topics: ['Cell Physiology', 'Resting Membrane Potential', 'Action Potential', 'Nerve Conduction', 'Synaptic Transmission', 'Muscle Contraction Mechanism', 'Cardiac Cycle', 'Cardiac Output', 'Blood Pressure Regulation', 'Respiratory Mechanics', 'Lung Volumes', 'Gas Exchange', 'Kidney Function Nephron', 'Glomerular Filtration GFR', 'Renal Tubular Reabsorption', 'Hormones Endocrine', 'Hypothalamus Pituitary Axis', 'Digestion & Absorption', 'Blood & Hematopoiesis', 'Homeostasis Mechanisms'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Cellular Physiology', 'Unit 2: Cardiovascular Physiology', 'Unit 3: Respiratory Physiology', 'Unit 4: Renal Physiology', 'Unit 5: Endocrine Physiology'] },
@@ -220,7 +223,7 @@ export const NOTE_TAXONOMY = {
     }
   },
   'Law': {
-    icon: '⚖️', color: '#475569', count: 10000,
+    icon: '⚖️', color: '#475569',
     subjects: {
       'Constitutional Law': { topics: ['Constitutional Supremacy', 'Doctrine of Basic Structure', 'Fundamental Rights Enforcement', 'Writ Jurisdiction Habeas Corpus', 'Mandamus & Certiorari', 'Prohibition & Quo Warranto', 'Right to Equality Art 14', 'Right to Life Art 21', 'Freedom of Speech Art 19', 'Right against Exploitation', 'Freedom of Religion', 'Cultural & Educational Rights', 'Constitutional Remedies', 'Constitutional Amendments Procedure', 'Parliamentary Sovereignty', 'Separation of Powers', 'Judicial Activism', 'PIL Public Interest Litigation', 'Contempt of Court', 'Federal Supremacy'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: Constitutional Basics', 'Unit 2: Fundamental Rights', 'Unit 3: Writs', 'Unit 4: Constitutional Bodies', 'Unit 5: Advanced Constitutional'] },
       'Criminal Law': { topics: ['IPC Introduction', 'Actus Reus & Mens Rea', 'Offences against Body', 'Offences against Property', 'Theft & Robbery', 'Cheating & Fraud', 'Murder & Culpable Homicide', 'Grievous Hurt', 'Kidnapping & Abduction', 'Sexual Offences', 'POCSO Act', 'CrPC Criminal Procedure', 'FIR Registration', 'Investigation', 'Bail Provisions', 'Trial Procedure', 'Cognizable Non-Cognizable', 'Evidence Act Overview', 'Witness Examination', 'Sentencing Guidelines'], levels: ['Beginner', 'Intermediate', 'Advanced'], units: ['Unit 1: IPC Basics', 'Unit 2: Offences', 'Unit 3: Criminal Procedure CrPC', 'Unit 4: Evidence', 'Unit 5: Special Laws'] },
@@ -230,183 +233,4 @@ export const NOTE_TAXONOMY = {
   }
 }
 
-// ── CONTENT TEMPLATES ───────────────────────────────────────────
-const contentTemplates = {
-  intro: [
-    (topic, subject) => `## Introduction to ${topic}\n\n${topic} is a fundamental concept in ${subject} that forms the backbone of advanced study in this field. Understanding ${topic} requires a thorough knowledge of prerequisite concepts and an ability to apply theoretical principles to practical problems.\n\n### Why is ${topic} Important?\n\n${topic} plays a critical role in modern applications and examinations. Universities across India, including Anna University, VTU, JNTU, Mumbai University, and autonomous institutions, consistently test this topic in semester examinations with both 2-mark and 10/13/16-mark questions.\n\nIndustry professionals use ${topic} in day-to-day work, making it essential not just for exams but for your career as well.`,
-    (topic, subject) => `## ${topic} — Complete Study Notes\n\n### Overview\n\n${topic} represents one of the most examined and practically relevant areas within ${subject}. This note provides a comprehensive breakdown of all concepts, definitions, formulas, algorithms, and solved examples required for university examinations and competitive exams like GATE, UPSC, and placement tests.\n\n### Historical Background\n\nThe study of ${topic} evolved over decades of research and practical implementation. Today it is a standard part of the ${subject} curriculum at undergraduate and postgraduate levels across India and internationally.`
-  ],
-  keyPoints: (topic) => `\n\n### 📌 Key Concepts & Definitions\n\n**Definition:** ${topic} refers to a structured approach/methodology/principle that addresses specific problems in its domain by applying well-defined rules and techniques.\n\n**Core Principles:**\n1. **Principle of Correctness** — Every application of ${topic} must produce valid, verifiable results under defined conditions.\n2. **Principle of Efficiency** — Optimizing time and space (or resources) is central to mastering ${topic}.\n3. **Principle of Modularity** — Breaking complex ${topic} problems into smaller, manageable subproblems enables better understanding.\n4. **Principle of Abstraction** — Focus on what is needed, hiding unnecessary implementation details.\n5. **Principle of Generalization** — Apply knowledge of ${topic} to a wide range of problem types.\n\n**Important Terminology:**\n- **Base case / Base concept:** The simplest form of ${topic} that can be directly solved or observed.\n- **Recursive/Iterative aspect:** Many problems in ${topic} are solved using repetition of standard operations.\n- **Complexity:** The measure of resources (time, space, cost) required by ${topic} operations.\n- **Constraints:** Specific limitations that define the boundary conditions of a ${topic} problem.\n- **Invariant:** A condition that remains true throughout the process of applying ${topic}.`,
-  formulas: (topic) => `\n\n### 🔢 Important Formulas & Equations\n\nFor ${topic}, the following mathematical relationships are critical:\n\n| Formula | Description | Application |\n|---------|-------------|-------------|\n| f(n) = O(g(n)) | Asymptotic upper bound | Worst case analysis |\n| T(n) = 2T(n/2) + n | Recurrence relation | Divide and conquer |\n| E = mc² equivalent | Energy-mass analogy | Resource tradeoffs |\n| P(A∩B) = P(A)·P(B\|A) | Conditional relation | Probabilistic analysis |\n| Σf(i) for i=1 to n | Summation notation | Performance bounds |\n\n**Step-by-step Derivation:**\n\nStep 1: Identify the problem parameters and constraints for ${topic}.\nStep 2: Apply the appropriate formula or algorithm.\nStep 3: Verify the result using boundary conditions.\nStep 4: Optimize if required based on given constraints.\nStep 5: Document and present the solution systematically.`,
-  examNotes: (topic, subject) => `\n\n### 📋 University Exam Important Points\n\n**Frequently Asked 2-Mark Questions on ${topic}:**\n1. Define ${topic} with an example.\n2. State the properties of ${topic}.\n3. What are the advantages and disadvantages of ${topic}?\n4. Compare ${topic} with its alternatives.\n5. Write the algorithm/formula for ${topic}.\n\n**10/13-Mark Questions:**\n1. Explain ${topic} with a neat diagram and step-by-step example. (Anna University Pattern)\n2. Implement ${topic} using suitable data structures/methods. Show the working with a suitable example.\n3. Compare and contrast ${topic} with related concepts. Discuss time and space complexity.\n4. Apply ${topic} to solve the following problem: [Standard exam problem type]\n5. With a suitable example, prove/derive the main theorem/formula related to ${topic}.\n\n**GATE-Level Questions:**\n- Complexity analysis of ${topic} operations\n- Proof-based questions on correctness of ${topic}\n- Application of ${topic} in integrated system design\n\n**Placement & Interview Questions:**\n- Describe a real-world application of ${topic} in ${subject}.\n- Write pseudocode for the core algorithm of ${topic}.\n- What are edge cases to consider when implementing ${topic}?`,
-  examples: (topic) => `\n\n### 💡 Solved Examples & Case Studies\n\n**Example 1 (Beginner):**\nProblem: Apply the basic concept of ${topic} to a simple scenario.\nSolution: \n- Step 1: Identify the input parameters\n- Step 2: Apply the definition/formula of ${topic}\n- Step 3: Compute the result\n- Step 4: Verify with boundary conditions\n✅ Result verified and correct.\n\n**Example 2 (Intermediate):**\nProblem: Given a standard problem, use ${topic} to derive the optimal solution.\nSolution:\n- Analyze the problem constraints\n- Choose the appropriate variant of ${topic}\n- Execute step by step with intermediate values shown\n- Final answer with explanation of why this approach was optimal\n✅ Complexity: O(n log n) time, O(n) space (example values)\n\n**Example 3 (Advanced):**\nProblem: Design a system/proof using ${topic} principles.\nSolution: This requires integration of ${topic} with related concepts. The advanced approach involves:\n1. Decomposition into subproblems\n2. Applying ${topic} recursively/iteratively\n3. Combining results with proof of correctness\n4. Analyzing edge cases and failure modes\n✅ This is a standard 16-mark examination question type.`,
-  conclusion: (topic, subject) => `\n\n### 🎯 Summary & Revision Checklist\n\nAfter studying ${topic} in ${subject}, ensure you can:\n☐ Define ${topic} precisely in your own words\n☐ State all properties and theorems related to ${topic}\n☐ Solve beginner, intermediate, and advanced problems\n☐ Write the algorithm/pseudocode/formula from memory\n☐ Draw relevant diagrams, flowcharts, or graphs\n☐ Answer 2-mark, 10-mark, and 16-mark exam questions\n☐ Explain ${topic} to someone who has never studied it\n☐ Apply ${topic} to real-world or cross-domain problems\n\n**Pro Tip for Exam:** In Anna University / VTU exams, always:\n1. Start with a clear definition\n2. Draw a diagram if applicable\n3. Show step-by-step working for numerical problems\n4. Write conclusion/result clearly\n5. Time yourself — allocate 15-20 minutes per 13-mark question\n\n---\n*Notes prepared by CampusPilot AI Academic Team | Aligned with Anna University, VTU, JNTU, Mumbai University syllabi*`
-}
-
-// ── FLASHCARD TEMPLATES ──────────────────────────────────────────
-const flashcardTemplates = [
-  (topic) => ({ front: `What is ${topic}?`, back: `${topic} is a core concept in computer science/engineering/science that deals with structured problem-solving using defined principles, algorithms, and methods. It ensures correctness, efficiency, and scalability.` }),
-  (topic) => ({ front: `What are the key properties of ${topic}?`, back: `Key properties: (1) Correctness — produces valid results, (2) Efficiency — optimal use of resources, (3) Modularity — decomposable, (4) Generality — applicable to multiple scenarios, (5) Termination — always completes.` }),
-  (topic) => ({ front: `What is the time complexity of ${topic}?`, back: `Typical complexity: O(n) for linear operations, O(n log n) for divide-and-conquer approaches, O(n²) for nested iteration. Worst case depends on input and implementation.` }),
-  (topic) => ({ front: `Give a real-world application of ${topic}`, back: `${topic} is widely used in: (1) Software systems for performance optimization, (2) Engineering designs, (3) Scientific computations, (4) Databases and file systems, (5) AI/ML algorithms.` }),
-  (topic) => ({ front: `What is the difference between ${topic} and its alternatives?`, back: `${topic} is preferred when: optimal performance is needed, the problem has a specific structure, correctness guarantees are required, and when industry standards demand its use.` }),
-  (topic) => ({ front: `Write the algorithm for ${topic}`, back: `Algorithm:\n1. Initialize required data structures\n2. Process input according to ${topic} rules\n3. Apply the core operation iteratively/recursively\n4. Check termination/convergence condition\n5. Return the final result` }),
-  (topic) => ({ front: `State the theorem/formula for ${topic}`, back: `The fundamental theorem states: For any valid input satisfying the preconditions of ${topic}, the algorithm produces the correct output in finite time with complexity bounded by O(f(n)) where f(n) depends on the specific variant used.` }),
-  (topic) => ({ front: `What are the disadvantages of ${topic}?`, back: `Disadvantages: (1) May have high space complexity in some variants, (2) Complex to implement correctly, (3) May not handle all edge cases without modification, (4) Performance degrades for adversarial inputs, (5) Requires understanding of prerequisites.` })
-]
-
-// ── EXAM QUESTIONS TEMPLATE ──────────────────────────────────────
-const examQTemplate = (topic) => [
-  { q: `Define ${topic} with an example`, mark: '2 Marks' },
-  { q: `What are the properties of ${topic}?`, mark: '2 Marks' },
-  { q: `Explain the algorithm for ${topic} with step-by-step example`, mark: '13 Marks' },
-  { q: `Compare ${topic} with its alternatives. Discuss advantages and disadvantages`, mark: '13 Marks' },
-  { q: `Apply ${topic} to solve a given problem and analyze time complexity`, mark: '16 Marks' }
-]
-
-// ── DETERMINISTIC ID GENERATOR ────────────────────────────────────
-function hashCode(str) {
-  let hash = 5381
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash) + str.charCodeAt(i)
-    hash = hash & hash
-  }
-  return Math.abs(hash)
-}
-
-// ── MAIN NOTE GENERATOR ──────────────────────────────────────────
-export function generateNote(category, subject, topic, level, unitIdx) {
-  const subjectData = NOTE_TAXONOMY[category]?.subjects[subject]
-  if (!subjectData) return null
-
-  const units = subjectData.units || []
-  const unit = units[unitIdx % units.length] || `Unit ${unitIdx + 1}`
-  const id = `note_${hashCode(category + subject + topic + level)}`
-  const ratings = [4.5, 4.6, 4.7, 4.8, 4.9, 4.95, 5.0]
-  const rating = ratings[hashCode(id) % ratings.length]
-  const downloads = 1000 + (hashCode(id) % 15000)
-  const pages = 30 + (hashCode(id + 'p') % 180)
-  const readTime = `${Math.floor(pages / 8)} min`
-  const templateIdx = hashCode(id) % contentTemplates.intro.length
-
-  // Build rich content
-  const content =
-    contentTemplates.intro[templateIdx](topic, subject) +
-    contentTemplates.keyPoints(topic) +
-    contentTemplates.formulas(topic) +
-    contentTemplates.examples(topic) +
-    contentTemplates.examNotes(topic, subject) +
-    contentTemplates.conclusion(topic, subject)
-
-  // Build flashcards (pick 5 from templates)
-  const flashcards = flashcardTemplates
-    .slice(0, 5)
-    .map(fn => fn(topic))
-
-  const tags = [
-    topic.toLowerCase().replace(/\s+/g, '-'),
-    subject.toLowerCase().replace(/\s+/g, '-'),
-    category.toLowerCase().replace(/\s+/g, '-'),
-    level.toLowerCase(),
-    'exam-notes',
-    'india'
-  ]
-
-  return {
-    id,
-    title: `${topic} — Complete ${level} Notes`,
-    category,
-    subCategory: subject,
-    subject,
-    branch: category,
-    units: unit,
-    unit,
-    level,
-    difficulty: level,
-    content,
-    readTime,
-    rating,
-    downloads,
-    pages,
-    fileSize: `${(pages * 0.035).toFixed(1)} MB`,
-    type: level === 'Advanced' ? 'Research-Grade Notes' : level === 'Intermediate' ? 'University Exam Guide' : 'Beginner Friendly Notes',
-    flashcards,
-    tags,
-    examQuestions: examQTemplate(topic),
-    author: 'CampusPilot AI Academic Team',
-    college: 'Anna University / VTU / JNTU / Mumbai University Aligned',
-    semester: `Semester ${2 + (hashCode(id) % 6)}`,
-    createdAt: new Date(Date.now() - hashCode(id) % 31536000000).toISOString(),
-    saved: false,
-    aiSummary: `📌 Key Concepts: ${topic} involves ${subject} principles.\n✅ Exam Focus: 2-mark definitions, 13-mark derivations, 16-mark problem solving.\n🎯 Must Know: Core formula, algorithm, real-world application.\n⚡ Quick Revision: Properties, advantages, disadvantages, comparison.`
-  }
-}
-
-// ── INDEX BUILDER (For fast lookup/search) ──────────────────────
-let _noteIndex = null
-
-export function buildNoteIndex() {
-  if (_noteIndex) return _noteIndex
-  const index = []
-  let globalIdx = 0
-
-  for (const [category, catData] of Object.entries(NOTE_TAXONOMY)) {
-    for (const [subject, subjectData] of Object.entries(catData.subjects)) {
-      for (const topic of subjectData.topics) {
-        for (const level of subjectData.levels) {
-          for (let unitIdx = 0; unitIdx < subjectData.units.length; unitIdx++) {
-            index.push({
-              idx: globalIdx++,
-              category,
-              subject,
-              topic,
-              level,
-              unitIdx,
-              // Lightweight preview — no heavy content
-              title: `${topic} — Complete ${level} Notes`,
-              branch: category,
-              id: `note_${Math.abs(
-                (category + subject + topic + level).split('').reduce((h, c) => (Math.imul(31, h) + c.charCodeAt(0)) | 0, 5381)
-              )}`,
-              tags: [topic.toLowerCase(), subject.toLowerCase(), category.toLowerCase(), level.toLowerCase()],
-              rating: [4.5, 4.6, 4.7, 4.8, 4.9, 4.95][globalIdx % 6],
-              readTime: `${10 + (globalIdx % 30)} min`,
-              difficulty: level,
-              units: subjectData.units[unitIdx % subjectData.units.length],
-              downloads: 1000 + (globalIdx % 15000),
-              saved: false
-            })
-          }
-        }
-      }
-    }
-  }
-
-  _noteIndex = index
-  return index
-}
-
-// ── STATS ────────────────────────────────────────────────────────
-export function getNoteStats() {
-  const stats = { total: 0, byCategory: {} }
-  for (const [category, catData] of Object.entries(NOTE_TAXONOMY)) {
-    let catCount = 0
-    for (const subjectData of Object.values(catData.subjects)) {
-      catCount += subjectData.topics.length * subjectData.levels.length * subjectData.units.length
-    }
-    stats.byCategory[category] = { count: catCount, icon: catData.icon, color: catData.color }
-    stats.total += catCount
-  }
-  return stats
-}
-
-// ── CATEGORY LIST FOR DISPLAY ────────────────────────────────────
-export function getCategoryList() {
-  return Object.entries(NOTE_TAXONOMY).map(([name, data]) => ({
-    name,
-    icon: data.icon,
-    color: data.color,
-    displayCount: data.count,
-    subjects: Object.keys(data.subjects)
-  }))
-}
+export default NOTE_TAXONOMY

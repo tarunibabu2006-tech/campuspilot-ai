@@ -43,7 +43,36 @@ async function getGroupModel() {
 
 const router = express.Router()
 
-// ── Admin-only guard: all routes require admin role ─────────────
+// ── Public (any logged-in user) aggregate stats — no student PII. ───────────
+// The student Dashboard needs real "Skills / Jobs / Notes" counts, but must
+// never be able to reach the admin-only routes below (student names, emails,
+// login history, activity logs). This route is registered before the admin
+// guard specifically so it stays reachable by every signed-in user.
+router.get('/public-stats', protect, async (req, res) => {
+  try {
+    const isDB = mongoose.connection.readyState === 1
+    const MentorModel = await getMentorModel()
+    const TestModel = await getTestModel()
+
+    const [totalStudents, totalJobs, totalSkills, totalNotes, totalCompanies, totalMentors, totalTests] = isDB
+      ? await Promise.all([
+          Student.countDocuments(),
+          Job.countDocuments(),
+          Skill.countDocuments(),
+          Note.countDocuments(),
+          CompanyArchive.countDocuments(),
+          MentorModel.countDocuments(),
+          TestModel.countDocuments()
+        ])
+      : [0, 0, 0, 0, 0, 0, 0]
+
+    res.json({ totalStudents, totalJobs, totalSkills, totalNotes, totalCompanies, totalMentors, totalTests })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+
+// ── Admin-only guard: all routes below require admin role ───────
 router.use(protect, (req, res, next) => {
   if (req.user?.role !== 'admin') {
     return res.status(403).json({ message: 'Admin access required' })
