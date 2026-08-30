@@ -7,16 +7,17 @@ export const LanguageProvider = ({ children }) => {
   const [language, setLanguageState] = useState(() => {
     try {
       const saved = localStorage.getItem('campuspilot_language')
-      if (saved && (saved === 'en' || saved === 'ta' || saved === 'hi')) return saved
+      if (saved && (saved === 'en' || saved === 'ta' || saved === 'hi' || saved === 'zh')) return saved
       const browserLang = navigator.language || navigator.userLanguage || ''
       if (browserLang.startsWith('ta')) return 'ta'
       if (browserLang.startsWith('hi')) return 'hi'
+      if (browserLang.startsWith('zh')) return 'zh'
     } catch { }
     return 'en'
   })
 
   const setLanguage = useCallback((lang) => {
-    if (lang === 'en' || lang === 'ta' || lang === 'hi') {
+    if (lang === 'en' || lang === 'ta' || lang === 'hi' || lang === 'zh') {
       setLanguageState(lang)
       try {
         localStorage.setItem('campuspilot_language', lang)
@@ -48,7 +49,7 @@ export const LanguageProvider = ({ children }) => {
   }, [language])
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t, languages: ['en', 'ta', 'hi'] }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, languages: ['en', 'ta', 'hi', 'zh'] }}>
       {children}
     </LanguageContext.Provider>
   )

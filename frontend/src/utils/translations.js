@@ -653,6 +653,223 @@ export const translations = {
     rank: 'रैंक', points: 'अंक', streak: 'लगातार दिन', badges: 'बैज',
     overview: 'अवलोकन', syllabus: 'पाठ्यक्रम', practice: 'अभ्यास',
     resources: 'संसाधन', videos: 'वीडियो ट्यूटोरियल', interviewQuestions: 'इंटरव्यू प्रश्नोत्तर'
+  },
+
+  zh: {
+    // ── Header & Navigation ──────────────────────────────────────
+    brandName: 'CampusPilot AI 校园领航',
+    notifications: '通知',
+    realTimeAlerts: '实时提醒',
+    adminPanel: '管理面板',
+    logout: '退出登录',
+    backToDashboard: '返回仪表板',
+    dashboard: '仪表板',
+    profile: '个人资料',
+    leaderboard: '排行榜',
+    companyArchives: '公司档案',
+    alumniNetwork: '校友网络',
+    careerPredictor: '职业预测',
+    voiceInterview: '语音面试',
+    gamification: '成就体系 2.0',
+    studyGroups: '学习小组',
+    careerGps: '职业导航 GPS',
+    resumeScorer: '简历评分',
+    aiApply: 'AI 自动申请',
+    skillBadge: '技能徽章',
+    mentors: '导师连接',
+    mockTests: '模拟考试',
+    skills: '技能中心',
+    rolePath: '岗位路径',
+    resume: '简历生成器',
+    jobs: '招聘门户',
+    interview: '模拟面试',
+    aptitude: '能力测试',
+    exam: '考试应急',
+    viva: '口试准备',
+    placement: '就业中心',
+    notes: '笔记中心',
+    bunk: '考勤规划',
+    job: '虚假招聘检测',
+    skill: '技能差距分析',
+    chat: 'AI 助手',
+
+    // ── Hero & Greetings ─────────────────────────────────────────
+    goodMorning: '早上好',
+    goodAfternoon: '下午好',
+    goodEvening: '晚上好',
+    goodNight: '晚安',
+    welcomeBack: '欢迎回来，{name}！👋',
+    heroTagline: '您的 AI 驱动职业发展与校园求职平台。助您斩获心仪 Offer！🚀',
+    openNotesHub: '打开笔记中心',
+    browseJobs: '浏览职位',
+    askAi: '咨询 AI',
+    skillsAvailable: '可用技能',
+    jobOpenings: '在招岗位',
+    studyNotes: '学习笔记',
+    careerModules: '职业模块',
+    toolsSuffix: '工具',
+
+    // ── Admin Banner on Dashboard ────────────────────────────────
+    adminControlCenter: '管理员控制中心',
+    adminBannerDesc: '已登录账号 {email}。访问实时数据库、测试、职位及系统设置。',
+    openRealAdminPanel: '打开管理面板 →',
+
+    // ── Featured & Most Popular ──────────────────────────────────
+    featuredAndPopular: '精选与热门功能',
+    openFeature: '打开功能 →',
+    quickActions: '快捷操作',
+    fullFeatureSuite: '完整功能套件',
+    modulesCount: '{count} 个模块',
+
+    // ── Featured Cards ───────────────────────────────────────────
+    card_notes_title: '笔记中心',
+    card_notes_tag: '100K+ 笔记',
+    card_notes_desc: '涵盖所有学科的 AI 学习笔记，含抽认卡及常考题',
+
+    card_jobs_title: '招聘门户',
+    card_jobs_tag: '1200+ 岗位',
+    card_jobs_desc: '最新校招与社招岗位，支持智能匹配度分析',
+
+    card_aptitude_title: '能力提升中心',
+    card_aptitude_tag: '500+ 题目',
+    card_aptitude_desc: '名企笔试公式、解题技巧及全真模拟练习',
+
+    card_careerPredictor_title: '职业预测器',
+    card_careerPredictor_tag: 'AI 赋能',
+    card_careerPredictor_desc: '基于您个人画像的 5 年职业轨迹与薪资预测',
+
+    // ── All 28 Module Cards ──────────────────────────────────────
+    card_profile_title: '学生档案',
+    card_profile_tag: '个人档案 👤',
+    card_profile_desc: '专业、学期、技能与社交链接',
+
+    card_leaderboard_title: '光荣榜与领奖台',
+    card_leaderboard_tag: '荣誉殿堂 🏆',
+    card_leaderboard_desc: '前三名领奖台、排名、XP 积分与徽章',
+
+    card_companyArchives_title: '名企真题档案',
+    card_companyArchives_tag: '真题档案 🏛️',
+    card_companyArchives_desc: '笔试试卷、薪资历史与 AI 备考指引',
+
+    card_alumniNetwork_title: '校友网络',
+    card_alumniNetwork_tag: '内推人脉 🤝',
+    card_alumniNetwork_desc: '学长学姐名录、内推申请与求职经验分享',
+
+    card_voiceInterview_title: 'AI 语音模拟面试',
+    card_voiceInterview_tag: '语音 AI 🎙️',
+    card_voiceInterview_desc: '实时语音对答练习与 AI 多维能力打分',
+
+    card_gamification_title: '成就体系 2.0',
+    card_gamification_tag: 'XP 与徽章 ⚡',
+    card_gamification_desc: '段位等级、每日打卡、挑战任务与专属奖励',
+
+    card_studyGroups_title: '学习互助小组',
+    card_studyGroups_tag: '讨论群组 👥',
+    card_studyGroups_desc: '同学互动聊天、共享笔记与疑难解答',
+
+    card_careerGps_title: '职业导航 GPS',
+    card_careerGps_tag: '成长路线图 🗺️',
+    card_careerGps_desc: '技能差距分析与个性化学习路径',
+
+    card_resumeScorer_title: '简历 ATS 智能评分',
+    card_resumeScorer_tag: 'ATS 评分 📊',
+    card_resumeScorer_desc: '即时 0-100 ATS 评分与关键词优化建议',
+
+    card_aiApply_title: 'AI 智能代投',
+    card_aiApply_tag: '自动申请 ⚡',
+    card_aiApply_desc: 'AI 职位精准匹配与自动化投递规则',
+
+    card_skillBadge_title: '技能认证与信誉分',
+    card_skillBadge_tag: '官方认证 🛡️',
+    card_skillBadge_desc: '学生信誉评级与职业契合度评估',
+
+    card_mentors_title: '名企导师直连',
+    card_mentors_tag: '1对1 辅导 🧑‍🏫',
+    card_mentors_desc: '来自顶级名企校友的一对一指导辅导',
+
+    card_mockTests_title: '企业全真模考',
+    card_mockTests_tag: '考试题型 🎯',
+    card_mockTests_desc: '头部名企最新全真笔试考题题型',
+
+    card_skills_title: '技能学习中心',
+    card_skills_tag: '技能 💡',
+    card_skills_desc: '掌握 1000+ 项热门技术与通用软技能',
+
+    card_rolePath_title: '岗位定制化学习',
+    card_rolePath_tag: '岗位路径 🗺️',
+    card_rolePath_desc: '50+ 热门职业岗位发展路径指南',
+
+    card_resume_title: '专业简历生成器',
+    card_resume_tag: '简历构建 📄',
+    card_resume_desc: '数分钟内构建符合 ATS 标准的专业简历',
+
+    card_interview_title: '模拟面试准备',
+    card_interview_tag: '面试 🎤',
+    card_interview_desc: '技术面与 HR 行为面试经典题库',
+
+    card_aptitude_full_title: '能力提升大师中心',
+    card_aptitude_tag2: '综合能力 🧠',
+    card_aptitude_full_desc: '解题技巧、公式手册与 500+ 真题演练',
+
+    card_exam_title: '期末考试突击',
+    card_exam_tag: '考试 📚',
+    card_exam_desc: '50+ 学科考前高频考点速记与冲刺',
+
+    card_viva_title: '实验口试助手',
+    card_viva_tag: '口试 🎤',
+    card_viva_desc: '实验课程口试必考问题与标准答案',
+
+    card_placement_title: '求职突围中心',
+    card_placement_tag: '求职 💼',
+    card_placement_desc: '针对目标公司的定制化求职冲刺策略',
+
+    card_notes_full_title: '全学科笔记与 AI 抽认卡',
+    card_notes_tag2: '笔记 📝',
+    card_notes_full_desc: '100K+ 学科核心讲义与智能记忆卡片',
+
+    card_bunk_title: '考勤安全规划师',
+    card_bunk_tag: '出勤 🏃',
+    card_bunk_desc: '出勤率模拟预测与 AI 请假规划建议',
+
+    card_job_title: '招聘防骗与真实度检测',
+    card_job_tag: '防骗预警 🛡️',
+    card_job_desc: '收费诈骗与虚假兼职招聘智能识别',
+
+    card_skill_title: '技能差距智能分析',
+    card_skill_tag: '差距分析 🗺️',
+    card_skill_desc: '目标岗位要求 vs 当前技能水平对照',
+
+    card_chat_title: '24/7 AI 求职助手',
+    card_chat_tag: '智能问答 🤖',
+    card_chat_desc: '随时随地解答学业与求职的一切疑问',
+
+    // ── Footer Banner & General ──────────────────────────────────
+    footerTagline: '🚀 CampusPilot AI — 广受好评的高校智能求职与学习平台',
+    footerSubtext: '覆盖 500+ 高校，50,000+ 学子信赖 · 就业率达 94%',
+    completeProfile: '完善个人档案 👤',
+    viewLeaderboard: '🏆 查看排行榜',
+    footer: '为广大学子用心打造 ❤️ • CampusPilot AI',
+
+    // ── Common UI Words ──────────────────────────────────────────
+    submit: '提交', generate: '生成', loading: '加载中...',
+    search: '搜索', filter: '筛选', save: '保存', cancel: '取消',
+    back: '返回', next: '下一步', download: '下载', apply: '申请',
+    applyNow: '立即申请', startLearning: '开始学习',
+    viewDetails: '查看详情', delete: '删除', edit: '编辑',
+    addNew: '新增', refresh: '刷新', close: '关闭',
+    login: '登录', register: '注册',
+    email: '邮箱', password: '密码', name: '姓名',
+    department: '专业/院系', year: '年级', remember: '记住我',
+    noResults: '未找到相关结果', tryAgain: '重试',
+    subject: '学科', examDate: '考试日期', difficulty: '难度',
+    easy: '简单', medium: '中等', hard: '困难',
+    score: '得分', grade: '等级', correct: '正确', wrong: '错误',
+    totalStudents: '学生总数', totalSkills: '技能总数',
+    totalJobs: '岗位总数', status: '状态', verified: '已认证',
+    active: '活跃', completed: '已完成', inProgress: '进行中',
+    rank: '排名', points: '积分', streak: '连续打卡', badges: '徽章',
+    overview: '概览', syllabus: '教学大纲', practice: '练习',
+    resources: '学习资源', videos: '视频教程', interviewQuestions: '面试问答'
   }
 }
 

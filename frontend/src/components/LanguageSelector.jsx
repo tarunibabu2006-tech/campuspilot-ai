@@ -4,7 +4,8 @@ import { useLanguage } from '../context/LanguageContext'
 const languages = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'ta', label: 'தமிழ்', flag: '🇮🇳' },
-  { code: 'hi', label: 'हिंदी', flag: '🇮🇳' }
+  { code: 'hi', label: 'हिंदी', flag: '🇮🇳' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' }
 ]
 
 function LanguageSelector({ language: propLang, setLanguage: propSetLang }) {
