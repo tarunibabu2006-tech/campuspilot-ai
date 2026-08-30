@@ -27,7 +27,7 @@ function AnimCounter({ value, suffix = '' }) {
 
 export default function Dashboard({ onNavigate }) {
   const { user } = useAuth()
-  const [stats, setStats] = useState({ totalStudents: 0, totalSkills: 50, totalJobs: 30 })
+  const [stats, setStats] = useState({ totalStudents: 0, totalSkills: 0, totalJobs: 0, totalNotes: 0, totalTests: 0 })
   const [greeting, setGreeting] = useState('')
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -42,22 +42,18 @@ export default function Dashboard({ onNavigate }) {
   }, [])
 
   useEffect(() => {
-    api.get('/admin/dashboard').then(res => {
-      if (res.data) {
-        setStats({
-          totalStudents: res.data.totalStudents || 0,
-          totalSkills: res.data.totalSkills || 50,
-          totalJobs: res.data.totalJobs || 30
-        })
-      }
+    // Real aggregate counts only — safe for every logged-in user (no student PII).
+    // Admin-only details (names, emails, login history) live behind /admin/dashboard.
+    api.get('/admin/public-stats').then(res => {
+      if (res.data) setStats(res.data)
     }).catch(() => { })
   }, [])
 
   // ── Featured modules (top row - most important) ───────────────
   const featuredCards = [
-    { id: 'notes', icon: '📝', label: 'Notes Hub', tag: '100K+ Notes', desc: 'AI-powered notes for all branches. Flashcards + Exam Qs', color: '#f59e0b', glow: 'rgba(245,158,11,0.3)' },
-    { id: 'jobs', icon: '💼', label: 'Job Portal', tag: '1200+ Jobs', desc: 'Latest campus & off-campus openings with match scores', color: '#22c55e', glow: 'rgba(34,197,94,0.3)' },
-    { id: 'aptitude', icon: '🧠', label: 'Aptitude Hub', tag: '500+ Qs', desc: 'Formulas, shortcuts & practice for TCS/Infosys/Wipro', color: '#14b8a6', glow: 'rgba(20,184,166,0.3)' },
+    { id: 'notes', icon: '📝', label: 'Notes Hub', tag: `${stats.totalNotes.toLocaleString()} Topics`, desc: 'AI-powered notes for all branches. Flashcards + Exam Qs', color: '#f59e0b', glow: 'rgba(245,158,11,0.3)' },
+    { id: 'jobs', icon: '💼', label: 'Job Portal', tag: `${stats.totalJobs.toLocaleString()} Jobs`, desc: 'Latest campus & off-campus openings with match scores', color: '#22c55e', glow: 'rgba(34,197,94,0.3)' },
+    { id: 'aptitude', icon: '🧠', label: 'Aptitude Hub', tag: `${stats.totalTests.toLocaleString()} Tests`, desc: 'Formulas, shortcuts & practice for TCS/Infosys/Wipro', color: '#14b8a6', glow: 'rgba(20,184,166,0.3)' },
     { id: 'career-predictor', icon: '🔮', label: 'Career Predictor', tag: 'AI Power', desc: '5-year trajectory & salary forecast based on your profile', color: '#c084fc', glow: 'rgba(192,132,252,0.3)' },
   ]
 

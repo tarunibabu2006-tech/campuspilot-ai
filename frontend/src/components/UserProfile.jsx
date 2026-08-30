@@ -154,11 +154,14 @@ export default function UserProfile() {
   const handleSave = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
-      updateUser({ ...formData, avatar: avatarPreview })
-      setLoading(false)
+    try {
+      const res = await api.put('/auth/profile', { ...formData, avatar: avatarPreview })
+      updateUser(res.data.user)
       toast.success('Profile updated successfully! 🎉')
-    }, 600)
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Could not save profile. Please try again.')
+    }
+    setLoading(false)
   }
 
   // Ensure selected values are in dropdown options list

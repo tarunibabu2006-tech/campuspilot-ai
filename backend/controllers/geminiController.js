@@ -13,7 +13,8 @@ import {
   BUNK_PLANNER_PROMPT,
   JOB_CHECKER_PROMPT,
   SKILL_GAP_PROMPT,
-  CHAT_PROMPT
+  CHAT_PROMPT,
+  GENERATE_NOTE_PROMPT
 } from '../utils/prompts.js'
 
 dotenv.config()
@@ -197,6 +198,25 @@ Answer:`
   } catch (error) {
     logger.error(`RAG Chat Error: ${error.message}`)
     return "I'm having trouble analyzing your notes right now. Please try again later."
+  }
+}
+
+// ═══════════════════════════════════════════
+// NOTES HUB: on-demand full note generation (real content, cached after write)
+// ═══════════════════════════════════════════
+export const generateNoteContent = async (title, category, subject, level, unit, language = 'en') => {
+  try {
+    const prompt = GENERATE_NOTE_PROMPT(language, title, category, subject, level, unit)
+    const result = await proModel.generateContent(prompt)
+    const parsed = parseGeminiResponse(result.response.text())
+    return {
+      content: parsed.content || '',
+      readTime: parsed.readTime || '10 min',
+      flashcards: Array.isArray(parsed.flashcards) ? parsed.flashcards : []
+    }
+  } catch (err) {
+    logger.error(`Note Generation Error (${title}): ${err.message}`)
+    throw err
   }
 }
 

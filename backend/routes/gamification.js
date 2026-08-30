@@ -1,11 +1,18 @@
 import express from 'express'
 import Student from '../models/Student.js'
 import mongoose from 'mongoose'
+import { protect } from '../middleware/auth.js'
 
 const router = express.Router()
 
-// Per-user in-memory gamification state (keyed by userId string)
-// New users always start at 0 XP, 0 badges, 0 streak — no fake defaults
+// All gamification data is personal to the logged-in student — never served
+// anonymously, and never keyed by a client-supplied userId (that was the bug:
+// without this, req.user was always undefined and every request either fell
+// through to a single shared state or reset to zero every time).
+router.use(protect)
+
+// In-memory fallback per user (only used while MongoDB is offline), keyed by
+// email so it can never collide across different logged-in users.
 const userGamificationMap = new Map()
 
 const getDefaultUserState = () => ({
@@ -21,25 +28,23 @@ const getDefaultUserState = () => ({
   ]
 })
 
-const getUserState = (userId) => {
-  if (!userId) return getDefaultUserState()
-  if (!userGamificationMap.has(userId)) {
-    userGamificationMap.set(userId, getDefaultUserState())
+const getUserState = (email) => {
+  if (!userGamificationMap.has(email)) {
+    userGamificationMap.set(email, getDefaultUserState())
   }
-  return userGamificationMap.get(userId)
+  return userGamificationMap.get(email)
 }
 
 // GET /api/gamification/badges
 router.get('/badges', async (req, res) => {
   try {
-    const userId = req.user?.id || req.query.userId
-    if (userId && mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(userId)) {
-      const student = await Student.findById(userId)
+    if (mongoose.connection.readyState === 1) {
+      const student = await Student.findOne({ email: req.user.email })
       if (student) {
         return res.json({ badges: student.badges || [], xpPoints: student.xpPoints || 0 })
       }
     }
-    const state = getUserState(userId)
+    const state = getUserState(req.user.email)
     res.json({ badges: state.badges, xpPoints: state.xpPoints })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -54,9 +59,8 @@ router.post('/earn-badge', async (req, res) => {
       return res.status(400).json({ error: 'Badge identifier required' })
     }
 
-    const userId = req.user?.id || req.body.userId
-    if (userId && mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(userId)) {
-      const student = await Student.findById(userId)
+    if (mongoose.connection.readyState === 1) {
+      const student = await Student.findOne({ email: req.user.email })
       if (student) {
         if (!student.badges.includes(badge)) {
           student.badges.push(badge)
@@ -67,7 +71,7 @@ router.post('/earn-badge', async (req, res) => {
       }
     }
 
-    const state = getUserState(userId)
+    const state = getUserState(req.user.email)
     if (!state.badges.includes(badge)) {
       state.badges.push(badge)
       state.xpPoints += 50
@@ -81,9 +85,8 @@ router.post('/earn-badge', async (req, res) => {
 // GET /api/gamification/streak
 router.get('/streak', async (req, res) => {
   try {
-    const userId = req.user?.id || req.query.userId
-    if (userId && mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(userId)) {
-      const student = await Student.findById(userId)
+    if (mongoose.connection.readyState === 1) {
+      const student = await Student.findOne({ email: req.user.email })
       if (student) {
         return res.json({
           streak: student.streak || 0,
@@ -92,7 +95,7 @@ router.get('/streak', async (req, res) => {
         })
       }
     }
-    const state = getUserState(userId)
+    const state = getUserState(req.user.email)
     res.json({
       streak: state.streak,
       xpPoints: state.xpPoints,
@@ -106,9 +109,8 @@ router.get('/streak', async (req, res) => {
 // POST /api/gamification/update-streak
 router.post('/update-streak', async (req, res) => {
   try {
-    const userId = req.user?.id || req.body.userId
-    if (userId && mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(userId)) {
-      const student = await Student.findById(userId)
+    if (mongoose.connection.readyState === 1) {
+      const student = await Student.findOne({ email: req.user.email })
       if (student) {
         student.streak = (student.streak || 0) + 1
         student.lastActivityDate = new Date()
@@ -122,7 +124,7 @@ router.post('/update-streak', async (req, res) => {
       }
     }
 
-    const state = getUserState(userId)
+    const state = getUserState(req.user.email)
     state.streak += 1
     state.xpPoints += 20
     res.json({
@@ -137,8 +139,7 @@ router.post('/update-streak', async (req, res) => {
 
 // GET /api/gamification/challenges
 router.get('/challenges', async (req, res) => {
-  const userId = req.user?.id || req.query.userId
-  const state = getUserState(userId)
+  const state = getUserState(req.user.email)
   res.json({ challenges: state.weeklyChallenges })
 })
 
@@ -152,7 +153,7 @@ router.get('/leaderboard', async (req, res) => {
       .sort({ xpPoints: -1 })
       .limit(10)
       .select('name department xpPoints badges')
-    
+
     const leaderboard = topStudents.map((s, index) => ({
       rank: index + 1,
       name: s.name,
@@ -160,7 +161,7 @@ router.get('/leaderboard', async (req, res) => {
       badges: s.badges?.length || 0,
       score: s.xpPoints || 0
     }))
-    
+
     res.json(leaderboard)
   } catch (error) {
     res.status(500).json({ error: error.message })

@@ -97,9 +97,19 @@ const SKILL_BADGES = [
 export default function Gamification() {
   const { user } = useAuth()
   const [unlockedBadges, setUnlockedBadges] = useState(user?.badges || [])
-  const [xp, setXp] = useState(user?.xp || 0)
+  const [xp, setXp] = useState(user?.xpPoints || 0)
   const [streak, setStreak] = useState(user?.streak || 0)
   const [longestStreak, setLongestStreak] = useState(user?.streak || 0)
+
+  // AuthContext's user can populate/refresh asynchronously (post-mount /me call) —
+  // keep this page's real XP/badges/streak in sync instead of freezing at mount.
+  useEffect(() => {
+    if (!user) return
+    setUnlockedBadges(user.badges || [])
+    setXp(user.xpPoints || 0)
+    setStreak(user.streak || 0)
+    setLongestStreak(prev => Math.max(prev, user.streak || 0))
+  }, [user])
   const [challenges, setChallenges] = useState(WEEKLY_CHALLENGES)
   const [activeTab, setActiveTab] = useState('overview')
   const [loading, setLoading] = useState(false)

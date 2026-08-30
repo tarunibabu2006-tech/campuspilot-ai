@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import ParticlesBg from './components/Background/ParticlesBg'
 import LanguageSelector from './components/LanguageSelector'
-import useLanguage from './hooks/useLanguage'
 import { useAppStore } from './store/appStore'
 
 import Login from './components/Auth/Login'
@@ -198,7 +198,7 @@ function MainApp() {
               </span>
             </button>
 
-            <LanguageSelector language={language} setLanguage={setLanguage} />
+            <LanguageSelector />
             <div className="flex items-center gap-1 ml-2" style={{ borderLeft: '1px solid var(--border-color)', paddingLeft: '0.75rem' }}>
               {user?.role === 'admin' ? (
                 <button
@@ -271,12 +271,14 @@ function MainApp() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Toaster position="top-right" toastOptions={{
-        style: { background: '#1a1f35', color: '#f0f2f8', border: '1px solid #2a3050' }
-      }} />
-      <MainApp />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <Toaster position="top-right" toastOptions={{
+          style: { background: '#1a1f35', color: '#f0f2f8', border: '1px solid #2a3050' }
+        }} />
+        <MainApp />
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 

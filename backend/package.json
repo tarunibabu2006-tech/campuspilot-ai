@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "tsx watch server.js",
     "start": "tsx server.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "seed:notes": "tsx scripts/seedNoteCatalog.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.0",

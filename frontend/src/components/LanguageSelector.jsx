@@ -1,13 +1,8 @@
 import React from 'react'
+import { useLanguage } from '../context/LanguageContext'
 
-const languages = [
-  { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'ta', label: 'தமிழ்', flag: '🇮🇳' },
-  { code: 'hi', label: 'हिंदी', flag: '🇮🇳' }
-]
-
-function LanguageSelector({ language, setLanguage }) {
-  const currentLang = languages.find(l => l.code === language) || languages[0]
+function LanguageSelector() {
+  const { language, setLanguage, languages } = useLanguage()
 
   return (
     <div className="flex gap-1">

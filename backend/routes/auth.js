@@ -178,7 +178,10 @@ router.post('/google', async (req, res) => {
           email: user.email,
           role: user.role || 'student',
           department: user.department || '',
-          year: user.year || ''
+          year: user.year || '',
+          xpPoints: student.xpPoints || 0,
+          badges: student.badges || [],
+          streak: student.streak || 0
         }
       } catch (dbErr) {
         console.warn('⚠️ DB query skipped, proceeding with resilient session:', dbErr.message)
@@ -309,6 +312,7 @@ router.get('/me', protect, async (req, res) => {
       try {
         const user = await User.findById(req.user.id).select('-__v')
         if (user) {
+          const student = await Student.findOne({ email: user.email }).select('xpPoints badges streak')
           return res.json({
             user: {
               id: user._id,
@@ -317,7 +321,21 @@ router.get('/me', protect, async (req, res) => {
               role: user.role,
               department: user.department,
               year: user.year,
-              progress: user.progress
+              semester: user.semester || '',
+              phone: user.phone || '',
+              college: user.college || '',
+              cgpa: user.cgpa,
+              city: user.city || '',
+              state: user.state || '',
+              bio: user.bio || '',
+              avatar: user.avatar || '',
+              github: user.github || '',
+              linkedin: user.linkedin || '',
+              skills: user.skills || [],
+              progress: user.progress,
+              xpPoints: student?.xpPoints || 0,
+              badges: student?.badges || [],
+              streak: student?.streak || 0
             }
           })
         }
@@ -335,6 +353,59 @@ router.get('/me', protect, async (req, res) => {
         role: req.user.role || 'student',
         department: req.user.department || 'Computer Science & Engineering',
         year: req.user.year || '3'
+      }
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+
+// ═══════════════════════════════════════════════
+// UPDATE PROFILE — actually persists to MongoDB (User + Student)
+// ═══════════════════════════════════════════════
+router.put('/profile', protect, async (req, res) => {
+  try {
+    if (req.user.id === 'admin') {
+      return res.status(400).json({ message: 'Admin profile cannot be edited here' })
+    }
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Profile changes need a database connection. Please try again shortly.' })
+    }
+
+    const allowed = ['name', 'department', 'year', 'semester', 'phone', 'college', 'cgpa', 'city', 'state', 'bio', 'avatar', 'github', 'linkedin', 'skills']
+    const updates = {}
+    for (const field of allowed) {
+      if (req.body[field] !== undefined && req.body[field] !== '') updates[field] = req.body[field]
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-__v')
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    // Keep the Student activity/gamification record in sync, matching the same
+    // fields trackActivity.js and the Google login flow already mirror onto it.
+    await Student.findOneAndUpdate({ email: user.email }, updates)
+
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        department: user.department,
+        year: user.year,
+        semester: user.semester || '',
+        phone: user.phone || '',
+        college: user.college || '',
+        cgpa: user.cgpa,
+        city: user.city || '',
+        state: user.state || '',
+        bio: user.bio || '',
+        avatar: user.avatar || '',
+        github: user.github || '',
+        linkedin: user.linkedin || '',
+        skills: user.skills || []
       }
     })
   } catch (error) {
