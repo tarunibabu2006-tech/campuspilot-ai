@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { LanguageProvider, useLanguage } from './context/LanguageContext'
 import ParticlesBg from './components/Background/ParticlesBg'
 import LanguageSelector from './components/LanguageSelector'
-import useLanguage from './hooks/useLanguage'
 import { useAppStore } from './store/appStore'
 
 import Login from './components/Auth/Login'
@@ -65,7 +65,7 @@ function MainApp() {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-primary)', color: 'white' }}>
         <div>
-          <span className="loading-spinner"></span> Auto-Logging In...
+          <span className="loading-spinner"></span> {t('loading')}
         </div>
       </div>
     )
@@ -88,20 +88,20 @@ function MainApp() {
     { id: 'dashboard', label: `🎯 ${t('dashboard')}` },
 
     // 🌟 10 FLAGSHIP AI & PLACEMENT ENHANCEMENTS
-    { id: 'profile', label: `👤 Profile` },
-    { id: 'leaderboard', label: `🏆 Leaderboard` },
-    { id: 'company-archives', label: `🏛️ Archives` },
-    { id: 'alumni-network', label: `🤝 Alumni` },
-    { id: 'career-predictor', label: `🔮 Career Predictor` },
-    { id: 'voice-interview', label: `🎙️ Voice Interview` },
-    { id: 'gamification', label: `🏆 Gamification 2.0` },
-    { id: 'study-groups', label: `👥 Study Groups` },
-    { id: 'career-gps', label: `🗺️ Career GPS` },
-    { id: 'resume-scorer', label: `📄 Resume Scorer` },
-    { id: 'ai-apply', label: `🤖 AI Apply` },
-    { id: 'skill-badge', label: `🏷️ Skill Badge` },
-    { id: 'mentors', label: `👥 Mentors` },
-    { id: 'mock-tests', label: `📝 Mock Tests` },
+    { id: 'profile', label: `👤 ${t('profile')}` },
+    { id: 'leaderboard', label: `🏆 ${t('leaderboard')}` },
+    { id: 'company-archives', label: `🏛️ ${t('companyArchives')}` },
+    { id: 'alumni-network', label: `🤝 ${t('alumniNetwork')}` },
+    { id: 'career-predictor', label: `🔮 ${t('careerPredictor')}` },
+    { id: 'voice-interview', label: `🎙️ ${t('voiceInterview')}` },
+    { id: 'gamification', label: `⚡ ${t('gamification')}` },
+    { id: 'study-groups', label: `👥 ${t('studyGroups')}` },
+    { id: 'career-gps', label: `🗺️ ${t('careerGps')}` },
+    { id: 'resume-scorer', label: `📄 ${t('resumeScorer')}` },
+    { id: 'ai-apply', label: `🤖 ${t('aiApply')}` },
+    { id: 'skill-badge', label: `🏷️ ${t('skillBadge')}` },
+    { id: 'mentors', label: `👥 ${t('mentors')}` },
+    { id: 'mock-tests', label: `📝 ${t('mockTests')}` },
 
     // Core Study & Placement Hubs
     { id: 'skills', label: `📚 ${t('skills')}` },
@@ -174,7 +174,7 @@ function MainApp() {
         <div className="header-inner">
           <div className="logo" style={{ cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
             <span className="logo-icon">🎓</span>
-            CampusPilot AI
+            {t('brandName')}
           </div>
 
           <div className="flex items-center gap-1">
@@ -183,7 +183,7 @@ function MainApp() {
               onClick={() => setShowNotifications(true)}
               className="btn btn-outline"
               style={{ fontSize: '0.85rem', padding: '0.3rem 0.6rem', position: 'relative', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-              title="Real-Time Alerts"
+              title={t('realTimeAlerts')}
             >
               <span>🔔</span>
               <span style={{
@@ -218,7 +218,7 @@ function MainApp() {
                     boxShadow: '0 2px 10px rgba(245,158,11,0.4)'
                   }}
                 >
-                  👑 Admin Panel
+                  👑 {t('adminPanel')}
                 </button>
               ) : (
                 <span className="text-xs font-bold text-blue">👤 {user?.name}</span>
@@ -238,7 +238,7 @@ function MainApp() {
               onClick={() => setActiveTab('dashboard')}
               style={{ background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: 'white', border: 'none', padding: '0.4rem 0.9rem', borderRadius: '0.6rem', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
             >
-              🏠 Back to Dashboard
+              🏠 {t('backToDashboard')}
             </button>
             <span style={{ color: '#64748b', fontSize: '0.85rem' }}>/</span>
             <span style={{ color: 'white', fontWeight: '700', fontSize: '0.9rem', textTransform: 'capitalize' }}>
@@ -271,13 +271,16 @@ function MainApp() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Toaster position="top-right" toastOptions={{
-        style: { background: '#1a1f35', color: '#f0f2f8', border: '1px solid #2a3050' }
-      }} />
-      <MainApp />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <Toaster position="top-right" toastOptions={{
+          style: { background: '#1a1f35', color: '#f0f2f8', border: '1px solid #2a3050' }
+        }} />
+        <MainApp />
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 
 export default App
+
