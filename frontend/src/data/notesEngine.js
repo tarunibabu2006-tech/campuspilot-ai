@@ -230,6 +230,1017 @@ export const NOTE_TAXONOMY = {
       'Contract Law': { topics: ['Definition of Contract', 'Essential Elements', 'Offer & Acceptance', 'Consideration', 'Capacity to Contract', 'Free Consent', 'Coercion & Undue Influence', 'Fraud & Misrepresentation', 'Mistake Types', 'Void & Voidable Contracts', 'Contingent Contracts', 'Quasi Contracts', 'Performance of Contract', 'Breach of Contract', 'Remedies for Breach', 'Specific Performance', 'Anticipatory Breach', 'Indemnity & Guarantee', 'Bailment & Pledge', 'Agency Contracts'], levels: ['Beginner', 'Intermediate'], units: ['Unit 1: Formation of Contract', 'Unit 2: Validity', 'Unit 3: Performance & Discharge', 'Unit 4: Breach & Remedies', 'Unit 5: Special Contracts'] },
       'Corporate Law': { topics: ['Company Definition Types', 'Memorandum of Association', 'Articles of Association', 'Incorporation Process', 'Share Capital', 'Types of Shares', 'Debentures & Bonds', 'Board of Directors', 'Directors Duties', 'Shareholders Rights', 'Company Meetings', 'Annual General Meeting', 'Special Resolutions', 'Audit & Accounts', 'Corporate Governance', 'SEBI Regulations', 'Listing Requirements', 'Takeover Code', 'Insolvency IBC Code', 'Corporate Social Responsibility CSR'], levels: ['Intermediate', 'Advanced'], units: ['Unit 1: Company Formation', 'Unit 2: Capital & Securities', 'Unit 3: Management', 'Unit 4: Corporate Governance', 'Unit 5: Insolvency & Winding Up'] }
     }
+  },
+
+  // ════════════════════════════════════════════════════════════
+  // GOVERNMENT EXAM NOTES — Complete structured notes for all major exams
+  // ════════════════════════════════════════════════════════════
+
+  'UPSC': {
+    icon: '🏛️', color: '#7c3aed',
+    subjects: {
+      'UPSC Basic Notes': {
+        topics: [
+          'What is UPSC — Full Form & Conducting Authority',
+          'UPSC Exam Purpose & Type — National Level Civil Services',
+          'UPSC Official Website & Registration Portal',
+          'UPSC Eligibility — Educational Qualification',
+          'UPSC Age Limit & Number of Attempts',
+          'UPSC Nationality Requirements',
+          'Age Relaxation — SC/ST/OBC/PwD/Ex-Servicemen',
+          'UPSC Exam Stages Overview — Prelims Mains Interview',
+          'UPSC Preliminary Exam — Pattern Subjects Marks Duration',
+          'UPSC Mains Exam — GS Papers Essay Optional Language',
+          'UPSC Interview & Personality Test — Format & Scoring',
+          'UPSC Negative Marking Rules',
+          'UPSC Syllabus — General Studies GS1 GS2 GS3 GS4',
+          'UPSC Syllabus — Current Affairs & CSAT',
+          'UPSC Syllabus — Essay & Ethics Integrity Aptitude',
+          'UPSC Syllabus — Optional Subject Selection Guide',
+          'UPSC Syllabus — English & Indian Language Papers',
+          'UPSC Notification Date & Application Timeline',
+          'UPSC Application Fee & Admit Card',
+          'UPSC Result Date & Final Merit List'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: UPSC Overview', 'Unit 2: Eligibility', 'Unit 3: Exam Pattern', 'Unit 4: Syllabus', 'Unit 5: Application Process']
+      },
+      'UPSC Career & Services': {
+        topics: [
+          'IAS — Indian Administrative Service Role & Responsibilities',
+          'IPS — Indian Police Service Role & Responsibilities',
+          'IFS — Indian Foreign Service & Diplomacy',
+          'IRS — Indian Revenue Service Roles',
+          'Other Group A & Group B Central Services',
+          'UPSC Study Plan — Month-wise Preparation Strategy',
+          'UPSC Recommended Books — History Polity Geography Economy',
+          'UPSC Previous Year Papers Analysis',
+          'UPSC Mock Tests & Test Series Strategy',
+          'UPSC Current Affairs — Sources & Daily Reading Habit',
+          'UPSC Optional Subject — How to Choose & Strategy',
+          'UPSC Answer Writing Practice — UPSC Mains Strategy',
+          'UPSC Interview Preparation — DAF & Personality Grooming',
+          'UPSC Topper Strategies & Success Stories',
+          'UPSC General Studies Paper 1 — History Geography Society',
+          'UPSC General Studies Paper 2 — Polity Governance IR',
+          'UPSC General Studies Paper 3 — Economy Environment Technology',
+          'UPSC General Studies Paper 4 — Ethics Integrity Aptitude',
+          'UPSC CSAT Paper 2 — Comprehension Reasoning Maths',
+          'UPSC Important Topics — Environment Climate Biodiversity'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: IAS IPS IFS IRS', 'Unit 2: Study Plan', 'Unit 3: Subject-wise Strategy', 'Unit 4: Answer Writing', 'Unit 5: Interview Prep']
+      }
+    }
+  },
+
+  'SSC': {
+    icon: '📝', color: '#0369a1',
+    subjects: {
+      'SSC Basic Notes': {
+        topics: [
+          'What is SSC — Full Form & Conducting Authority',
+          'SSC Major Exams — CGL CHSL MTS GD CPO JE Stenographer Selection Post',
+          'SSC CGL — Eligibility Qualification Age Limit',
+          'SSC CHSL — Eligibility & 10+2 Level Posts',
+          'SSC MTS — Eligibility Age Limit & Multi-Tasking Staff Posts',
+          'SSC GD Constable — Eligibility & Physical Standards',
+          'SSC CPO Sub-Inspector — Selection Process',
+          'SSC JE — Junior Engineer Exam for Technical Candidates',
+          'SSC Stenographer — Speed Test & Grade C Grade D',
+          'SSC Selection Post Phase — Category-wise Recruitment',
+          'SSC Nationality Requirements & Domicile',
+          'SSC Age Relaxation — SC/ST/OBC/Ex-Servicemen',
+          'SSC Exam Stages — Tier 1 Tier 2 Tier 3 Skill Test',
+          'SSC Exam Pattern — Marks Duration Negative Marking',
+          'SSC Syllabus — General Intelligence & Reasoning',
+          'SSC Syllabus — Quantitative Aptitude Number System Algebra',
+          'SSC Syllabus — English Language & Comprehension',
+          'SSC Syllabus — General Awareness Current Affairs',
+          'SSC Syllabus — Computer Knowledge & Data Entry',
+          'SSC Notification & Application Process Guide'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: SSC Overview', 'Unit 2: Major Exams', 'Unit 3: Eligibility', 'Unit 4: Exam Pattern', 'Unit 5: Syllabus']
+      },
+      'SSC Career & Preparation': {
+        topics: [
+          'SSC Career — Income Tax Inspector & Audit Officer',
+          'SSC Career — Assistant Section Officer CSS',
+          'SSC Career — Auditor Accountant Compiler Posts',
+          'SSC Career — Junior Engineer Technical Posts',
+          'SSC Career — Constable & Sub-Inspector GD',
+          'SSC Preparation — Best Books for Reasoning',
+          'SSC Preparation — Best Books for Quantitative Aptitude',
+          'SSC Preparation — English Grammar & Vocabulary Tips',
+          'SSC Preparation — General Awareness Static GK',
+          'SSC Previous Year Papers — CGL CHSL Topic-wise Analysis',
+          'SSC Mock Tests — Speed & Accuracy Training',
+          'SSC Reasoning — Analogy Classification Matrix',
+          'SSC Quant — Percentage Ratio Profit Loss Time Work',
+          'SSC English — Cloze Test Error Spotting Reading Comprehension',
+          'SSC GK — Science Polity History Geography Economy',
+          'SSC Tier 2 Preparation — Paper 1 Quant Paper 2 English',
+          'SSC Descriptive Paper — Essay Letter Writing',
+          'SSC Skill Test — Typing Speed DEST & CPT',
+          'SSC Physical Test — PET for GD Constable & CPO',
+          'SSC Document Verification & Medical Examination'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Post-wise Careers', 'Unit 2: Subject Preparation', 'Unit 3: Previous Papers', 'Unit 4: Mock Tests', 'Unit 5: Physical & Skill Tests']
+      }
+    }
+  },
+
+  'Banking': {
+    icon: '🏦', color: '#047857',
+    subjects: {
+      'Banking Exams Basic Notes': {
+        topics: [
+          'What are Banking Exams — Conducting Organizations Overview',
+          'SBI PO — Eligibility Prelims Mains Interview Process',
+          'SBI Clerk — Junior Associate Exam Pattern & Syllabus',
+          'IBPS PO — CWE Pattern Institute of Banking Personnel Selection',
+          'IBPS Clerk — Prelims Mains Pattern & Posts',
+          'IBPS SO — Specialist Officer IT HR Agriculture Law',
+          'IBPS RRB — Regional Rural Banks Officer & Office Assistant',
+          'RBI Grade B — Phase 1 Phase 2 Interview Process',
+          'RBI Assistant — Prelims Mains Language Test',
+          'NABARD Grade A & Grade B — Development Banking',
+          'SEBI Grade A — Securities & Exchange Board Officer',
+          'Banking Eligibility — Educational Qualification Age Limit',
+          'Banking Age Relaxation — SC/ST/OBC/PwD/Ex-Servicemen',
+          'Banking Exam Stages — Prelims Mains Interview Language Test',
+          'Banking Exam Pattern — Marks Duration Negative Marking',
+          'Banking Syllabus — Quantitative Aptitude Data Interpretation',
+          'Banking Syllabus — Reasoning Ability Puzzles Seating',
+          'Banking Syllabus — English Language Reading Comprehension',
+          'Banking Syllabus — General Awareness Banking Current Affairs',
+          'Banking Syllabus — Computer Aptitude & Financial Awareness'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Banking Exam Overview', 'Unit 2: Major Exams', 'Unit 3: Eligibility', 'Unit 4: Exam Pattern', 'Unit 5: Syllabus']
+      },
+      'Banking Career & Preparation': {
+        topics: [
+          'Banking Career — Probationary Officer PO Roles',
+          'Banking Career — Clerk & Customer Service Posts',
+          'Banking Career — Specialist Officer IT RAJBHASHA HR Law',
+          'Banking Career — Assistant & Grade A/B Officer',
+          'Banking Career — Branch Manager & Senior Manager Growth',
+          'Banking Awareness — RBI Monetary Policy Repo Rate',
+          'Banking Awareness — Types of Banks Commercial RRB NBFC',
+          'Banking Awareness — BASEL Norms Capital Adequacy',
+          'Banking Awareness — NPA Provisioning Banking Terms',
+          'Banking Awareness — Financial Inclusion Jan Dhan Yojana',
+          'Banking Awareness — Digital Banking NEFT RTGS IMPS UPI',
+          'Banking Awareness — Negotiable Instruments Cheque DD',
+          'Banking Quant — Data Interpretation Table Chart',
+          'Banking Quant — Number Series Simplification DI',
+          'Banking Reasoning — Puzzles Direction Sense Blood Relation',
+          'Banking English — Error Correction Sentence Rearrangement',
+          'Banking Mock Tests — Speed Accuracy Time Management',
+          'Banking GK — Important Government Schemes Committees',
+          'Banking GK — International Organizations IMF WTO SWIFT',
+          'Banking Interview Preparation — Banking Knowledge HR Questions'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Career Paths', 'Unit 2: Banking Awareness', 'Unit 3: Quantitative Aptitude', 'Unit 4: Reasoning & English', 'Unit 5: Interview Prep']
+      }
+    }
+  },
+
+  'Railway': {
+    icon: '🚆', color: '#b45309',
+    subjects: {
+      'Railway Exams Basic Notes': {
+        topics: [
+          'Railway Recruitment — RRB & RRC Overview',
+          'RRB NTPC — Non-Technical Popular Categories Exam',
+          'RRB Group D — Track Maintainer Helper & Other Posts',
+          'RRB ALP — Assistant Loco Pilot & Technician',
+          'RRB JE — Junior Engineer Civil Mechanical Electrical IT',
+          'RPF Constable — Railway Protection Force Recruitment',
+          'RPF Sub-Inspector — SI Recruitment & Selection Process',
+          'Railway Eligibility — Qualification Age Limit Nationality',
+          'Railway Medical Standards — A1 B1 B2 C1 C2 Categories',
+          'Railway Age Relaxation — SC/ST/OBC/PwD/Ex-Servicemen',
+          'Railway Exam Stages — CBT 1 CBT 2 Skill Test PET Medical',
+          'Railway CBT Pattern — Questions Marks Duration Negative Marking',
+          'Railway Syllabus — Mathematics Number System Algebra Geometry',
+          'Railway Syllabus — General Intelligence & Reasoning',
+          'Railway Syllabus — General Science Physics Chemistry Bio',
+          'Railway Syllabus — General Awareness Current Affairs',
+          'Railway Syllabus — Technical Subjects for ALP JE',
+          'Railway Application Process — Official Website RRB Zones',
+          'Railway Document Verification & Medical Examination',
+          'Railway Physical Efficiency Test — PET for RPF Posts'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Railway Overview', 'Unit 2: Major Exams', 'Unit 3: Eligibility', 'Unit 4: Exam Pattern', 'Unit 5: Syllabus']
+      },
+      'Railway Career & Preparation': {
+        topics: [
+          'Railway Career — Station Master & Ticket Collector',
+          'Railway Career — Clerk & Commercial Apprentice',
+          'Railway Career — Technician & Assistant Loco Pilot',
+          'Railway Career — Junior Engineer Technical Posts',
+          'Railway Career — Track Maintainer Level 1 Posts',
+          'Railway Career — Constable & Sub-Inspector RPF',
+          'Railway Maths — Percentage Ratio Profit Loss Distance',
+          'Railway Maths — Time & Work Train Problems Pipes Cistern',
+          'Railway General Science — Physics Laws Motion Electricity',
+          'Railway General Science — Chemistry Periodic Table Reactions',
+          'Railway General Science — Biology Human Body Nutrition',
+          'Railway GK — History Geography Polity Economy',
+          'Railway GK — Indian Railways History Zones Headquarters',
+          'Railway GK — Current Affairs Railway Budget Union Budget',
+          'Railway Reasoning — Analogy Classification Coding Number',
+          'Railway CBT Previous Papers — Topic-wise Practice',
+          'Railway Mock Tests — Online Practice Test Strategy',
+          'Railway ALP Technical — Relevant Trade Syllabus',
+          'Railway JE Technical — Civil Mechanical Electrical IT',
+          'Railway Interview & Document Verification Checklist'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Career Paths', 'Unit 2: Mathematics', 'Unit 3: General Science', 'Unit 4: GK & Current Affairs', 'Unit 5: Technical Preparation']
+      }
+    }
+  },
+
+  'Defence': {
+    icon: '🪖', color: '#1d4ed8',
+    subjects: {
+      'Defence Exams Basic Notes': {
+        topics: [
+          'Defence Career Overview — Army Navy Air Force',
+          'NDA Exam — National Defence Academy Overview',
+          'NDA Eligibility — Age Qualification Marital Status Nationality',
+          'NDA Exam Pattern — Mathematics GAT Paper Marks Duration',
+          'NDA SSB Interview — 5-Day Selection Process',
+          'CDS Exam — Combined Defence Services Overview',
+          'CDS Eligibility — IMA INA AFA OTA Specific Qualifications',
+          'CDS Exam Pattern — English GK Elementary Maths',
+          'AFCAT — Air Force Common Admission Test Overview',
+          'AFCAT Eligibility & Exam Pattern',
+          'Agniveer Recruitment — Army Navy Air Force',
+          'Agniveer Eligibility — Age Physical Educational',
+          'Territorial Army — Officer Recruitment Process',
+          'Defence Physical Standards — Height Weight Running',
+          'Defence Medical Standards — SHAPE1 MedCat A B C',
+          'Defence Written Exam Syllabus — Maths English GK Science',
+          'SSB Interview Stages — OIR PPDT GTO Psychology Interview',
+          'SSB Group Testing Officer Tests — WAT SRT',
+          'SSB Interview — Personal Interview & Conference',
+          'Merit List — Written Marks SSB Marks Combined'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Defence Overview', 'Unit 2: NDA & CDS', 'Unit 3: AFCAT & Agniveer', 'Unit 4: SSB Selection', 'Unit 5: Physical & Medical']
+      },
+      'Defence Career & Preparation': {
+        topics: [
+          'Army Officer — Lieutenant to General Career Progression',
+          'Navy Officer — Sub-Lieutenant to Admiral',
+          'Air Force Officer — Flying Technical Ground Duty Branches',
+          'Soldier Agniveer — Technical Tradesmen Clerk Posts',
+          'Technical Officer — Engineering Posts in Defence',
+          'NDA Maths Preparation — Algebra Trigonometry Calculus',
+          'NDA GAT Preparation — English Reasoning History Geography',
+          'CDS English — Comprehension Grammar Vocabulary',
+          'CDS GK — Indian History Polity Geography Science',
+          'CDS Maths — Arithmetic Mensuration Geometry Statistics',
+          'AFCAT Verbal Reasoning — Analogy Antonym Synonym',
+          'AFCAT Military Aptitude — Spatial Reasoning Mechanical',
+          'SSB Preparation — OIR Verbal Non-Verbal Reasoning',
+          'SSB PPDT — Picture Perception Discussion Practice',
+          'SSB GTO Tasks — Command Task PGT HGT Snake Race',
+          'SSB Psychology — WAT SRT SDT Interview Practice',
+          'Physical Training — Running Swimming Push-ups Pull-ups',
+          'Personality Development — Leadership Communication',
+          'Defence Current Affairs — Defence News Exercises Treaties',
+          'Mock SSB — Simulation Tests & Practice Sessions'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Career Paths', 'Unit 2: Written Preparation', 'Unit 3: SSB Preparation', 'Unit 4: Physical Training', 'Unit 5: Personality Development']
+      }
+    }
+  },
+
+  'Police': {
+    icon: '👮', color: '#374151',
+    subjects: {
+      'Police Exams Basic Notes': {
+        topics: [
+          'Police Recruitment Overview — Central & State Police',
+          'SSC GD Constable — CISF BSF CRPF ITBP SSB AR NIA',
+          'SSC CPO — Delhi Police & CAPF Sub-Inspector',
+          'State Police Constable — State-wise Recruitment',
+          'State Police SI Sub-Inspector — Exam & Selection',
+          'UPSC CAPF AC — Assistant Commandant Exam',
+          'Police Eligibility — Qualification Age Nationality',
+          'Police Physical Standards — Height Chest Running',
+          'Police Age Relaxation — SC/ST/OBC/Ex-Servicemen',
+          'Police Selection — Written Exam PET PMT Medical Interview',
+          'Police Written Exam Pattern — Marks Duration',
+          'Police Syllabus — General Knowledge & Current Affairs',
+          'Police Syllabus — Reasoning Ability Mental Alertness',
+          'Police Syllabus — Mathematics Elementary Arithmetic',
+          'Police Syllabus — General Science Physics Chemistry Bio',
+          'Police Syllabus — Constitution Basic Law & Rights',
+          'Police Physical Efficiency Test — Running Long High Jump',
+          'Police Physical Measurement Test — Height Chest',
+          'Police Medical Examination Standards',
+          'Police Document Verification & Certificate Requirements'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Police Exam Overview', 'Unit 2: Major Exams', 'Unit 3: Eligibility', 'Unit 4: Exam Pattern', 'Unit 5: Physical Standards']
+      },
+      'Police Career & Preparation': {
+        topics: [
+          'Police Career — Constable & Head Constable',
+          'Police Career — Sub-Inspector & Assistant Sub-Inspector',
+          'Police Career — Inspector & Circle Inspector',
+          'Police Career — CAPF Assistant Commandant',
+          'IPS through UPSC — Career Path & Posting',
+          'Police GK — Indian Polity Constitution Law',
+          'Police GK — Indian History Freedom Struggle',
+          'Police GK — Geography Physical Political',
+          'Police GK — General Science Biology Chemistry Physics',
+          'Police GK — Current Affairs National International',
+          'Police Maths — Arithmetic Percentage Ratio Algebra',
+          'Police Reasoning — Analogy Classification Coding Series',
+          'Police Reasoning — Directions Blood Relations Puzzles',
+          'Police Running Training — 1600m 800m Sprint Programs',
+          'Police Long Jump High Jump Physical Training',
+          'Police Mock Tests — Online Practice Tests',
+          'Police Previous Papers — State-wise Question Analysis',
+          'Police Interview Preparation — UPSC CAPF Interview',
+          'Police Law — IPC CrPC Evidence Act Basics',
+          'Police Cyber Crime — Digital Forensics Basics'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Career Paths', 'Unit 2: GK & Current Affairs', 'Unit 3: Maths & Reasoning', 'Unit 4: Physical Training', 'Unit 5: Law Basics']
+      }
+    }
+  },
+
+  'State PSC': {
+    icon: '🏛️', color: '#7c2d12',
+    subjects: {
+      'State PSC Basic Notes': {
+        topics: [
+          'What is State PSC — State Public Service Commission',
+          'TNPSC — Tamil Nadu Public Service Commission Overview',
+          'TNPSC Groups — Group 1 2 2A 4 VAO CCSE Exams',
+          'Kerala PSC — Overview & Major Exams',
+          'Karnataka PSC KPSC — KAS & Other Exams',
+          'APPSC — Andhra Pradesh Public Service Commission',
+          'TSPSC — Telangana State Public Service Commission',
+          'MPSC — Maharashtra Public Service Commission',
+          'WBPSC — West Bengal Public Service Commission',
+          'UPPSC — Uttar Pradesh Public Service Commission',
+          'BPSC — Bihar Public Service Commission',
+          'RPSC — Rajasthan Public Service Commission',
+          'MPPSC — Madhya Pradesh Public Service Commission',
+          'State PSC Eligibility — Qualification Age Domicile',
+          'State PSC Age Relaxation — Reservation Category-wise',
+          'State PSC Exam Stages — Preliminary Mains Interview',
+          'State PSC Exam Pattern — Marks Duration Negative Marking',
+          'State PSC Syllabus — State GK History Geography Economy',
+          'State PSC Syllabus — Indian Polity Constitution',
+          'State PSC Syllabus — Regional Language & Current Affairs'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: PSC Overview', 'Unit 2: State-wise PSCs', 'Unit 3: Eligibility', 'Unit 4: Exam Pattern', 'Unit 5: Syllabus']
+      },
+      'State PSC Career & Preparation': {
+        topics: [
+          'State PSC Career — Deputy Collector & Administrative Officer',
+          'State PSC Career — Revenue Officer & Tahsildar',
+          'State PSC Career — Commercial Tax Officer',
+          'State PSC Career — Municipal Administration Roles',
+          'State PSC Career — Assistant Section Officer & Clerk',
+          'TNPSC Preparation — Tamil Nadu History & Culture',
+          'TNPSC Preparation — Tamil Nadu Geography Economy',
+          'TNPSC Tamil — Tamil Language Paper Preparation',
+          'State PSC Indian History — Ancient Medieval Modern',
+          'State PSC Indian Polity — Constitution Parliament Judiciary',
+          'State PSC Geography — Physical India State Geography',
+          'State PSC Economy — Indian Economy & State Economy',
+          'State PSC Science — Physics Chemistry Biology',
+          'State PSC Current Affairs — State National International',
+          'State PSC Aptitude — Maths Reasoning',
+          'State PSC Previous Papers — Prelims Mains Analysis',
+          'State PSC Mock Tests — Online Practice',
+          'State PSC Answer Writing — Mains Strategy',
+          'State PSC Interview — Certificate Verification Process',
+          'State PSC Books — Standard Reference Books State-wise'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Career Paths', 'Unit 2: State History & GK', 'Unit 3: Indian Polity & Economy', 'Unit 4: Previous Papers', 'Unit 5: Interview Prep']
+      }
+    }
+  },
+
+  'Teaching': {
+    icon: '👩🏫', color: '#0891b2',
+    subjects: {
+      'Teaching Exams Basic Notes': {
+        topics: [
+          'Government Teaching Career Overview — Central vs State',
+          'CTET — Central Teacher Eligibility Test Overview',
+          'CTET Paper 1 — Classes 1 to 5 Primary Level',
+          'CTET Paper 2 — Classes 6 to 8 Upper Primary Level',
+          'State TET — State-wise Teacher Eligibility Tests',
+          'UGC NET — National Eligibility Test for Assistant Professor',
+          'CSIR NET — Science & Technology NET for Lecturer',
+          'KVS Recruitment — Kendriya Vidyalaya Sangathan Teacher',
+          'NVS Recruitment — Navodaya Vidyalaya Samiti Teacher',
+          'State Teacher Recruitment — TRB DSSSB MPTET etc',
+          'Teaching Eligibility — 12th Graduation B.Ed D.El.Ed',
+          'Teaching Eligibility — Post Graduation for TGT PGT',
+          'Teaching Age Limit & Reservation',
+          'CTET Exam Pattern — Paper 1 & Paper 2 Marks Duration',
+          'CTET Syllabus — Child Development & Pedagogy',
+          'CTET Syllabus — Teaching Methodology Paper 1 & 2',
+          'CTET Syllabus — Language I & Language II',
+          'CTET Syllabus — Mathematics Science Social Studies',
+          'UGC NET Exam Pattern — Paper 1 & Subject Paper 2',
+          'UGC NET Syllabus — Teaching Research Aptitude'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Teaching Exam Overview', 'Unit 2: CTET & State TET', 'Unit 3: UGC NET CSIR NET', 'Unit 4: Eligibility & Pattern', 'Unit 5: Syllabus']
+      },
+      'Teaching Career & Preparation': {
+        topics: [
+          'Teaching Career — Primary Teacher Class 1 to 5',
+          'Teaching Career — TGT Trained Graduate Teacher 6-10',
+          'Teaching Career — PGT Post Graduate Teacher 11-12',
+          'Teaching Career — Lecturer & Assistant Professor',
+          'Teaching Career — Research & Academic Roles in College',
+          'Child Development — Piaget Vygotsky Kohlberg Theories',
+          'Child Development — Learning Theories Behaviorism Constructivism',
+          'Teaching Methodology — Inclusive Education & Special Needs',
+          'Teaching Methodology — Continuous & Comprehensive Evaluation',
+          'Teaching Methodology — Lesson Planning & Bloom Taxonomy',
+          'CTET Pedagogy — Language Acquisition & Development',
+          'CTET Maths Pedagogy — Number Concept Teaching Methods',
+          'CTET Science Pedagogy — Activity-based Science Learning',
+          'CTET Social Science Pedagogy — Map Work & History',
+          'UGC NET Paper 1 — Research Methodology & ICT',
+          'UGC NET Paper 1 — Communication & Logical Reasoning',
+          'UGC NET Paper 1 — Higher Education System in India',
+          'UGC NET Subject Preparation — Education Commerce History',
+          'Teaching Mock Tests — CTET TET NET Practice Papers',
+          'Teaching Interview — Demo Lesson & Panel Interview Tips'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Career Paths', 'Unit 2: Child Development', 'Unit 3: Teaching Methodology', 'Unit 4: Paper-wise Prep', 'Unit 5: Mock Tests & Interview']
+      }
+    }
+  },
+
+  // ════════════════════════════════════════════════════════════
+  // SKILL-WISE NOTES — Rich structured notes per skill
+  // Format: What is it → Why → Concepts → Terms → Steps → Examples → Practical → Tools → Mistakes → Interview Qs → MCQs → Project → Advanced → Career
+  // ════════════════════════════════════════════════════════════
+
+  'Python & CSE Skills': {
+    icon: '💻', color: '#3b82f6',
+    subjects: {
+      'Python Programming': {
+        topics: [
+          'Python Introduction — What is Python & Why Learn It',
+          'Python Installation & IDE Setup — VS Code PyCharm Jupyter',
+          'Python Variables & Data Types — int float str bool',
+          'Python Operators — Arithmetic Comparison Logical Bitwise',
+          'Python Conditional Statements — if elif else',
+          'Python Loops — for while break continue pass',
+          'Python Functions — def return arguments default args',
+          'Python Lists — Indexing Slicing Methods list comprehension',
+          'Python Tuples — Immutable Sequences & Packing Unpacking',
+          'Python Sets — Union Intersection Difference Operations',
+          'Python Dictionaries — Key-Value pairs Methods Iteration',
+          'Python Strings — Formatting Methods RegEx Pattern',
+          'Python File Handling — Read Write Append CSV JSON',
+          'Python Exception Handling — try except finally raise',
+          'Python OOP — Classes Objects Inheritance Polymorphism',
+          'Python Modules & Packages — import pip PyPI',
+          'Python Lambda & Higher-Order Functions — map filter reduce',
+          'Python Iterators Generators & yield keyword',
+          'Python Decorators — Function Decorator Class Decorator',
+          'Python Regular Expressions — re module Pattern Matching',
+          'Python APIs — requests library REST API calls',
+          'Python Database — sqlite3 SQLAlchemy MySQL Connector',
+          'Python Multithreading & Multiprocessing — concurrent.futures',
+          'Python Async Programming — asyncio await coroutines',
+          'Python Testing — unittest pytest TDD approach',
+          'Python Design Patterns — Singleton Factory Observer',
+          'Python Web Development — Flask FastAPI Django basics',
+          'Python Data Science — NumPy Pandas Matplotlib intro',
+          'Python AI/ML — Scikit-learn TensorFlow PyTorch intro',
+          'Python Projects — Calculator Student Manager Expense Tracker API App'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Python Basics', 'Unit 2: Data Structures', 'Unit 3: OOP & Advanced', 'Unit 4: Libraries & APIs', 'Unit 5: Projects & Career']
+      },
+      'Web Development': {
+        topics: [
+          'HTML5 — Structure Tags Semantic Elements Forms Tables',
+          'CSS3 — Selectors Box Model Flexbox Grid Animations',
+          'JavaScript — Variables Functions DOM Events Fetch API',
+          'React.js — Components Props State Hooks Context API',
+          'Angular — Components Modules Services RxJS',
+          'Vue.js — Directives Components Vuex Router',
+          'Node.js & Express — REST API Middleware Authentication',
+          'Django — MVT Models Views Templates ORM',
+          'Flask — Routes Templates Forms SQLAlchemy',
+          'Spring Boot — Beans REST Controllers JPA Hibernate',
+          'SQL & MySQL — CRUD Joins Normalization Stored Procedures',
+          'PostgreSQL — Advanced Queries JSON Indexing',
+          'MongoDB — Documents Collections Aggregation Atlas',
+          'Firebase — Realtime DB Firestore Auth Hosting',
+          'Git & GitHub — Clone Commit Push PR Branching',
+          'REST API — HTTP Methods Status Codes JSON Postman',
+          'GraphQL — Schema Resolvers Queries Mutations',
+          'Docker & Containers — Dockerfile Compose Networking',
+          'AWS Deployment — EC2 S3 RDS Lambda API Gateway',
+          'Web Security — OWASP XSS CSRF SQL Injection Auth JWT'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Frontend HTML CSS JS', 'Unit 2: Frontend Frameworks', 'Unit 3: Backend & APIs', 'Unit 4: Databases & Cloud', 'Unit 5: Security & Deployment']
+      },
+      'Data Structures & Algorithms': {
+        topics: [
+          'DSA Introduction — Why DSA Matters in Interviews',
+          'Time & Space Complexity — Big O Big Theta Omega',
+          'Arrays — Operations Search Sort Two Pointer Sliding Window',
+          'Strings — Pattern Matching KMP Rabin-Karp Palindrome',
+          'Linked Lists — Singly Doubly Circular Operations',
+          'Stacks — Push Pop LIFO Applications Expression Evaluation',
+          'Queues — FIFO Deque Priority Queue Circular Queue',
+          'Trees — Binary Tree BST AVL Red-Black B-Tree',
+          'Heaps — Min-Heap Max-Heap Heap Sort Priority Queue',
+          'Graphs — Representation DFS BFS Topological Sort',
+          'Graph Algorithms — Dijkstra Bellman-Ford Floyd-Warshall',
+          'Hashing — Hash Table Collision Resolution Load Factor',
+          'Trie — Insert Search Prefix Autocomplete Implementation',
+          'Segment Tree & Fenwick Tree — Range Queries',
+          'Sorting Algorithms — Bubble Quick Merge Heap Radix Count',
+          'Binary Search — Classic Variants Rotated Array',
+          'Dynamic Programming — Memoization Tabulation DP on Strings',
+          'DP Problems — LCS LIS Knapsack Coin Change Matrix Chain',
+          'Greedy Algorithms — Activity Selection Huffman Coding',
+          'Backtracking — N-Queens Sudoku Solver Permutations'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Basics & Complexity', 'Unit 2: Linear Structures', 'Unit 3: Trees & Graphs', 'Unit 4: Algorithms', 'Unit 5: Advanced Problems']
+      },
+      'Cloud & DevOps': {
+        topics: [
+          'Linux Commands — Navigation File Management Permissions',
+          'Shell Scripting — bash sh Variables Loops Functions',
+          'Git Advanced — Rebase Cherry-pick Stash Submodules',
+          'Docker — Images Containers Volumes Networking Compose',
+          'Kubernetes — Pods Deployments Services Ingress ConfigMap',
+          'CI/CD — Jenkins GitHub Actions GitLab CI ArgoCD',
+          'AWS Core — EC2 S3 VPC IAM RDS Lambda CloudFront',
+          'AWS Advanced — ECS EKS SQS SNS DynamoDB Step Functions',
+          'Azure — Virtual Machines Blob Storage Azure DevOps AKS',
+          'Google Cloud — GCE GKE BigQuery Cloud Functions Pub/Sub',
+          'Terraform — Infrastructure as Code State Modules Providers',
+          'Ansible — Playbooks Roles Inventory Ad-hoc Commands',
+          'Networking — TCP/IP DNS HTTP HTTPS Load Balancing',
+          'Monitoring — Prometheus Grafana ELK Stack Datadog',
+          'Cloud Security — IAM Policies Encryption VPC Security Groups'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Linux & Git', 'Unit 2: Docker & K8s', 'Unit 3: CI/CD', 'Unit 4: Cloud Platforms', 'Unit 5: IaC & Security']
+      }
+    }
+  },
+
+  'AI / ML / Data Science Skills': {
+    icon: '🤖', color: '#7c3aed',
+    subjects: {
+      'Python for Data Science': {
+        topics: [
+          'Python for Data Science Introduction & Setup — Anaconda Jupyter',
+          'NumPy — Arrays Broadcasting Slicing Mathematical Operations',
+          'Pandas — Series DataFrame Read CSV Merge GroupBy Apply',
+          'Data Cleaning — Missing Values Duplicates Outliers Data Types',
+          'Exploratory Data Analysis — Describe Correlation Heatmap',
+          'Data Visualization — Matplotlib Seaborn Plotly Interactive',
+          'Statistics for DS — Mean Median Mode Variance SD Skewness',
+          'Probability — Distributions Bayes Theorem Central Limit',
+          'Feature Engineering — Encoding Scaling Selection Creation',
+          'Supervised Learning — Linear Regression Logistic Regression',
+          'Classification — Decision Trees Random Forest SVM KNN',
+          'Ensemble Methods — Bagging Boosting XGBoost LightGBM',
+          'Unsupervised Learning — K-Means DBSCAN Hierarchical',
+          'Dimensionality Reduction — PCA t-SNE UMAP',
+          'Model Evaluation — Accuracy Precision Recall F1 ROC-AUC',
+          'Cross Validation — KFold StratifiedKFold GridSearchCV',
+          'Deep Learning — Neural Networks Backpropagation Keras',
+          'CNN — Convolutional Layers Pooling Image Classification',
+          'RNN & LSTM — Sequence Data Time Series Text',
+          'NLP — Tokenization TF-IDF Word2Vec BERT Transformers',
+          'Computer Vision — OpenCV YOLO Object Detection Segmentation',
+          'Generative AI — GANs VAEs Diffusion Models',
+          'LLMs & Transformers — GPT BERT T5 Fine-tuning',
+          'Prompt Engineering — Zero-shot Few-shot Chain-of-Thought',
+          'RAG — Retrieval Augmented Generation Vector Databases',
+          'AI Agents — Tool Use Planning Memory LangChain',
+          'TensorFlow & PyTorch — Model Building Training Deployment',
+          'Power BI — Dashboard Reports DAX Measures Data Model',
+          'Tableau — Visualizations Calculated Fields Dashboards',
+          'ML Deployment — Flask FastAPI Docker Streamlit MLflow',
+          'MLOps — Versioning Monitoring CI/CD for ML DVC'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Python & NumPy Pandas', 'Unit 2: Statistics & EDA', 'Unit 3: Machine Learning', 'Unit 4: Deep Learning & NLP', 'Unit 5: GenAI & MLOps']
+      },
+      'SQL for Data Science': {
+        topics: [
+          'SQL Introduction — What Why RDBMS vs NoSQL',
+          'SQL DDL — CREATE ALTER DROP TRUNCATE',
+          'SQL DML — SELECT INSERT UPDATE DELETE',
+          'SQL WHERE Clause — Conditions AND OR NOT IN BETWEEN LIKE',
+          'SQL JOINs — INNER LEFT RIGHT FULL CROSS SELF JOIN',
+          'SQL Aggregate Functions — COUNT SUM AVG MIN MAX',
+          'SQL GROUP BY & HAVING — Grouping & Filtering Groups',
+          'SQL Subqueries — Nested Correlated EXISTS IN',
+          'SQL Window Functions — ROW_NUMBER RANK DENSE_RANK LEAD LAG',
+          'SQL CTEs — Common Table Expressions Recursive CTEs',
+          'SQL Stored Procedures — Parameters IN OUT INOUT',
+          'SQL Views & Materialized Views',
+          'SQL Indexing — B-Tree Hash Index Optimization',
+          'SQL Normalization — 1NF 2NF 3NF BCNF',
+          'SQL Interview Questions — Top 50 Practice Problems'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: SQL Basics', 'Unit 2: Joins & Aggregation', 'Unit 3: Advanced SQL', 'Unit 4: Performance', 'Unit 5: Interview Prep']
+      }
+    }
+  },
+
+  'Agriculture & Horticulture Skills': {
+    icon: '🌾', color: '#15803d',
+    subjects: {
+      'Agriculture Fundamentals': {
+        topics: [
+          'Agriculture Introduction — Importance & Types of Farming',
+          'Soil Science — Soil Formation Composition Texture Structure',
+          'Soil Testing — pH NPK Organic Matter Soil Health Card',
+          'Soil Conservation — Erosion Control Bunding Terracing',
+          'Crop Science — Kharif Rabi Zaid Crops Classification',
+          'Crop Varieties — HYV Hybrid GMO Seed Selection',
+          'Irrigation Methods — Drip Sprinkler Flood Furrow',
+          'Water Management — Watershed Management Groundwater',
+          'Pest Management — IPM Biological Chemical Control',
+          'Disease Management — Fungal Bacterial Viral Plant Disease',
+          'Fertilizer Management — NPK Micronutrients Organic vs Chemical',
+          'Organic Farming — Principles Certification Composting Vermicompost',
+          'Farm Management — Record Keeping Cost Benefit Analysis',
+          'Agricultural Economics — Price Support MSP Market Linkage',
+          'Agri-Tech — Precision Farming IoT Drones in Agriculture',
+          'GIS in Agriculture — Remote Sensing NDVI Crop Monitoring',
+          'Agricultural Data Analysis — Yield Prediction R Python',
+          'Agricultural Marketing — APMC e-NAM Export FPO',
+          'Agricultural Credit — NABARD KCC Crop Insurance PMFBY',
+          'Government Schemes — PM-KISAN PMFBY RKVY Agricultural Schemes'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Soil & Water', 'Unit 2: Crop Science', 'Unit 3: Pest & Disease', 'Unit 4: Technology', 'Unit 5: Marketing & Policy']
+      },
+      'Horticulture Fundamentals': {
+        topics: [
+          'Horticulture Introduction — Branches Pomology Olericulture Floriculture',
+          'Plant Propagation — Seeds Cuttings Grafting Budding Layering',
+          'Nursery Management — Potting Media Germination Growth',
+          'Floriculture — Rose Chrysanthemum Jasmine Cut Flower Production',
+          'Vegetable Science — Solanaceae Cucurbits Legumes Leafy Vegetables',
+          'Pomology — Mango Banana Citrus Guava Apple Production',
+          'Landscaping — Garden Design Turf Management Trees Shrubs',
+          'Greenhouse Technology — Types Control Environment Hydroponics',
+          'Post-Harvest Technology — Storage Grading Packaging Cold Chain',
+          'Irrigation & Fertigation — Drip Irrigation for Horticulture',
+          'Pest & Disease — Integrated Pest Management Horticulture'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Propagation & Nursery', 'Unit 2: Floriculture', 'Unit 3: Vegetables & Fruits', 'Unit 4: Greenhouse & Technology', 'Unit 5: Post-Harvest']
+      }
+    }
+  },
+
+  'Medical Nursing Pharmacy Skills': {
+    icon: '🩺', color: '#dc2626',
+    subjects: {
+      'Medical Fundamentals': {
+        topics: [
+          'Basic Anatomy — Human Body Systems Overview',
+          'Anatomy — Skeletal Muscular Cardiovascular Respiratory',
+          'Anatomy — Nervous Digestive Endocrine Reproductive Systems',
+          'Physiology — How Body Systems Work & Maintain Homeostasis',
+          'Medical Terminology — Prefixes Suffixes Root Words Abbreviations',
+          'Clinical Skills — History Taking Physical Examination Techniques',
+          'Patient Care — Fundamental Nursing & Medical Care Principles',
+          'Medical Documentation — SOAP Notes Discharge Summary',
+          'Pharmacology Basics — Drug Classification Routes MOA',
+          'First Aid — CPR Burns Fractures Wounds Bleeding Control',
+          'Emergency Care — Triage ABC Assessment Emergency Protocols',
+          'Infection Control — Hand Hygiene PPE Sterilization Isolation',
+          'Medical Ethics — Informed Consent Confidentiality Patient Rights',
+          'Healthcare Communication — Therapeutic Communication Active Listening',
+          'Clinical Research Basics — Study Design Ethics IRB GCP',
+          'Hospital Management — Ward Operations Quality Patient Safety',
+          'Vital Signs — BP Pulse RR Temperature SPO2 Monitoring',
+          'ECG Basics — Rhythm Interpretation P QRS T Waves',
+          'Lab Values — CBC Blood Chemistry LFT KFT Interpretation',
+          'Medical Equipment — Ventilators Monitors Defibrillators'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Anatomy & Physiology', 'Unit 2: Clinical Skills', 'Unit 3: Pharmacology', 'Unit 4: Emergency Care', 'Unit 5: Ethics & Research']
+      },
+      'Nursing Skills': {
+        topics: [
+          'Nursing Procedures — Bed Making IV Insertion Catheterization',
+          'Clinical Assessment — Head-to-Toe Assessment Nursing Process',
+          'Medication Administration — 5 Rights Oral IV IM SC Routes',
+          'ICU Care — Critical Care Monitoring Ventilator Management',
+          'Pediatric Nursing — Child Development Immunization Pediatric Doses',
+          'Maternity Nursing — Antenatal Intrapartum Postpartum Care',
+          'Community Health — Public Health Programs ASHA ANM Roles',
+          'Nursing Documentation — Nursing Care Plans NANDA Diagnoses'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Nursing Procedures', 'Unit 2: Clinical Assessment', 'Unit 3: Specialized Care', 'Unit 4: Community Health', 'Unit 5: Documentation']
+      },
+      'Pharmacy Skills': {
+        topics: [
+          'Pharmacology — Drug Classification MOA Pharmacokinetics',
+          'Pharmaceutics — Dosage Forms Formulation Tablet Capsule Liquid',
+          'Drug Analysis — HPLC UV-Vis Titration Quality Testing',
+          'Quality Control QC — Specifications Sampling Testing Release',
+          'Quality Assurance QA — GMP GDP GCP Audit Documentation',
+          'Pharmacovigilance — ADR Reporting Signal Detection PSUR',
+          'Regulatory Affairs — CDSCO FDA Dossier Submission',
+          'Clinical Research — Protocol CRF ICF Data Management',
+          'Hospital Pharmacy — Drug Dispensing Drug Interaction Check',
+          'Drug Safety — Contraindications Overdose Management'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Pharmacology', 'Unit 2: Formulation', 'Unit 3: Quality', 'Unit 4: Regulatory', 'Unit 5: Clinical Research']
+      }
+    }
+  },
+
+  'Commerce Finance Banking Skills': {
+    icon: '💰', color: '#b45309',
+    subjects: {
+      'Accounting & Commerce': {
+        topics: [
+          'Accounting Fundamentals — Bookkeeping Double Entry Principle',
+          'Financial Accounting — Journal Ledger Trial Balance',
+          'Trading & P&L Account — Gross Profit Net Profit Calculation',
+          'Balance Sheet — Assets Liabilities Equity Format',
+          'Bank Reconciliation — BRS Preparation Steps',
+          'Depreciation — SLM WDV Companies Act Rates',
+          'GST — CGST SGST IGST Returns Filing Input Tax Credit',
+          'Income Tax — Heads of Income Deductions TDS Filing ITR',
+          'Tally ERP 9 & Tally Prime — Voucher Entry Reports GST',
+          'Excel for Accounting — VLOOKUP Pivot Tables Financial Functions',
+          'Financial Reporting — Ind AS IFRS Disclosure Requirements',
+          'Auditing — Types Internal External Audit Procedures',
+          'Cost Accounting — Job Process Standard Marginal Costing',
+          'Budgetary Control — Fixed Flexible Budget Variance Analysis',
+          'Working Capital Management — Cash Inventory Receivables'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Basic Accounting', 'Unit 2: Final Accounts', 'Unit 3: Taxation', 'Unit 4: Cost Accounting', 'Unit 5: Reporting & Audit']
+      },
+      'Finance & Investment Skills': {
+        topics: [
+          'Financial Analysis — Ratio Analysis Liquidity Profitability',
+          'Financial Modelling — DCF Model LBO Model Excel Best Practices',
+          'Investment Analysis — Equity Valuation P/E EV/EBITDA DCF',
+          'Portfolio Management — MPT Risk Return Diversification',
+          'Banking Operations — Account Types KYC CIBIL Credit Appraisal',
+          'Credit Analysis — Financial Statement Analysis Credit Rating',
+          'Risk Management — Market Credit Operational Liquidity Risk',
+          'Insurance — Life Non-Life Underwriting Premium Calculation',
+          'Capital Markets — Primary Secondary NSE BSE Trading',
+          'Stock Market Analysis — Technical Fundamental Chart Reading',
+          'Economics for Finance — GDP Inflation Interest Rate Impact',
+          'Excel for Finance — Advanced Functions VBA Macros Dashboards',
+          'Power BI for Finance — Financial Dashboards KPI Reporting',
+          'SQL for Finance — Banking Data Queries Reporting',
+          'FinTech — Digital Banking Blockchain RegTech Trends'
+        ],
+        levels: ['Intermediate', 'Advanced'],
+        units: ['Unit 1: Analysis & Modelling', 'Unit 2: Investment', 'Unit 3: Banking & Credit', 'Unit 4: Risk & Insurance', 'Unit 5: Tools & FinTech']
+      }
+    }
+  },
+
+  'Education Teaching Skills': {
+    icon: '🎓', color: '#0891b2',
+    subjects: {
+      'Teaching Fundamentals': {
+        topics: [
+          'Teaching Profession — Role Responsibilities Ethics',
+          'Learning Theories — Behaviourism Cognitivism Constructivism',
+          'Piaget Cognitive Development — Sensorimotor Preoperational Concrete Formal',
+          'Vygotsky — Zone of Proximal Development Scaffolding',
+          'Bloom Taxonomy — Knowledge Comprehension Application Analysis',
+          'Lesson Planning — Objectives Content Methods Assessment',
+          'Classroom Management — Rules Routines Positive Discipline',
+          'Curriculum Development — Needs Analysis Design Evaluation',
+          'Assessment & Evaluation — Formative Summative Rubrics',
+          'Educational Psychology — Motivation Attention Memory Learning',
+          'Inclusive Education — Special Needs Differentiation Universal Design',
+          'Educational Technology — LMS Moodle Google Classroom',
+          'E-Learning & Online Teaching — Zoom Teams Blended Learning',
+          'Content Creation for Teaching — Presentations Videos Infographics',
+          'Public Speaking & Communication — Teacher Communication Skills',
+          'Student Counselling — Academic Emotional Career Guidance',
+          'Presentation Skills — Slide Design Delivery Engagement',
+          'Research in Education — Action Research Educational Research',
+          'Higher Education — University Teaching Research Publication',
+          'Teacher Professional Development — CPD Reflective Practice'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Learning Theories', 'Unit 2: Planning & Management', 'Unit 3: Assessment', 'Unit 4: Technology', 'Unit 5: Professional Development']
+      }
+    }
+  },
+
+  'Design Media Creative Skills': {
+    icon: '🎨', color: '#db2777',
+    subjects: {
+      'UI/UX & Graphic Design': {
+        topics: [
+          'Design Principles — Balance Contrast Alignment Proximity Color',
+          'Typography — Font Types Hierarchy Readability Pairing',
+          'Color Theory — Color Wheel Harmony Contrast Branding Colors',
+          'UI Design — Wireframing Prototyping Components Design System',
+          'UX Design — User Research Persona User Journey Usability',
+          'Figma — Frames Components Auto Layout Prototyping Dev Mode',
+          'Adobe Photoshop — Layers Masks Retouching Photo Editing',
+          'Adobe Illustrator — Vector Paths Pen Tool Logos Illustrations',
+          'Canva — Social Media Templates Brand Kit Design Quick',
+          'Graphic Design — Branding Logo Poster Packaging Design',
+          'Fashion Design — Illustration Pattern Making Draping Garment',
+          'Textile Design — Print Weave Dyeing Fabric Selection',
+          '3D Design — Blender 3D Modelling Rendering Animation',
+          'Motion Graphics — After Effects Animation Kinetic Typography',
+          'Product Design — Ideation Prototyping User Testing Iteration'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Design Principles', 'Unit 2: UI/UX Figma', 'Unit 3: Photoshop & Illustrator', 'Unit 4: Branding & Fashion', 'Unit 5: 3D & Motion']
+      },
+      'Media & Journalism Skills': {
+        topics: [
+          'Journalism Fundamentals — News Values Objectivity Ethics',
+          'News Writing — Inverted Pyramid 5W1H Lead Writing',
+          'Reporting — Beat Reporting Field Reporting Sources',
+          'Investigative Journalism — Research Data Journalism RTI',
+          'Content Creation — Blogs Social Media Scripts Articles',
+          'Video Production — Shooting Lighting Audio Editing',
+          'Photography — Composition Lighting DSLR Editing Lightroom',
+          'Script Writing — Story Structure Screenplay Format Drama',
+          'Social Media Management — Strategy Analytics Engagement',
+          'Digital Marketing — SEO SEM Email Social Paid Ads',
+          'Public Relations — Press Release Media Relations Crisis PR',
+          'Broadcasting — Radio TV News Reading Anchoring',
+          'Storytelling — Narrative Arc Character Building Plot',
+          'Podcast Production — Recording Editing Publishing',
+          'Content Strategy — Editorial Calendar Analytics SEO Content'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Journalism Basics', 'Unit 2: Reporting & Writing', 'Unit 3: Video & Photography', 'Unit 4: Digital Media', 'Unit 5: PR & Storytelling']
+      }
+    }
+  },
+
+  'Defence Police Forensics Skills': {
+    icon: '🛡️', color: '#374151',
+    subjects: {
+      'Defence & Leadership Skills': {
+        topics: [
+          'Leadership Principles — Authority Responsibility Discipline',
+          'Strategic Thinking — Mission Planning Decision Making',
+          'Physical Fitness — Endurance Strength Flexibility Training',
+          'Navigation — Map Reading Compass GPS Land Navigation',
+          'Survival Skills — First Aid Shelter Food Water',
+          'Communication — Military Communication Radio Protocol',
+          'Teamwork & Group Cohesion — Unit Dynamics Team Building',
+          'Discipline & Ethics — Military Code of Conduct',
+          'Disaster Management — Natural Disaster Response NDRF',
+          'Cybersecurity for Defence — Cyber Warfare Threats Defence',
+          'Technology in Defence — Drones Satellites AI in Military',
+          'Intelligence Analysis — OSINT Collection Analysis Reporting'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Leadership', 'Unit 2: Physical & Navigation', 'Unit 3: Communication', 'Unit 4: Technology', 'Unit 5: Intelligence']
+      },
+      'Forensic Science Skills': {
+        topics: [
+          'Forensic Science Introduction — Branches Applications',
+          'Criminal Investigation — Scene of Crime Procedure Chain of Custody',
+          'Crime Analysis — Pattern Analysis Modus Operandi Profiling',
+          'Forensic Science — Physical Biological Chemical Evidence',
+          'Digital Forensics — Computer Mobile Network Forensics',
+          'Cybercrime Investigation — Phishing Ransomware MITM',
+          'Fingerprint Analysis — Types Ridge Patterns AFIS Database',
+          'DNA Forensics — PCR STR Analysis DNA Fingerprinting',
+          'Evidence Collection — Documentation Packaging Preservation',
+          'Criminal Psychology — Profiling Behaviour Analysis Motive',
+          'Report Writing — Forensic Report Expert Witness Testimony',
+          'Legal Procedures — Evidence Act FIR Chargesheet Court'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Forensics Basics', 'Unit 2: Evidence Collection', 'Unit 3: Digital Forensics', 'Unit 4: Criminal Psychology', 'Unit 5: Legal Procedures']
+      }
+    }
+  },
+
+  'Statistics Actuarial Science Skills': {
+    icon: '📉', color: '#7c3aed',
+    subjects: {
+      'Statistics & Data Analysis': {
+        topics: [
+          'Statistics Introduction — Descriptive vs Inferential',
+          'Data Types — Nominal Ordinal Interval Ratio Scales',
+          'Measures of Central Tendency — Mean Median Mode Weighted',
+          'Measures of Dispersion — Variance SD Range IQR CV',
+          'Probability Fundamentals — Sample Space Events Rules',
+          'Probability Distributions — Binomial Poisson Normal Exponential',
+          'Sampling Methods — Simple Random Stratified Cluster Systematic',
+          'Hypothesis Testing — Null Alternative Type I Type II Error',
+          't-test — One Sample Two Sample Paired t-test',
+          'ANOVA — One-way Two-way MANOVA F-statistic',
+          'Chi-Square Test — Goodness of Fit Independence',
+          'Regression Analysis — Simple Multiple Logistic Regression',
+          'Correlation — Pearson Spearman Kendall Tau',
+          'Time Series Analysis — Trend Seasonality ARIMA Forecasting',
+          'Bayesian Statistics — Prior Posterior Likelihood Bayes Factor',
+          'R Programming — dplyr ggplot2 tidyr Statistical Modelling',
+          'Python Statistics — scipy numpy statsmodels pandas',
+          'SPSS — Descriptives Frequencies Tests Data View',
+          'SAS — PROC MEANS PROC FREQ PROC REG PROC ANOVA',
+          'Statistical Modelling — GLM Mixed Models Survival Analysis',
+          'Risk Analysis — VaR Expected Shortfall Scenario Analysis',
+          'Actuarial Mathematics — Life Tables Annuities Premium Calculation',
+          'Financial Mathematics — Time Value Money Bond Pricing Options'
+        ],
+        levels: ['Beginner', 'Intermediate', 'Advanced'],
+        units: ['Unit 1: Descriptive Statistics', 'Unit 2: Probability', 'Unit 3: Inferential Statistics', 'Unit 4: Regression & Time Series', 'Unit 5: Actuarial & Financial Math']
+      }
+    }
+  },
+
+  'Vocational ITI Polytechnic Skills': {
+    icon: '🔧', color: '#b45309',
+    subjects: {
+      'ITI Trade Skills': {
+        topics: [
+          'Electrician Trade — Wiring Circuits Safety Regulations',
+          'Fitter Trade — Fitting Filing Drilling Tapping Marking',
+          'Welder Trade — Arc Welding MIG TIG Gas Welding Safety',
+          'Machinist Trade — Lathe Milling Drilling Operations',
+          'Turner Trade — Chuck Work Taper Turning Threading',
+          'Mechanic Trade — Motor Vehicle Repair Maintenance',
+          'Wireman Trade — Electrical Wiring Panel Switchgear',
+          'Electronics Trade — PCB Repair Soldering Testing Instruments',
+          'CNC Operation — Programming G-Code M-Code Setup',
+          'Refrigeration & AC Trade — Refrigerant Charging Repair',
+          'Plumbing Trade — Pipe Fitting Joint Making Sanitary',
+          'Draughtsman Trade — Technical Drawing CAD Engineering Drawing',
+          'Computer Hardware & Networking — Assembly Troubleshooting'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Electrical Trades', 'Unit 2: Mechanical Trades', 'Unit 3: Electronics', 'Unit 4: CNC & Automation', 'Unit 5: Support Trades']
+      },
+      'Diploma Engineering Skills': {
+        topics: [
+          'Engineering Drawing — Orthographic Isometric Sectional Views',
+          'CAD — AutoCAD Basics 2D Drawing 3D Modelling',
+          'Engineering Mathematics — Algebra Trigonometry Calculus',
+          'Basic Electronics — Components Circuits Breadboard Testing',
+          'Electrical Systems — AC DC Circuits Transformers Motors',
+          'Mechanical Design — Machine Elements Tolerances Fits',
+          'Civil Engineering Basics — Surveying Materials Structures',
+          'Programming Basics — C C++ Python for Diploma Students',
+          'Networking — LAN WAN Protocols TCP/IP Configuration',
+          'Industrial Automation — PLC SCADA HMI Basics',
+          'Quality Control — Inspection Methods Measurement Standards',
+          'Workshop Practice — Safety Tools Hands-on Practical Skills'
+        ],
+        levels: ['Beginner', 'Intermediate'],
+        units: ['Unit 1: Engineering Drawing & CAD', 'Unit 2: Mathematics & Science', 'Unit 3: Core Engineering', 'Unit 4: Programming & Networks', 'Unit 5: Industrial Skills']
+      }
+    }
   }
 }
 
