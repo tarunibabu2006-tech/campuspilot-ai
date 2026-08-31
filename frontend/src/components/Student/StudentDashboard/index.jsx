@@ -7,16 +7,14 @@ import RecentActivity from './RecentActivity'
 import QuickActions from './QuickActions'
 import FeaturedSection from './FeaturedSection'
 
-// New hooks for student data
 import { useDashboardStats, useRecentActivity } from '../../../hooks/useStudentData'
 
 export default function StudentDashboard({ onNavigate }) {
   const { user } = useAuth()
   const { t, language } = useLanguage()
 
-  // Fetch stats and recent activity using custom hooks
-  const { data: statsData, loading: statsLoading } = useDashboardStats()
-  const { data: activityData, loading: activityLoading } = useRecentActivity()
+  const { data: statsData } = useDashboardStats()
+  const { data: activityData } = useRecentActivity()
 
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -40,7 +38,6 @@ export default function StudentDashboard({ onNavigate }) {
 
   const userName = user?.name ? user.name.split(' ')[0] : 'Student'
 
-  // Use fetched data or fallback defaults
   const stats = {
     skillsLearned: statsData?.skillsLearned ?? 0,
     jobsApplied: statsData?.jobsApplied ?? 0,
@@ -59,14 +56,14 @@ export default function StudentDashboard({ onNavigate }) {
         style={{
           background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #0f172a 100%)',
           borderRadius: '1.5rem',
-          padding: '2rem',
+          padding: '2rem 2.25rem',
           border: '1px solid rgba(139,92,246,0.35)',
           boxShadow: '0 8px 32px rgba(124,58,237,0.25)',
           position: 'relative',
           overflow: 'hidden'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.75rem', position: 'relative', zIndex: 1 }}>
           {/* Left Side: Greeting, Subtitle and Action Buttons */}
           <div style={{ flex: 1, minWidth: '280px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
@@ -96,7 +93,8 @@ export default function StudentDashboard({ onNavigate }) {
                   fontWeight: '800',
                   fontSize: '0.85rem',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(124,58,237,0.4)'
+                  boxShadow: '0 4px 12px rgba(124,58,237,0.4)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 Open Notes Hub
@@ -111,7 +109,8 @@ export default function StudentDashboard({ onNavigate }) {
                   borderRadius: '0.75rem',
                   fontWeight: '800',
                   fontSize: '0.85rem',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 Browse Jobs
@@ -126,7 +125,8 @@ export default function StudentDashboard({ onNavigate }) {
                   borderRadius: '0.75rem',
                   fontWeight: '800',
                   fontSize: '0.85rem',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 Ask AI
@@ -134,38 +134,147 @@ export default function StudentDashboard({ onNavigate }) {
             </div>
           </div>
 
-          {/* Right Side: 4 Stats Cards Circled by User */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', minWidth: '200px' }}>
-            {[
-              { icon: '📚', label: 'Skills Available', value: '50+', color: '#4ade80' },
-              { icon: '💼', label: 'Job Openings', value: '30+', color: '#fbbf24' },
-              { icon: '📄', label: 'Study Notes', value: '100,000+', color: '#a78bfa' },
-              { icon: '🎯', label: 'Career Modules', value: '28 Tools', color: '#60a5fa' }
-            ].map(s => (
-              <div
-                key={s.label}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  borderRadius: '0.75rem',
-                  padding: '0.55rem 1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  backdropFilter: 'blur(8px)'
-                }}
-              >
-                <span style={{ fontSize: '1.25rem' }}>{s.icon}</span>
-                <div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: '900', color: s.color, lineHeight: 1.1 }}>
-                    {s.value}
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.15rem' }}>
-                    {s.label}
-                  </div>
+          {/* Right Side: Exact 4 Stat Cards Stack */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', minWidth: '220px' }}>
+            {/* Card 1: 50+ Skills Available */}
+            <div
+              onClick={() => onNavigate('skills')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '1rem',
+                padding: '0.75rem 1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.85rem',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span style={{ fontSize: '1.4rem' }}>📚</span>
+              <div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#4ade80', lineHeight: 1.1 }}>
+                  50+
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '0.15rem', fontWeight: '600' }}>
+                  Skills Available
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Card 2: 30+ Job Openings */}
+            <div
+              onClick={() => onNavigate('jobs')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '1rem',
+                padding: '0.75rem 1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.85rem',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span style={{ fontSize: '1.4rem' }}>💼</span>
+              <div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fbbf24', lineHeight: 1.1 }}>
+                  30+
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '0.15rem', fontWeight: '600' }}>
+                  Job Openings
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: 100,000+ Study Notes */}
+            <div
+              onClick={() => onNavigate('notes')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '1rem',
+                padding: '0.75rem 1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.85rem',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span style={{ fontSize: '1.4rem' }}>📝</span>
+              <div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#c084fc', lineHeight: 1.1 }}>
+                  100,000+
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '0.15rem', fontWeight: '600' }}>
+                  Study Notes
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: 28 Tools Career Modules */}
+            <div
+              onClick={() => onNavigate('career-gps')}
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '1rem',
+                padding: '0.75rem 1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.85rem',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <span style={{ fontSize: '1.4rem' }}>🎯</span>
+              <div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#38bdf8', lineHeight: 1.1 }}>
+                  28 Tools
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '0.15rem', fontWeight: '600' }}>
+                  Career Modules
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </motion.div>
