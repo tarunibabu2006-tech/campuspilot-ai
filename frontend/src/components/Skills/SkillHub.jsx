@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { motion, AnimatePresence } from 'framer-motion'
-import { SEED_SKILLS, SKILL_CATEGORIES } from '../../data/seedSkills'
+import { ALL_SKILLS_FLAT, ALL_CATEGORY_NAMES, CATEGORY_SKILLS_MAP } from '../../data/allCategorySkills'
 import { MASTER_CATEGORY_NOTES } from '../../data/categoryNotes'
 
 // Multi-category mapping (One Skill -> Multiple Categories)
@@ -20,31 +20,22 @@ const MULTI_CATEGORY_SKILL_MAPPINGS = {
 }
 
 export default function SkillHub({ onSelectSkill }) {
-  const [skillsList, setSkillsList] = useState(SEED_SKILLS)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [activeViewMode, setActiveViewMode] = useState('skills') // 'skills', 'multi-mapping', 'category-notes', 'pipeline'
-  const [selectedCategoryForNotes, setSelectedCategoryForNotes] = useState('Computer Science & Engineering')
-  const [selectedMultiSkill, setSelectedMultiSkill] = useState('Python Programming')
+  const [selectedCategoryForNotes, setSelectedCategoryForNotes] = useState('Computer Science & Information Technology')
+  const [selectedMultiSkill, setSelectedMultiSkill] = useState('Python')
 
-  useEffect(() => {
-    const fetchBackendSkills = async () => {
-      try {
-        const res = await axios.get('/api/skills')
-        if (res.data.skills && res.data.skills.length > 0) {
-          setSkillsList(res.data.skills)
-        }
-      } catch (err) { }
-    }
-    fetchBackendSkills()
-  }, [])
+  // All 64 categories from new data file
+  const categories = ALL_CATEGORY_NAMES
 
-  const categories = SKILL_CATEGORIES
-
-  const filtered = skillsList.filter(s => {
-    const matchesSearch = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.desc?.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter skills: search by name/category/desc + category dropdown
+  const filtered = ALL_SKILLS_FLAT.filter(s => {
+    const term = searchTerm.toLowerCase()
+    const matchesSearch = !searchTerm ||
+      s.name.toLowerCase().includes(term) ||
+      s.category.toLowerCase().includes(term) ||
+      s.desc.toLowerCase().includes(term)
     const matchesCat = selectedCategory === 'All' || s.category === selectedCategory
     return matchesSearch && matchesCat
   })
@@ -152,10 +143,27 @@ export default function SkillHub({ onSelectSkill }) {
             >
               {categories.map(c => (
                 <option key={c} value={c}>
-                  {c === 'All' ? 'All Disciplines & Domains' : c}
+                  {c === 'All' ? '🌐 All 64 Disciplines & Domains' : c}
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Results Summary */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+              Showing <strong style={{ color: '#a78bfa' }}>{filtered.length}</strong> skill{filtered.length !== 1 ? 's' : ''}
+              {selectedCategory !== 'All' && <> in <strong style={{ color: '#38bdf8' }}>{selectedCategory}</strong></>}
+              {searchTerm && <> matching <strong style={{ color: '#34d399' }}>"{searchTerm}"</strong></>}
+            </span>
+            {(selectedCategory !== 'All' || searchTerm) && (
+              <button
+                onClick={() => { setSelectedCategory('All'); setSearchTerm('') }}
+                style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', padding: '0.3rem 0.8rem', borderRadius: '0.5rem', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '700' }}
+              >
+                ✕ Clear Filters
+              </button>
+            )}
           </div>
 
           {/* Skills Grid */}
@@ -210,8 +218,7 @@ export default function SkillHub({ onSelectSkill }) {
                     fontSize: '0.75rem'
                   }}>
                     <div><span style={{ color: '#64748b' }}>Level:</span> <span style={{ color: 'white', fontWeight: '600' }}>{skill.level}</span></div>
-                    <div><span style={{ color: '#64748b' }}>Duration:</span> <span style={{ color: 'white', fontWeight: '600' }}>{skill.duration}</span></div>
-                    <div><span style={{ color: '#64748b' }}>Difficulty:</span> <span style={{ color: '#fbbf24' }}>{skill.difficulty}</span></div>
+                    <div><span style={{ color: '#64748b' }}>Demand:</span> <span style={{ color: '#fbbf24', fontWeight: '600' }}>{skill.demand}</span></div>
                     <div><span style={{ color: '#64748b' }}>Resources:</span> <span style={{ color: '#4ade80', fontWeight: '700' }}>Notes + Video</span></div>
                   </div>
                 </div>
