@@ -1,219 +1,434 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { ACADEMIC_STREAMS, getSubjectStudyPack } from '../data/vivaAndExamData'
 
-const allSubjects = {
-  'Engineering': [
-    'Data Structures', 'Algorithms', 'Operating Systems', 'DBMS',
-    'Computer Networks', 'Software Engineering', 'Web Development',
-    'Machine Learning', 'Artificial Intelligence', 'Cybersecurity',
-    'Cloud Computing', 'Big Data', 'Blockchain', 'IoT', 'Embedded Systems',
-    'Compiler Design', 'Digital Electronics', 'Computer Architecture'
-  ],
-  'Arts': [
-    'History', 'Geography', 'Political Science', 'Sociology',
-    'Psychology', 'Philosophy', 'Economics', 'English Literature',
-    'Fine Arts', 'Music', 'Theatre', 'Journalism', 'Anthropology'
-  ],
-  'Science': [
-    'Physics', 'Chemistry', 'Biology', 'Mathematics',
-    'Statistics', 'Environmental Science', 'Biotechnology',
-    'Genetics', 'Microbiology', 'Biochemistry'
-  ],
-  'Commerce': [
-    'Accounting', 'Finance', 'Marketing', 'Economics',
-    'Business Law', 'Taxation', 'Auditing', 'Cost Accounting',
-    'Banking', 'Investment Analysis'
-  ],
-  'Management': [
-    'HR Management', 'Organizational Behavior', 'Strategic Management',
-    'Operations Management', 'Financial Management', 'Marketing Management',
-    'Supply Chain', 'Project Management', 'Business Analytics'
-  ],
-  'Medical': [
-    'Anatomy', 'Physiology', 'Pharmacology', 'Pathology',
-    'Microbiology', 'Biochemistry', 'Forensic Medicine',
-    'Community Medicine', 'Pediatrics', 'Obstetrics'
-  ],
-  'Law': [
-    'Constitutional Law', 'Criminal Law', 'Corporate Law',
-    'Contract Law', 'Property Law', 'Family Law',
-    'International Law', 'Labor Law', 'Environmental Law'
-  ]
-}
+export default function ExamEmergency({ language }) {
+  const [stream, setStream] = useState('Computer Science & IT')
+  const [subject, setSubject] = useState(ACADEMIC_STREAMS['Computer Science & IT'][0])
+  const [examDate, setExamDate] = useState(() => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 2)
+    return tomorrow.toISOString().split('T')[0]
+  })
+  const [activeTab, setActiveTab] = useState('twomarks') // 'twomarks' | 'sixteenmarks' | 'plan' | 'formulas' | 'topics'
+  const [studyPack, setStudyPack] = useState(() => getSubjectStudyPack(ACADEMIC_STREAMS['Computer Science & IT'][0]))
+  const [loadingPlan, setLoadingPlan] = useState(false)
 
-const topicsBySubject = {
-  'Data Structures': ['Arrays', 'Linked Lists', 'Stacks', 'Queues', 'Trees', 'BST', 'Graphs', 'Hash Tables', 'Heaps', 'Tries', 'Sorting', 'Searching', 'DP', 'Greedy', 'Backtracking', 'Divide & Conquer', 'String Algorithms', 'Segment Trees', 'Disjoint Sets', 'Fenwick Trees'],
-  'Algorithms': ['Time Complexity', 'Space Complexity', 'Bubble Sort', 'Quick Sort', 'Merge Sort', 'Heap Sort', 'Binary Search', 'BFS', 'DFS', 'Dijkstra', 'Bellman-Ford', 'Floyd-Warshall', 'Kruskal', 'Prim', 'DP Patterns', 'Greedy', 'Backtracking', 'NP Completeness', 'Approximation Algorithms', 'Randomized Algorithms'],
-  'Operating Systems': ['Process Management', 'Threads', 'FCFS Scheduling', 'SJF Scheduling', 'Round Robin', 'Priority Scheduling', 'Deadlocks', 'Prevention', 'Avoidance', 'Memory Management', 'Paging', 'Segmentation', 'Virtual Memory', 'Page Replacement', 'File Systems', 'I/O Systems', 'Disk Scheduling', 'Synchronization', 'Semaphores', 'Monitors'],
-  'DBMS': ['ER Model', 'Relational Model', 'SQL Basics', 'SQL Joins', 'Subqueries', '1NF', '2NF', '3NF', 'BCNF', 'Transactions', 'ACID', 'Concurrency', 'Locking', 'Recovery', 'Indexing', 'B-Trees', 'Hashing', 'Query Optimization', 'NoSQL', 'MongoDB'],
-  'Computer Networks': ['OSI Model', 'TCP/IP', 'Physical Layer', 'Data Link', 'Network Layer', 'Transport Layer', 'Application Layer', 'IP Addressing', 'Subnetting', 'Routing', 'TCP vs UDP', 'HTTP', 'DNS', 'DHCP', 'ARP', 'Security', 'Firewalls', 'VPN', 'Wireless', 'Socket Programming'],
-  'Physics': ['Mechanics', 'Kinematics', 'Newton Laws', 'Work Energy', 'Rotation', 'Gravitation', 'Thermodynamics', 'Oscillations', 'Waves', 'Electrostatics', 'Current Electricity', 'Magnetism', 'EM Induction', 'AC Circuits', 'EM Waves', 'Optics', 'Modern Physics', 'Nuclear Physics', 'Quantum Mechanics', 'Relativity'],
-  'Chemistry': ['Atomic Structure', 'Periodic Table', 'Chemical Bonding', 'States of Matter', 'Thermochemistry', 'Equilibrium', 'Redox', 'Electrochemistry', 'Kinetics', 'Organic Basics', 'Hydrocarbons', 'Alcohols', 'Aldehydes', 'Acids', 'Amines', 'Polymers', 'Biomolecules', 'Coordination Chemistry', 'Surface Chemistry', 'Industrial Chemistry'],
-  'Biology': ['Cell Structure', 'Cell Division', 'Biomolecules', 'Plant Anatomy', 'Digestion', 'Respiration', 'Circulation', 'Excretion', 'Neural Control', 'Reproduction', 'Genetics', 'Molecular Biology', 'Evolution', 'Ecology', 'Biodiversity', 'Biotechnology', 'Health', 'Immunology', 'Endocrinology', 'Plant Physiology'],
-  'Mathematics': ['Sets', 'Functions', 'Trigonometry', 'Complex Numbers', 'Quadratics', 'Permutations', 'Combinations', 'Binomial', 'Sequences', 'Straight Lines', 'Conic Sections', 'Limits', 'Derivatives', 'Integration', 'Diff Equations', 'Vectors', '3D Geometry', 'Probability', 'Statistics', 'Matrices'],
-  'Accounting': ['Principles', 'Double Entry', 'Journal', 'Ledger', 'Trial Balance', 'Trading A/c', 'P&L A/c', 'Balance Sheet', 'Depreciation', 'Financial Statements', 'Cash Flow', 'Ratio Analysis', 'Cost Accounting', 'Marginal Costing', 'Budgeting', 'Standard Costing', 'Auditing', 'Accounting Standards', 'Bank Reconciliation', 'Inventory'],
-  'Anatomy': ['Cell Biology', 'Histology', 'Osteology', 'Upper Limb', 'Lower Limb', 'Thorax', 'Abdomen', 'Pelvis', 'Head & Neck', 'Brain', 'Spinal Cord', 'Cranial Nerves', 'Cardiovascular', 'Respiratory', 'GI Tract', 'Urinary System', 'Reproductive', 'Embryology', 'Arthrology', 'Myology'],
-  'Constitutional Law': ['Preamble', 'Fundamental Rights', 'Right to Equality', 'Right to Freedom', 'Right against Exploitation', 'Right to Religion', 'Cultural Rights', 'Constitutional Remedies', 'DPSP', 'Fundamental Duties', 'Union Executive', 'Parliament', 'Supreme Court', 'High Courts', 'Federalism', 'Emergency', 'Amendment', 'Judicial Review', 'PIL', 'State Government'],
-  'History': ['Indus Valley', 'Vedic Period', 'Maurya Empire', 'Gupta Empire', 'Mughal Empire', 'Delhi Sultanate', 'British Rule', 'National Movement', 'Gandhi', 'Independence', 'World War I', 'World War II', 'Cold War', 'French Revolution', 'Industrial Revolution', 'Renaissance', 'Greek History', 'Roman Empire', 'Medieval Europe', 'Modern World']
-}
+  // Update pack when subject changes
+  useEffect(() => {
+    const pack = getSubjectStudyPack(subject)
+    setStudyPack(pack)
+  }, [subject])
 
-function ExamEmergency({ language }) {
-  const [stream, setStream] = useState('Engineering')
-  const [subject, setSubject] = useState('')
-  const [topic, setTopic] = useState('')
-  const [examDate, setExamDate] = useState('')
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-
-  const handleStreamChange = (e) => {
-    setStream(e.target.value)
-    setSubject('')
-    setTopic('')
+  const handleStreamChange = (newStream) => {
+    setStream(newStream)
+    const firstSub = ACADEMIC_STREAMS[newStream]?.[0] || 'General Subject'
+    setSubject(firstSub)
   }
 
-  const generatePlan = async () => {
-    if (!subject || !examDate) {
-      toast.error('Please select subject and exam date!')
-      return
-    }
-    setLoading(true)
-    try {
-      const res = await axios.post('/api/exam-emergency', {
-        subject, topic: topic || 'All topics', examDate, stream, language
-      })
-      setResult(res.data)
-      toast.success('Study plan generated! 📚')
-    } catch (err) {
-      // Fallback mock response
-      const daysLeft = Math.max(1, Math.ceil((new Date(examDate) - new Date()) / (1000 * 60 * 60 * 24)))
-      const subTopics = topicsBySubject[subject] || ['Topic 1', 'Topic 2', 'Topic 3', 'Topic 4', 'Topic 5']
-      const hourlyPlan = subTopics.slice(0, Math.min(8, subTopics.length)).map((t, i) => ({
-        hour: i + 1, topic: t,
-        priority: i < 3 ? 'high' : i < 6 ? 'medium' : 'low'
-      }))
-      setResult({
-        subject, daysLeft, hourlyPlan,
-        tips: [
-          'Focus on high-priority topics first',
-          'Practice previous year questions',
-          'Take breaks every 45 minutes',
-          'Revise key formulas before sleep',
-          `You have ${daysLeft} day(s) left - stay focused!`
-        ]
-      })
-      toast.success('Study plan generated (offline mode)! 📚')
-    }
-    setLoading(false)
-  }
+  // Calculate days/hours left
+  const daysLeft = Math.max(1, Math.ceil((new Date(examDate) - new Date()) / (1000 * 60 * 60 * 24)))
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* Highlighted Header */}
-      <div style={{
-        background: 'linear-gradient(135deg, #701a75 0%, #4a044e 50%, #0f172a 100%)',
-        border: '1px solid rgba(232,121,249,0.4)',
-        borderRadius: '1.5rem',
-        padding: '2rem',
-        boxShadow: '0 8px 32px rgba(217,70,239,0.25)'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ fontSize: '2.5rem' }}>⚡</span>
+    <div style={{ maxWidth: '1150px', margin: '0 auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* ── HEADER BANNER ────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{
+          background: 'linear-gradient(135deg, #701a75 0%, #4a044e 45%, #0f172a 100%)',
+          borderRadius: '1.5rem',
+          padding: '2rem',
+          border: '1px solid rgba(232,121,249,0.4)',
+          boxShadow: '0 8px 32px rgba(217,70,239,0.25)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>🚨</span>
             <div>
-              <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '900', color: '#fff', background: 'linear-gradient(135deg, #fff, #f5d0fe)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Exam Emergency & Revision Planner
+              <h1 style={{ fontSize: '1.8rem', fontWeight: '900', color: 'white', margin: 0 }}>
+                Exam Emergency & All-Subject University Exam Preparation
               </h1>
-              <p style={{ margin: '0.25rem 0 0', color: '#f5d0fe', fontSize: '0.92rem' }}>
-                {Object.values(allSubjects).flat().length}+ Subjects across Engineering, Medical, Arts & Commerce • AI Last-Minute Revision & Cheat Sheets.
+              <p style={{ color: '#f5d0fe', fontSize: '0.85rem', margin: 0 }}>
+                2-Mark Short Q&As · 16-Mark Big Question Outlines · Formula Cheat Sheets · Emergency Cramming Timetables
               </p>
             </div>
           </div>
-          <span style={{ background: 'linear-gradient(135deg, #d946ef, #a21caf)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
-            Emergency Mode
-          </span>
         </div>
-      </div>
 
-      <div className="card">
+        <div style={{ background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '1rem', padding: '0.6rem 1.2rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.75rem', color: '#fca5a5', fontWeight: '700' }}>Time Until Exam</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: '900', color: '#f87171' }}>
+            ⏳ {daysLeft} Day{daysLeft > 1 ? 's' : ''} Left
+          </div>
+        </div>
+      </motion.div>
 
-      <div className="form-grid" style={{ display: 'grid', gap: '1rem' }}>
+      {/* ── STREAM & SUBJECT SELECTOR ──────────────────────────────── */}
+      <div
+        style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '1.25rem',
+          padding: '1.25rem',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: '1rem'
+        }}
+      >
         <div>
-          <label className="form-label">Stream</label>
-          <select value={stream} onChange={handleStreamChange} className="form-input">
-            {Object.keys(allSubjects).map(s => (
-              <option key={s} value={s}>{s} ({allSubjects[s].length} subjects)</option>
+          <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '0.35rem', fontWeight: '700' }}>
+            📚 1. Select Discipline / Stream:
+          </label>
+          <select
+            value={stream}
+            onChange={e => handleStreamChange(e.target.value)}
+            style={{
+              width: '100%',
+              background: '#1e1b4b',
+              border: '1px solid rgba(232,121,249,0.4)',
+              borderRadius: '0.65rem',
+              padding: '0.65rem 0.9rem',
+              color: 'white',
+              fontSize: '0.88rem',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {Object.keys(ACADEMIC_STREAMS).map(st => (
+              <option key={st} value={st}>{st}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="form-label">Subject</label>
-          <select value={subject} onChange={(e) => { setSubject(e.target.value); setTopic('') }} className="form-input">
-            <option value="">Select subject...</option>
-            {allSubjects[stream]?.map(s => <option key={s} value={s}>{s}</option>)}
+          <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '0.35rem', fontWeight: '700' }}>
+            📖 2. Select Subject for Exam Prep:
+          </label>
+          <select
+            value={subject}
+            onChange={e => setSubject(e.target.value)}
+            style={{
+              width: '100%',
+              background: '#1e1b4b',
+              border: '1px solid rgba(232,121,249,0.4)',
+              borderRadius: '0.65rem',
+              padding: '0.65rem 0.9rem',
+              color: 'white',
+              fontSize: '0.88rem',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {(ACADEMIC_STREAMS[stream] || []).map(sub => (
+              <option key={sub} value={sub}>{sub}</option>
+            ))}
           </select>
         </div>
 
         <div>
-          <label className="form-label">Topic (optional)</label>
-          <select value={topic} onChange={(e) => setTopic(e.target.value)} className="form-input">
-            <option value="">All Topics</option>
-            {subject && topicsBySubject[subject]?.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
+          <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem', marginBottom: '0.35rem', fontWeight: '700' }}>
+            📅 3. Exam Date:
+          </label>
+          <input
+            type="date"
+            value={examDate}
+            onChange={e => setExamDate(e.target.value)}
+            style={{
+              width: '100%',
+              background: '#1e1b4b',
+              border: '1px solid rgba(232,121,249,0.4)',
+              borderRadius: '0.65rem',
+              padding: '0.65rem 0.9rem',
+              color: 'white',
+              fontSize: '0.88rem',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          />
         </div>
-
-        <div>
-          <label className="form-label">Exam Date</label>
-          <input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} className="form-input" />
-        </div>
-
-        <button onClick={generatePlan} disabled={loading} className="btn btn-primary" style={{ width: '100%' }}>
-          {loading ? '⏳ Generating...' : '🚀 Generate Study Plan'}
-        </button>
       </div>
 
-      {result && (
-        <div style={{ marginTop: '1.5rem' }}>
-          <div className="card" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
-            <h3 style={{ marginBottom: '0.5rem' }}>📋 Study Plan - {subject} {topic && `→ ${topic}`}</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              {result.daysLeft} day(s) until exam
-            </p>
+      {/* ── MODE TABS ──────────────────────────────────────────────── */}
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        {[
+          { id: 'twomarks', icon: '⚡', label: '2-Mark Short Questions & Answers' },
+          { id: 'sixteenmarks', icon: '📑', label: '16-Mark Big Essay Questions' },
+          { id: 'plan', icon: '⏱️', label: `${daysLeft}-Day Emergency Study Schedule` },
+          { id: 'formulas', icon: '📐', label: 'Formula & Definition Cheat Sheet' },
+          { id: 'topics', icon: '🎯', label: 'High-Weightage Important Topics' }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: '0.65rem 1.1rem',
+              borderRadius: '0.75rem',
+              fontWeight: '800',
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              background: activeTab === tab.id
+                ? 'linear-gradient(135deg, #d946ef, #a21caf)'
+                : 'rgba(255,255,255,0.05)',
+              color: activeTab === tab.id ? 'white' : '#cbd5e1',
+              border: activeTab === tab.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <span>{tab.icon}</span> {tab.label}
+          </button>
+        ))}
+      </div>
 
-            <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {result.hourlyPlan?.map((item, i) => (
-                <div key={i} style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '0.6rem 0.75rem', borderRadius: '8px',
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)'
-                }}>
-                  <span>Hour {item.hour}: <strong>{item.topic}</strong></span>
-                  <span style={{
-                    padding: '0.15rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '600',
-                    background: item.priority === 'high' ? 'rgba(239,68,68,0.15)' :
-                      item.priority === 'medium' ? 'rgba(234,179,8,0.15)' : 'rgba(34,197,94,0.15)',
-                    color: item.priority === 'high' ? '#f87171' :
-                      item.priority === 'medium' ? '#fbbf24' : '#4ade80'
-                  }}>{item.priority}</span>
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 1: 2-MARK SHORT QUESTIONS & ANSWERS
+      ════════════════════════════════════════════════════════════════ */}
+      {activeTab === 'twomarks' && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ background: 'rgba(217, 70, 239, 0.1)', border: '1px solid rgba(217, 70, 239, 0.3)', borderRadius: '1rem', padding: '1.25rem' }}>
+            <h3 style={{ color: '#f0abfc', fontWeight: '900', fontSize: '1.1rem', margin: '0 0 0.35rem' }}>
+              ⚡ High-Frequency 2-Mark University Questions for {subject}
+            </h3>
+            <p style={{ color: '#cbd5e1', fontSize: '0.82rem', margin: 0 }}>
+              Concise, precision definitions & formulas designed for maximum Part-A scoring in university exams.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {studyPack.twoMarks.map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '1rem',
+                  padding: '1.25rem'
+                }}
+              >
+                <div style={{ color: '#f472b6', fontWeight: '800', fontSize: '0.98rem', marginBottom: '0.5rem' }}>
+                  Q{idx + 1}. {item.q}
                 </div>
-              ))}
+                <div style={{ color: '#ffffff', fontSize: '0.9rem', lineHeight: 1.6, background: 'rgba(0,0,0,0.25)', padding: '0.85rem 1rem', borderRadius: '0.65rem' }}>
+                  <strong style={{ color: '#4ade80' }}>Model Answer: </strong>
+                  {item.a}
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 2: 16-MARK BIG ESSAY QUESTIONS
+      ════════════════════════════════════════════════════════════════ */}
+      {activeTab === 'sixteenmarks' && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '1rem', padding: '1.25rem' }}>
+            <h3 style={{ color: '#60a5fa', fontWeight: '900', fontSize: '1.1rem', margin: '0 0 0.35rem' }}>
+              📑 16-Mark / 13-Mark Detailed Essay Question Outlines for {subject}
+            </h3>
+            <p style={{ color: '#cbd5e1', fontSize: '0.82rem', margin: 0 }}>
+              Master structural outlines, mandatory diagrams, mathematical steps, and key headings required for full marks.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {studyPack.sixteenMarks.map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(30,27,75,0.7), rgba(15,23,42,0.9))',
+                  border: '1px solid rgba(139,92,246,0.3)',
+                  borderRadius: '1.25rem',
+                  padding: '1.5rem'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <h4 style={{ color: 'white', fontWeight: '900', fontSize: '1.1rem', margin: 0 }}>
+                    Big Question {idx + 1}: {item.title}
+                  </h4>
+                  <span style={{ background: 'rgba(168,85,247,0.2)', color: '#c084fc', padding: '0.2rem 0.6rem', borderRadius: '0.4rem', fontSize: '0.75rem', fontWeight: '800', flexShrink: 0 }}>
+                    16 MARKS
+                  </span>
+                </div>
+
+                <div style={{ color: '#94a3b8', fontSize: '0.82rem', fontWeight: '700', marginBottom: '0.5rem' }}>
+                  📝 Essential Answer Writing Structure & Key Steps:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {item.outline.map((step, sIdx) => (
+                    <div
+                      key={sIdx}
+                      style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        borderRadius: '0.6rem',
+                        padding: '0.75rem 1rem',
+                        color: '#e2e8f0',
+                        fontSize: '0.88rem',
+                        lineHeight: 1.5
+                      }}
+                    >
+                      {step}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 3: EMERGENCY STUDY TIMETABLE
+      ════════════════════════════════════════════════════════════════ */}
+      {activeTab === 'plan' && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '1rem', padding: '1.25rem' }}>
+            <h3 style={{ color: '#f87171', fontWeight: '900', fontSize: '1.1rem', margin: '0 0 0.35rem' }}>
+              ⏱️ {daysLeft}-Day Hour-by-Hour Emergency Cramming & Revision Schedule
+            </h3>
+            <p style={{ color: '#cbd5e1', fontSize: '0.82rem', margin: 0 }}>
+              Prioritized high-yield blocks designed to cover 80% of university exam weightage in the shortest possible time.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1.25rem' }}>
+              <div style={{ color: '#ef4444', fontWeight: '900', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                🔥 Phase 1: High-Weightage Core Units (Hours 1–4)
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.7 }}>
+                <li>Memorize standard definitions and 2-mark question banks</li>
+                <li>Master Unit 1 & Unit 2 core theoretical laws & derivations</li>
+                <li>Practice drawing all primary architectural and circuit block diagrams</li>
+              </ul>
             </div>
 
-            {result.tips && (
-              <div style={{ marginTop: '1rem', padding: '0.75rem', borderRadius: '8px', background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)' }}>
-                <p style={{ fontWeight: '600', marginBottom: '0.5rem' }}>💡 Tips</p>
-                <ul style={{ paddingLeft: '1.2rem', fontSize: '0.85rem' }}>
-                  {result.tips.map((tip, i) => <li key={i} style={{ marginBottom: '0.25rem' }}>{tip}</li>)}
-                </ul>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1.25rem' }}>
+              <div style={{ color: '#fbbf24', fontWeight: '900', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                ⚡ Phase 2: Numerical Problems & 16-Marks (Hours 5–8)
               </div>
-            )}
+              <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.7 }}>
+                <li>Solve 5 past-year numerical questions using formula cheat sheet</li>
+                <li>Write out step-by-step algorithms and structural outlines</li>
+                <li>Review common pitfalls, edge cases, and unit conversion traps</li>
+              </ul>
+            </div>
+
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1.25rem' }}>
+              <div style={{ color: '#4ade80', fontWeight: '900', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                🎯 Phase 3: Final Rapid Recall & Sleep Cycle (Hours 9–10)
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.7 }}>
+                <li>Rapid flashcard review of all formula sheets</li>
+                <li>Self-test with 5-minute timed blurting of key concepts</li>
+                <li>Get 6+ hours of uninterrupted sleep for memory consolidation</li>
+              </ul>
+            </div>
           </div>
-        </div>
+        </motion.div>
       )}
-      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 4: FORMULA & DEFINITION CHEAT SHEET
+      ════════════════════════════════════════════════════════════════ */}
+      {activeTab === 'formulas' && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '1rem', padding: '1.25rem' }}>
+            <h3 style={{ color: '#fbbf24', fontWeight: '900', fontSize: '1.1rem', margin: '0 0 0.35rem' }}>
+              📐 Official Formula, Theorem & Definition Cheat Sheet for {subject}
+            </h3>
+            <p style={{ color: '#cbd5e1', fontSize: '0.82rem', margin: 0 }}>
+              Quick-reference equations, properties, asymptotic bounds, and key rules for zero-error exam writing.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {studyPack.cheatSheet.map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '0.75rem',
+                  padding: '1rem 1.25rem',
+                  color: '#ffffff',
+                  fontSize: '0.95rem',
+                  fontWeight: '700',
+                  fontFamily: 'monospace',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}
+              >
+                <span style={{ color: '#fbbf24' }}>⚡</span> {item}
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════
+          SECTION 5: HIGH-WEIGHTAGE IMPORTANT TOPICS
+      ════════════════════════════════════════════════════════════════ */}
+      {activeTab === 'topics' && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '1rem', padding: '1.25rem' }}>
+            <h3 style={{ color: '#4ade80', fontWeight: '900', fontSize: '1.1rem', margin: '0 0 0.35rem' }}>
+              🎯 High-Weightage Priority Ranking for {subject}
+            </h3>
+            <p style={{ color: '#cbd5e1', fontSize: '0.82rem', margin: 0 }}>
+              Topics categorized by statistical probability of appearance in university question papers.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+            <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '1rem', padding: '1.25rem' }}>
+              <div style={{ color: '#4ade80', fontWeight: '900', fontSize: '1rem', marginBottom: '0.75rem' }}>
+                🟢 Priority A+ (90%+ Exam Probability)
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.7 }}>
+                <li>Core theoretical principles & fundamental laws</li>
+                <li>Mandatory 16-mark big questions and derivations</li>
+                <li>Standard 2-mark definitions and formulas</li>
+              </ul>
+            </div>
+
+            <div style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: '1rem', padding: '1.25rem' }}>
+              <div style={{ color: '#fbbf24', fontWeight: '900', fontSize: '1rem', marginBottom: '0.75rem' }}>
+                🟡 Priority A (75% Exam Probability)
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.7 }}>
+                <li>Comparative analysis and trade-off tables</li>
+                <li>Standard numerical examples and case studies</li>
+                <li>Block diagrams and architectural implementations</li>
+              </ul>
+            </div>
+
+            <div style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '1rem', padding: '1.25rem' }}>
+              <div style={{ color: '#60a5fa', fontWeight: '900', fontSize: '1rem', marginBottom: '0.75rem' }}>
+                🔵 Priority B (60% Exam Probability)
+              </div>
+              <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.85rem', lineHeight: 1.7 }}>
+                <li>Supplementary historical context & advanced developments</li>
+                <li>Specialized edge cases and niche variations</li>
+                <li>Secondary sub-topics and elective extensions</li>
+              </ul>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   )
 }
-
-export default ExamEmergency
