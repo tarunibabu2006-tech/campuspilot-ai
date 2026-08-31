@@ -162,6 +162,14 @@ export default function NotesHub({ language }) {
   const categories = useMemo(() => {
     return [
       'All',
+      'UPSC',
+      'SSC',
+      'Banking',
+      'Railway',
+      'Defence',
+      'Police',
+      'State PSC',
+      'Teaching',
       'Computer Science & Engineering',
       'Electronics & Communication',
       'Mechanical Engineering',

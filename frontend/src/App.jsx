@@ -41,13 +41,17 @@ import VoiceMockInterview from './components/VoiceMockInterview';
 import Gamification from './components/Gamification';
 import AllUsersMessage from './components/Student/AllUsersMessage';
 import NotificationsModal from './components/NotificationsModal';
-import StudyGroups from './components/Student/StudyGroups';
+import StudyGroups from './components/StudyGroups';
 
-// BRAND NEW ENTERPRISE PAGES
+// BRAND NEW ENTERPRISE MODULES
 import UserProfile from './components/UserProfile';
 import CompanyArchives from './components/CompanyArchives';
 import AlumniNetwork from './components/AlumniNetwork';
 import Leaderboard from './components/Leaderboard';
+import GovernmentExams from './components/GovernmentExams';
+import AiSpokenClass from './components/AiSpokenClass';
+import SchoolStudentsSupport from './components/SchoolStudentsSupport';
+import AdvancedCourses from './components/AdvancedCourses';
 
 import StudentLayout from './components/Student/StudentLayout';
 
@@ -106,7 +110,7 @@ function MainApp() {
       case 'skill':            return <SkillGapAnalyzer language={language} />;
       case 'chat':             return <ChatAssistant language={language} />;
 
-      // 🌟 FLAGSHIP ENHANCEMENTS
+      // 🌟 FLAGSHIP ENHANCEMENTS & NEW MODULES
       case 'profile':          return <UserProfile />;
       case 'leaderboard':      return <Leaderboard />;
       case 'company-archives': return <CompanyArchives />;
@@ -123,6 +127,12 @@ function MainApp() {
       case 'mentors':          return <MentorConnect />;
       case 'mock-tests':       return <CompanyMockTests />;
       case 'student-analytics':return <StudentAnalytics onBack={() => setActiveTab('admin')} />;
+
+      // 🇮🇳 ALL-INDIA PREP & ADVANCED MODULES
+      case 'government-exams': return <GovernmentExams onNavigateNotes={() => setActiveTab('notes')} />;
+      case 'ai-spoken':        return <AiSpokenClass />;
+      case 'school-support':   return <SchoolStudentsSupport />;
+      case 'advanced-courses': return <AdvancedCourses />;
 
       default: return <Dashboard onNavigate={(tab) => setActiveTab(tab)} />;
     }

@@ -1,15 +1,188 @@
 // ============================================================
-// seedNotes.js — Real Subject Notes across Engineering, Science, Arts, Commerce, Medical, Law
+// seedNotes.js — Real Subject Notes & ALL Government Exam Notes
 // Used by: NotesHub
 // ============================================================
 
 export const SEED_NOTES = [
+  // ═══════ GOVERNMENT EXAMS (UPSC, SSC, BANKING, RAILWAY, DEFENCE, POLICE, STATE PSC) ═══════
+  {
+    id: 'gov_n1',
+    title: 'UPSC Civil Services (IAS/IPS) — Indian Polity & Constitution (M. Laxmikanth Summary)',
+    subject: 'Indian Polity & Governance',
+    branch: 'Government Exams - UPSC',
+    category: 'UPSC',
+    semester: 'Prelims & Mains',
+    college: 'UPSC CSE Special Edition',
+    author: 'IAS Academy Mentors & Toppers',
+    rating: 4.98,
+    downloads: 48500,
+    pages: 280,
+    fileSize: '9.2 MB',
+    type: 'Comprehensive Exam Notes + Mindmaps',
+    previewText: 'Covers Fundamental Rights, DPSP, President & Prime Minister, Parliament, Supreme Court & High Courts, Constitutional & Non-Constitutional Bodies, Amendments (1st to 106th), Center-State Relations, and Landmarked Judgments with 500+ PYQs.',
+    topics: ['Preamble & Fundamental Rights', 'Parliament & Union Executive', 'Judiciary & Judicial Review', 'Constitutional Amendments']
+  },
+  {
+    id: 'gov_n2',
+    title: 'UPSC Modern Indian History & National Movement (Spectrum Summary)',
+    subject: 'Modern History & Art & Culture',
+    branch: 'Government Exams - UPSC',
+    category: 'UPSC',
+    semester: 'Prelims & Mains GS-1',
+    college: 'UPSC CSE Standard',
+    author: 'Delhi Civil Services Study Circle',
+    rating: 4.95,
+    downloads: 41200,
+    pages: 240,
+    fileSize: '8.1 MB',
+    type: 'Chronological Revision Sheets',
+    previewText: 'Arrival of Europeans, 1857 Revolt, Socio-Religious Reform Movements, Indian National Congress sessions, Gandhian Era (Non-Cooperation, Civil Disobedience, Quit India), Governor Generals & Viceroys, Constitutional Developments (1773-1947).',
+    topics: ['1857 Revolt & British Rule', 'Gandhian Mass Movements', 'Tribal & Peasant Movements', 'Constitutional Acts (1773-1947)']
+  },
+  {
+    id: 'gov_n3',
+    title: 'SSC CGL & CHSL Tier 1 & 2 — Quantitative Aptitude & Advanced Math Formula Bible',
+    subject: 'Quantitative Aptitude',
+    branch: 'Government Exams - SSC',
+    category: 'SSC',
+    semester: 'CGL / CHSL / MTS / CPO',
+    college: 'Staff Selection Commission Hub',
+    author: 'SSC Math Toppers Forum',
+    rating: 4.92,
+    downloads: 54000,
+    pages: 195,
+    fileSize: '6.4 MB',
+    type: 'Shortcut Tricks + Formula Sheets',
+    previewText: 'Algebraic Identities, Geometry & Mensuration 2D/3D theorems, Trigonometry & Heights/Distances, Number System, Arithmetic (Percentages, Profit-Loss, Time-Work, Speed-Time-Distance, SI-CI, Mixtures). Includes 2500+ formula shortcuts & 10-year PYQ patterns.',
+    topics: ['Geometry & Mensuration Shortcuts', 'Trigonometry & Heights/Distances', 'Algebra & Number Systems', 'Arithmetic Speed Tricks']
+  },
+  {
+    id: 'gov_n4',
+    title: 'SSC General Awareness & Static GK 10,000+ Facts Compendium',
+    subject: 'General Awareness & Static GK',
+    branch: 'Government Exams - SSC',
+    category: 'SSC',
+    semester: 'All SSC Exams Tier 1',
+    college: 'SSC GK Expert Wing',
+    author: 'Prof. R. K. Sharma',
+    rating: 4.88,
+    downloads: 38700,
+    pages: 180,
+    fileSize: '5.9 MB',
+    type: 'One-Liner GK + Tables',
+    previewText: 'Indian Geography, Rivers & Dams, National Parks, Classical Dances & Festivals, Scientific Discoveries, First in India/World, Important Days & Themes, International Organizations, Sports Cups & Trophies, Economic Terms.',
+    topics: ['Static GK One-Liners', 'Geography & National Parks', 'Art & Culture of India', 'Science in Everyday Life']
+  },
+  {
+    id: 'gov_n5',
+    title: 'Banking Exams (SBI / IBPS PO & Clerk) — Banking Awareness & Economy Handbook',
+    subject: 'Banking & Financial Awareness',
+    branch: 'Government Exams - Banking',
+    category: 'Banking',
+    semester: 'SBI / IBPS / RBI Grade B',
+    college: 'Indian Institute of Banking & Finance (IIBF Aligned)',
+    author: 'Ex-RBI AGM & Faculty Team',
+    rating: 4.96,
+    downloads: 46200,
+    pages: 210,
+    fileSize: '7.0 MB',
+    type: 'Complete Banking Theory + Current Affairs',
+    previewText: 'RBI Monetary Policy & Tools (Repo, Reverse Repo, CRR, SLR), Types of Bank Accounts, Negotiable Instruments (Cheques, DD), Basel III Norms, NPA & SARFAESI Act, Digital Banking (UPI, RTGS, NEFT, IMPS), Priority Sector Lending, Union Budget highlights.',
+    topics: ['RBI Structure & Monetary Policy', 'NPA & Bad Bank Mechanisms', 'Digital Payments & Fintech', 'Financial Inclusion Schemes']
+  },
+  {
+    id: 'gov_n6',
+    title: 'Railway RRB (NTPC & Group D) — General Science (Physics, Chem, Bio) Master Notes',
+    subject: 'General Science (NCERT Class 6-10)',
+    branch: 'Government Exams - Railway',
+    category: 'Railway',
+    semester: 'RRB NTPC / Group D / ALP / JE',
+    college: 'Railway Recruitment Cell Special',
+    author: 'Science Educator Team',
+    rating: 4.9,
+    downloads: 51200,
+    pages: 165,
+    fileSize: '5.2 MB',
+    type: 'Color Illustrated Science Guide',
+    previewText: 'Physics Units, Motion, Gravitation, Light, Sound, Electricity; Chemistry Periodic Table, Chemical Reactions, Acids-Bases-Salts, Metals & Non-Metals; Biology Human Anatomy, Diseases, Nutrition, Genetics, Plant Kingdom. 2000+ RRB Previous Questions.',
+    topics: ['Physics Laws & Units', 'Periodic Table & Chemistry', 'Human Body Systems & Diseases', 'Railway Science PYQs']
+  },
+  {
+    id: 'gov_n7',
+    title: 'Defence Exams (NDA / CDS / AFCAT) — English & General Ability Test (GAT) Complete Guide',
+    subject: 'English & General Knowledge',
+    branch: 'Government Exams - Defence',
+    category: 'Defence',
+    semester: 'NDA / CDS / AFCAT / INET',
+    college: 'National Defence Academy Prep Wing',
+    author: 'Col. Sanjeev Bakshi (Retd.)',
+    rating: 4.93,
+    downloads: 36000,
+    pages: 220,
+    fileSize: '7.5 MB',
+    type: 'Defence Exam Blueprint & Solved Papers',
+    previewText: 'English Grammar Rules, Spotting Errors, Idioms & Phrases, Cloze Test, Reading Comprehension; Defence Static GK, Missile Systems of India, War Honours & Medals, Military Exercises, History & Geography for CDS/NDA.',
+    topics: ['Grammar & Spotting Errors', 'Indian Armed Forces GK', 'Defence Exercises & Missiles', 'SSB Interview Overview']
+  },
+  {
+    id: 'gov_n8',
+    title: 'State Police SI & Constable Exams — Law, Reasoning & General Studies Notes',
+    subject: 'Police Regulations, Law & GS',
+    branch: 'Government Exams - Police',
+    category: 'Police',
+    semester: 'State Police Recruitment (SI / PC)',
+    college: 'State Police Academy Guidance Cell',
+    author: 'Insp. V. Murugan & Team',
+    rating: 4.87,
+    downloads: 29500,
+    pages: 155,
+    fileSize: '4.7 MB',
+    type: 'State Exam Syllabus Notes',
+    previewText: 'IPC & CrPC basics for Police Exams, Fundamental Duties, State Geography & History, Mental Ability, Numerical Ability, Police Administration in India, Crime Prevention & Cyber Safety.',
+    topics: ['Basic IPC & Legal Principles', 'State Geography & Economy', 'Mental Ability & Logical Reasoning', 'Physical Test Guidelines']
+  },
+  {
+    id: 'gov_n9',
+    title: 'State PSC Exams (TNPSC / KPSC / APPSC / UPPSC) — State History, Culture & Administration',
+    subject: 'State Public Service Commission GS',
+    branch: 'Government Exams - State PSC',
+    category: 'State PSC',
+    semester: 'Group 1, 2, 4 Examinations',
+    college: 'State PSC Top Rankers Club',
+    author: 'Dr. M. Senthil Kumar (State Rank 1 Mentors)',
+    rating: 4.94,
+    downloads: 43800,
+    pages: 260,
+    fileSize: '8.8 MB',
+    type: 'State Heritage & Administration Manual',
+    previewText: 'State Freedom Struggle, Archaeological Excavations, Literature & Culture, State Geography & River Systems, State Government Welfare Schemes, Panchayat Raj & Local Governance, Social Justice movements.',
+    topics: ['State History & Culture', 'Socio-Political Movements', 'State Schemes & Governance', 'State PSC Solved PYQs']
+  },
+  {
+    id: 'gov_n10',
+    title: 'Teaching Exams (CTET / State TET / KVS / NVS) — Child Development & Pedagogy (CDP)',
+    subject: 'Child Development & Pedagogy',
+    branch: 'Government Exams - Teaching',
+    category: 'Teaching',
+    semester: 'Paper 1 & Paper 2',
+    college: 'National Council for Teacher Education (NCTE)',
+    author: 'Dr. Anita Joshi (M.Ed, Ph.D)',
+    rating: 4.91,
+    downloads: 31000,
+    pages: 170,
+    fileSize: '5.6 MB',
+    type: 'Pedagogy & Teaching Methodology Notes',
+    previewText: 'Piaget, Vygotsky & Kohlberg Theories, Inclusive Education, Learning Theories (Thorndike, Pavlov, Skinner), Evaluation & Assessment (CCE), NEP 2020 Framework, Classroom Management & Child Psychology.',
+    topics: ['Piaget, Vygotsky & Kohlberg', 'NEP 2020 & Curriculum', 'Inclusive Education Concepts', 'Pedagogic Practice Qs']
+  },
+
   // ═══════ COMPUTER SCIENCE & ENGINEERING ═══════
   {
     id: 'n1',
     title: 'Data Structures & Algorithms Comprehensive Notes',
     subject: 'Data Structures & Algorithms',
     branch: 'Computer Science & Engineering',
+    category: 'Engineering',
     semester: 'Semester 3',
     college: 'Anna University / VTU / JNTU',
     author: 'Prof. R. Sundaram (CSE Dept)',
@@ -26,6 +199,7 @@ export const SEED_NOTES = [
     title: 'Database Management Systems (DBMS) & SQL Handbook',
     subject: 'Database Management Systems',
     branch: 'Computer Science & Engineering',
+    category: 'Engineering',
     semester: 'Semester 4',
     college: 'IIT Madras Curriculum Aligned',
     author: 'Dr. K. Arumugam',
@@ -42,6 +216,7 @@ export const SEED_NOTES = [
     title: 'Operating Systems & System Programming Deep Dive',
     subject: 'Operating Systems',
     branch: 'Computer Science & Engineering',
+    category: 'Engineering',
     semester: 'Semester 4',
     college: 'NIT Trichy',
     author: 'Dr. M. Deepa',
@@ -58,6 +233,7 @@ export const SEED_NOTES = [
     title: 'Computer Networks & Internet Protocols (CN)',
     subject: 'Computer Networks',
     branch: 'Computer Science & Engineering',
+    category: 'Engineering',
     semester: 'Semester 5',
     college: 'VTU Belagavi',
     author: 'Prof. Suresh Kumar',
@@ -69,29 +245,14 @@ export const SEED_NOTES = [
     previewText: 'OSI 7-Layer Model, TCP/IP Protocol Suite, IP Addressing (IPv4/IPv6, Subnetting), Routing Protocols (RIP, OSPF, BGP), Congestion Control, Socket Programming, Network Security basics.',
     topics: ['OSI & TCP/IP Model', 'Subnetting & IP Routing', 'Transport Protocols (TCP/UDP)', 'Network Security']
   },
-  {
-    id: 'n5',
-    title: 'Object Oriented Software Engineering & Agile',
-    subject: 'Software Engineering',
-    branch: 'Computer Science & Engineering',
-    semester: 'Semester 5',
-    college: 'SRM Institute',
-    author: 'Priya Ramanathan',
-    rating: 4.6,
-    downloads: 7400,
-    pages: 85,
-    fileSize: '2.8 MB',
-    type: 'Quick Revision Guide',
-    previewText: 'SDLC Models (Waterfall, Agile, Scrum), Requirements Engineering, UML Diagrams (Class, Use Case, Sequence), Software Testing (Black-box, White-box), Software Metrics.',
-    topics: ['Agile & Scrum', 'UML Diagrams', 'Software Testing Techniques', 'Design Patterns']
-  },
 
-  // ═══════ ARTIFICIAL INTELLIGENCE & DATA SCIENCE ═══════
+  // ═══════ AI / ML / DATA SCIENCE ═══════
   {
     id: 'n6',
     title: 'Machine Learning Mathematics & Algorithms Notes',
     subject: 'Machine Learning',
     branch: 'Artificial Intelligence & Data Science',
+    category: 'AI / ML',
     semester: 'Semester 6',
     college: 'BITS Pilani',
     author: 'Dr. Vikram Shah',
@@ -103,22 +264,6 @@ export const SEED_NOTES = [
     previewText: 'Linear Regression, Logistic Regression, Decision Trees, Random Forests, SVM, Naive Bayes, K-Means Clustering, PCA Dimensionality Reduction, Gradient Descent, Model Evaluation Metrics.',
     topics: ['Supervised Learning', 'Unsupervised Learning', 'Model Evaluation & Tuning', 'Feature Engineering']
   },
-  {
-    id: 'n7',
-    title: 'Deep Learning & Neural Networks Lecture Notes',
-    subject: 'Deep Learning',
-    branch: 'Artificial Intelligence & Data Science',
-    semester: 'Semester 7',
-    college: 'IIT Bombay',
-    author: 'Prof. Ananya Sen',
-    rating: 4.9,
-    downloads: 10200,
-    pages: 140,
-    fileSize: '5.1 MB',
-    type: 'Lecture Slides & Derivations',
-    previewText: 'Perceptrons, Multilayer Perceptrons, Backpropagation mathematics, CNNs for Vision, RNNs & LSTMs for Sequential Data, Transformers & Attention Mechanism, PyTorch implementation code.',
-    topics: ['CNN Architectures', 'RNN & Transformer Models', 'Optimization & Backprop', 'PyTorch Solved Examples']
-  },
 
   // ═══════ MECHANICAL ENGINEERING ═══════
   {
@@ -126,6 +271,7 @@ export const SEED_NOTES = [
     title: 'Thermodynamics & Thermal Engineering Solved Formulas',
     subject: 'Thermodynamics',
     branch: 'Mechanical Engineering',
+    category: 'Engineering',
     semester: 'Semester 3',
     college: 'Anna University',
     author: 'Prof. S. Balaji',
@@ -137,47 +283,14 @@ export const SEED_NOTES = [
     previewText: 'Laws of Thermodynamics, Carnot Cycle, Otto Cycle, Diesel Cycle, Rankine Cycle, Entropy Calculations, Steam Power Plants, Refrigeration & Air Conditioning cycles.',
     topics: ['First & Second Law', 'Air Standard Cycles', 'Steam & Power Cycles', 'Psychrometry']
   },
-  {
-    id: 'n9',
-    title: 'Strength of Materials (SOM) Exam Essentials',
-    subject: 'Strength of Materials',
-    branch: 'Mechanical Engineering',
-    semester: 'Semester 3',
-    college: 'COEP Pune',
-    author: 'Dr. V. N. Joshi',
-    rating: 4.9,
-    downloads: 12400,
-    pages: 120,
-    fileSize: '4.1 MB',
-    type: 'Handwritten Solved Examples',
-    previewText: 'Stress and Strain, Shear Force & Bending Moment Diagrams (SFD/BMD), Torsion in Shafts, Deflection of Beams, Thin & Thick Cylinders, Columns and Struts.',
-    topics: ['Stress-Strain Relations', 'SFD & BMD Calculations', 'Deflection of Beams', 'Torsion & Columns']
-  },
 
-  // ═══════ ELECTRICAL & ELECTRONICS ENGINEERING ═══════
-  {
-    id: 'n10',
-    title: 'Circuit Theory & Electrical Networks Handbook',
-    subject: 'Circuit Theory',
-    branch: 'Electrical & Electronics Engineering',
-    semester: 'Semester 3',
-    college: 'JNTU Hyderabad',
-    author: 'Dr. G. Reddy',
-    rating: 4.7,
-    downloads: 9800,
-    pages: 95,
-    fileSize: '3.2 MB',
-    type: 'Solved Question Bank',
-    previewText: 'KCL, KVL, Mesh & Nodal Analysis, Network Theorems (Thevenin, Norton, Superposition, Maximum Power), Transient Analysis, Two-Port Networks, Resonance.',
-    topics: ['Network Theorems', 'Transient Response', 'Two-Port Parameters', 'Resonating Circuits']
-  },
-
-  // ═══════ COMMERCE & MANAGEMENT (B.Com / BBA / MBA) ═══════
+  // ═══════ COMMERCE & MANAGEMENT ═══════
   {
     id: 'n11',
     title: 'Financial Accounting & Corporate Reporting Standards',
     subject: 'Financial Accounting',
     branch: 'Commerce & Management',
+    category: 'Commerce',
     semester: 'Semester 1',
     college: 'Loyola College Chennai',
     author: 'Dr. S. Xavier (HOD Commerce)',
@@ -189,29 +302,14 @@ export const SEED_NOTES = [
     previewText: 'Journal, Ledger, Trial Balance, Final Accounts with Adjustments, Depreciation Accounting, Valuation of Inventory, Indian Accounting Standards (Ind AS), IFRS Overview.',
     topics: ['Journal to Balance Sheet', 'Depreciation Methods', 'Company Final Accounts', 'Ind AS Rules']
   },
-  {
-    id: 'n12',
-    title: 'Corporate Finance & Cost Accounting Notes',
-    subject: 'Corporate Finance',
-    branch: 'Commerce & Management',
-    semester: 'Semester 4',
-    college: 'St. Xavier\'s Kolkata',
-    author: 'Prof. A. Mukherjee',
-    rating: 4.9,
-    downloads: 9200,
-    pages: 125,
-    fileSize: '3.8 MB',
-    type: 'Lecture Notes + Case Studies',
-    previewText: 'Capital Budgeting (NPV, IRR, Payback), Cost of Capital (WACC), Capital Structure Theories, Working Capital Management, Cost Sheet, Marginal Costing & Breakeven Analysis.',
-    topics: ['Capital Budgeting', 'WACC Calculations', 'Marginal Costing', 'Working Capital']
-  },
 
-  // ═══════ MEDICAL & PHARMACY ═══════
+  // ═══════ MEDICAL & HEALTHCARE ═══════
   {
     id: 'n13',
     title: 'Human Anatomy & Physiology Illustrated Notes',
     subject: 'Human Anatomy',
     branch: 'Medical & Healthcare',
+    category: 'Medical',
     semester: '1st Year MBBS',
     college: 'MMC Chennai / AIIMS Aligned',
     author: 'Dr. Rajesh Kannan (MD Anatomy)',
@@ -222,33 +320,24 @@ export const SEED_NOTES = [
     type: 'Color Diagrams & Clinical Correlation',
     previewText: 'Gross Anatomy of Cardiovascular, Respiratory, Digestive, Nervous, Musculoskeletal, and Endocrine Systems. Histology slides and Embryology clinical cases included.',
     topics: ['Cardiovascular System', 'Neuroanatomy', 'Musculoskeletal Diagrams', 'Histology']
-  },
-  {
-    id: 'n14',
-    title: 'Pharmacology & Medicinal Chemistry Classification',
-    subject: 'Pharmacology',
-    branch: 'Medical & Healthcare',
-    semester: '2nd Year MBBS / B.Pharm',
-    college: 'JIPMER Puducherry',
-    author: 'Dr. Meena Swaminathan',
-    rating: 4.9,
-    downloads: 14100,
-    pages: 175,
-    fileSize: '6.2 MB',
-    type: 'Drug Classification Charts',
-    previewText: 'Autonomic Nervous System drugs, Cardiovascular drugs, Antibiotics & Antimicrobials, Anti-cancer agents, Pharmacokinetics & Pharmacodynamics, Adverse Reactions.',
-    topics: ['Drug Classifications', 'Pharmacokinetics', 'Antibiotics & Mechanisms', 'Adverse Effects']
   }
 ]
 
 export const NOTE_BRANCHES = [
-  'All Branches',
+  'All Categories',
+  'Government Exams - UPSC',
+  'Government Exams - SSC',
+  'Government Exams - Banking',
+  'Government Exams - Railway',
+  'Government Exams - Defence',
+  'Government Exams - Police',
+  'Government Exams - State PSC',
+  'Government Exams - Teaching',
   'Computer Science & Engineering',
   'Artificial Intelligence & Data Science',
   'Mechanical Engineering',
   'Electrical & Electronics Engineering',
   'Civil Engineering',
   'Commerce & Management',
-  'Medical & Healthcare',
-  'Polytechnic & Diploma'
+  'Medical & Healthcare'
 ]
