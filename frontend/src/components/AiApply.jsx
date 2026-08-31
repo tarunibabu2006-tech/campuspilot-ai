@@ -6,6 +6,8 @@ import { SEED_JOBS } from '../data/seedJobs'
 
 const TIMELINE_STEPS = ['Applied ✅', 'Under Review 📄', 'Shortlisted ⭐', 'Interview Scheduled 🎤', 'Offer Letter 🎉']
 
+import { calculateMatch } from '../utils/profileUtils'
+
 export default function AiApply() {
   const { user } = useAuth()
   const userSkills = (user?.skills || []).map(s => s.toLowerCase().trim())
@@ -19,47 +21,15 @@ export default function AiApply() {
   const [appliedJobs, setAppliedJobs] = useState(() => {
     try {
       const saved = localStorage.getItem('campuspilot_ai_applications')
-      return saved ? JSON.parse(saved) : [
-        {
-          id: 'j1',
-          appId: 'CP-APP-2026-84920',
-          role: 'Junior Software Engineer',
-          company: 'Zoho Corporation',
-          location: 'Chennai, TN',
-          salary: '₹6.5 LPA',
-          appliedTimestamp: new Date(Date.now() - 86400000).toISOString(),
-          status: 'Interview Scheduled 🎤',
-          timelineStage: 4,
-          matchScore: 94,
-          jobType: 'Full-time'
-        },
-        {
-          id: 'j2',
-          appId: 'CP-APP-2026-72314',
-          role: 'Data Analyst Intern',
-          company: 'Freshworks',
-          location: 'Chennai / Hybrid',
-          salary: '₹4.8 LPA',
-          appliedTimestamp: new Date(Date.now() - 172800000).toISOString(),
-          status: 'Shortlisted ⭐',
-          timelineStage: 3,
-          matchScore: 91,
-          jobType: 'Internship'
-        }
-      ]
+      return saved ? JSON.parse(saved) : []
     } catch {
       return []
     }
   })
 
   const [jobs, setJobs] = useState(() => {
-    return SEED_JOBS.slice(0, 15).map((j, i) => {
-      let matchScore = 80 + (i % 18)
-      if (userSkills.length > 0) {
-        const jobReqs = j.skills.map(s => s.toLowerCase().trim())
-        const matchCount = jobReqs.filter(r => userSkills.some(us => us.includes(r) || r.includes(us))).length
-        matchScore = Math.min(100, Math.round((matchCount / Math.max(1, jobReqs.length)) * 100))
-      }
+    return SEED_JOBS.slice(0, 15).map((j) => {
+      const { matchPercentage } = calculateMatch(user, j)
       return {
         id: j.id,
         role: j.title,
@@ -68,7 +38,7 @@ export default function AiApply() {
         salary: j.ctc,
         source: 'Verified Careers API',
         sourceUrl: `https://google.com/search?q=${encodeURIComponent(j.company + ' careers')}`,
-        matchScore,
+        matchScore: matchPercentage,
         safetyScore: 99,
         verified: true,
         reasons: ['Direct Campus Partner ✅', 'Eligible for 2024-2027 Batches ✅', 'Skill Match Validated ✅'],
@@ -93,7 +63,7 @@ export default function AiApply() {
     setAppliedJobs(updated)
     try {
       localStorage.setItem('campuspilot_ai_applications', JSON.stringify(updated))
-    } catch {}
+    } catch { }
 
     toast.success(`🎉 Application Submitted! Ref: ${appId}`)
 

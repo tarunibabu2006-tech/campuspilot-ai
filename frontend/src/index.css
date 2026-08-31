@@ -53,6 +53,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ═══════════════ JOB MATCH BADGES ═══════════════ */
+.match-high {
+  color: #4ade80 !important;
+  font-weight: 800 !important;
+}
+
+.match-medium {
+  color: #fbbf24 !important;
+  font-weight: 800 !important;
+}
+
+.match-low {
+  color: #f87171 !important;
+  font-weight: 800 !important;
+}
+
 /* ═══════════════ SCROLLBAR ═══════════════ */
 ::-webkit-scrollbar {
   width: 6px;
@@ -1819,7 +1835,7 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-neon);
-  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   transform-style: preserve-3d;
@@ -1828,7 +1844,7 @@ body {
 
 .pro-3d-card:hover {
   transform: translateY(-10px) rotateX(2deg) rotateY(-2deg);
-  box-shadow: 0 20px 40px -10px rgba(14, 165, 233, 0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow: 0 20px 40px -10px rgba(14, 165, 233, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   border-color: rgba(14, 165, 233, 0.6);
 }
 
@@ -1843,14 +1859,14 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4), inset 0 2px 0 rgba(255,255,255,0.2);
+  box-shadow: 0 4px 15px rgba(29, 78, 216, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   transform: translateZ(0);
 }
 
 .btn-3d:hover {
   transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(29, 78, 216, 0.6), inset 0 2px 0 rgba(255,255,255,0.3);
+  box-shadow: 0 8px 25px rgba(29, 78, 216, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.3);
 }
 
 .btn-3d:active {
@@ -1860,9 +1876,17 @@ body {
 
 /* Floating Animation */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-float {

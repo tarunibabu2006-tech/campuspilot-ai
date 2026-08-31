@@ -16,6 +16,7 @@ import jobRoutes from './routes/jobs.js'
 import resumeRoutes from './routes/resume.js'
 import interviewRoutes from './routes/interview.js'
 import adminRoutes from './routes/admin.js'
+import studentRoutes from './routes/student.js'
 
 import examRoutes from './routes/examEmergency.js'
 import vivaRoutes from './routes/vivaPrep.js'
@@ -162,6 +163,7 @@ app.use('/api/jobs', jobRoutes)
 app.use('/api/resume', resumeRoutes)
 app.use('/api/interview', interviewRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/student', studentRoutes)
 
 // AI & Student Tool Routes
 app.use('/api/exam-emergency', examRoutes)
@@ -234,7 +236,7 @@ app.use((req, res) => {
 // Global Error Handler
 app.use((err, req, res, next) => {
   logger.error(`❌ Error: ${err.stack}`)
-  
+
   const statusCode = err.statusCode || 500
   const status = err.status || 'error'
 

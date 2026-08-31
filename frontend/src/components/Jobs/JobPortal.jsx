@@ -1,66 +1,88 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import toast from 'react-hot-toast'
+import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../context/AuthContext'
-import { SEED_JOBS as EXTERNAL_SEED_JOBS } from '../../data/seedJobs'
+import { SEED_JOBS as EXTERNAL_SEED_JOBS, JOB_CATEGORIES } from '../../data/seedJobs'
+import { calculateMatch, getProfileCompletion } from '../../utils/profileUtils'
+import JobCard from '../Student/JobCard'
 
 export default function JobPortal() {
   const { user } = useAuth()
-  const userSkills = (user?.skills || ['Python', 'SQL', 'React', 'Data Structures']).map(s => s.toLowerCase().trim())
+  const studentSkills = user?.skills || []
+  const profileCompletion = useMemo(() => getProfileCompletion(user), [user])
 
-  const [jobs, setJobs] = useState(() => {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [selectedLocation, setSelectedLocation] = useState('All')
+  const [eligibilityModal, setEligibilityModal] = useState(null)
+  const [confirmationEmail, setConfirmationEmail] = useState(null)
+
+  // Map seed jobs and calculate real match percentage for each job
+  const jobs = useMemo(() => {
     return EXTERNAL_SEED_JOBS.map(j => {
-      let matchPct = 80
-      if (userSkills.length > 0) {
-        const jobReqs = (j.skills || []).map(s => s.toLowerCase().trim())
-        const matchCount = jobReqs.filter(r => userSkills.some(us => us.includes(r) || r.includes(us))).length
-        matchPct = Math.min(100, Math.max(65, Math.round((matchCount / Math.max(1, jobReqs.length)) * 100)))
-      }
+      const matchData = calculateMatch(user, j)
       return {
         id: j.id,
         role: j.title,
+        title: j.title,
         company: j.company,
         location: j.location,
         salary: j.ctc,
         experience: j.experience,
-        skills: j.skills?.join(', ') || 'Core Domain Skills',
-        matchPct,
+        skills: j.skills || [],
+        category: j.category || 'Software Development',
+        matchPct: matchData.matchPercentage,
+        matchedSkills: matchData.matchedSkills,
+        missingSkills: matchData.missingSkills,
         verified: j.isVerified !== false,
         requiredEducation: 'Bachelor’s Degree in Relevant Discipline',
-        applyLink: `https://www.google.com/search?q=${encodeURIComponent(j.company + ' careers ' + j.title)}`
+        applyLink: `https://www.google.com/search?q=${encodeURIComponent(j.company + ' careers ' + j.title)}`,
+        type: j.type || 'Full-time'
       }
     })
-  })
+  }, [user])
 
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedRole, setSelectedRole] = useState('All')
-  const [selectedLocation, setSelectedLocation] = useState('All')
-  const [eligibilityModal, setEligibilityModal] = useState(null)
-  const [confirmationEmail, setConfirmationEmail] = useState(null)
-  const [savedJobs, setSavedJobs] = useState({})
+  // Filter jobs by search, location, category
+  const filteredJobs = useMemo(() => {
+    return jobs.filter(j => {
+      const skillsStr = Array.isArray(j.skills) ? j.skills.join(' ') : String(j.skills)
+      const matchesSearch =
+        j.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        j.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        skillsStr.toLowerCase().includes(searchTerm.toLowerCase())
 
-  const filteredJobs = jobs.filter(j => {
-    const matchesSearch = j.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      j.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (j.skills && j.skills.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesLoc = selectedLocation === 'All' || j.location.includes(selectedLocation)
-    const matchesRole = selectedRole === 'All' || j.role.toLowerCase().includes(selectedRole.toLowerCase())
-    return matchesSearch && matchesLoc && matchesRole
-  })
+      const matchesLoc = selectedLocation === 'All' || j.location.includes(selectedLocation)
+      const matchesCat = selectedCategory === 'All' || j.category === selectedCategory
+
+      return matchesSearch && matchesLoc && matchesCat
+    })
+  }, [jobs, searchTerm, selectedLocation, selectedCategory])
 
   const handleApplyClick = (job) => {
-    const isEligible = (job.matchPct || 80) >= 75
-    const missing = ['Advanced System Architecture', 'Cloud Infrastructure Optimization', 'Unit Testing Automation'].slice(0, isEligible ? 0 : 2)
+    const isEligible = job.matchPct >= 65
+    const missing = job.missingSkills && job.missingSkills.length > 0
+      ? job.missingSkills.slice(0, 3)
+      : ['Advanced Domain Tools', 'System Architecture']
 
     setEligibilityModal({
       job,
       isEligible,
-      score: job.matchPct || 80,
+      score: job.matchPct,
+      matchedSkills: job.matchedSkills || [],
       missingSkills: missing,
       recommendations: isEligible
-        ? ['Your profile, degree and core skills match all requirements.', 'Ready to apply directly on company portal.']
-        : ['Upskill in ' + missing.join(', '), 'Complete practical projects in Skill Hub before final interview.']
+        ? [
+          'Your profile, degree, and skills match the job requirements.',
+          'Ready to submit your application directly on the company portal.'
+        ]
+        : studentSkills.length === 0
+          ? [
+            'Add your skills in your Profile to unlock personalized ATS score matching.',
+            'Complete practical projects and quizzes in Skill Hub.'
+          ]
+          : [
+            `Upskill in: ${missing.join(', ')}.`,
+            'Complete practical modules in Skill Hub to boost your readiness.'
+          ]
     })
   }
 
@@ -87,7 +109,7 @@ export default function JobPortal() {
 
   return (
     <div style={{ padding: '1rem', maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      {/* ── HEADER BANNER ────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
@@ -109,25 +131,106 @@ export default function JobPortal() {
             <span style={{ fontSize: '2.5rem' }}>💼</span>
             <div>
               <h1 style={{ fontSize: '1.8rem', fontWeight: '900', color: 'white', margin: 0 }}>
-                Verified Job & Placement Portal (Real-Time Opportunities)
+                Verified Job & Placement Portal (Real-Time Matching)
               </h1>
               <p style={{ color: '#c4b5fd', fontSize: '0.85rem', margin: 0 }}>
-                Live openings across MNCs, Product Giants & PSUs with Automated AI Eligibility Verification
+                Live openings across MNCs, Product Giants & PSUs with 100% Data-Driven ATS Match Verification
               </p>
             </div>
           </div>
         </div>
+
+        {/* Profile Completion Indicator */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: '1rem',
+            padding: '0.75rem 1.25rem',
+            textAlign: 'right'
+          }}
+        >
+          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Profile Completion</div>
+          <div style={{ fontSize: '1.25rem', fontWeight: '900', color: profileCompletion >= 60 ? '#4ade80' : '#fbbf24' }}>
+            {profileCompletion}%
+          </div>
+        </div>
       </motion.div>
 
+      {/* ── PROFILE COMPLETION GUIDANCE BANNER ──────────────────────── */}
+      {studentSkills.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid rgba(245, 158, 11, 0.35)',
+            borderRadius: '1rem',
+            padding: '1rem 1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.75rem'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
+            <div>
+              <div style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.92rem' }}>
+                Complete your profile to see accurate job match percentages
+              </div>
+              <div style={{ color: '#d1d5db', fontSize: '0.8rem', marginTop: '0.15rem' }}>
+                You haven’t added any skills to your profile yet. Add your skills to unlock 100% real match scores!
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.hash = '#profile'}
+            style={{
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '0.6rem',
+              padding: '0.5rem 1rem',
+              fontWeight: '800',
+              fontSize: '0.82rem',
+              cursor: 'pointer'
+            }}
+          >
+            ✏️ Add Skills to Profile
+          </button>
+        </motion.div>
+      ) : profileCompletion < 60 ? (
+        <div
+          style={{
+            background: 'rgba(59, 130, 246, 0.12)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '1rem',
+            padding: '0.85rem 1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            color: '#93c5fd',
+            fontSize: '0.82rem'
+          }}
+        >
+          <span>💡</span>
+          <span>
+            <strong>Tip:</strong> Add more skills and your department/location in your Profile ({profileCompletion}% complete) to get higher, more accurate job matches!
+          </span>
+        </div>
+      ) : null}
+
       {/* ── SEARCH & FILTER CONTROLS ───────────────────────────────── */}
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
         <input
           type="text"
           placeholder="🔍 Search all placement roles & companies (e.g. Software Engineer, Data Analyst, TCS, Zoho)..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           style={{
-            flex: 1,
+            flex: 2,
             minWidth: '260px',
             background: 'rgba(255,255,255,0.06)',
             border: '1px solid rgba(255,255,255,0.12)',
@@ -138,10 +241,13 @@ export default function JobPortal() {
             outline: 'none'
           }}
         />
+
         <select
-          value={selectedLocation}
-          onChange={e => setSelectedLocation(e.target.value)}
+          value={selectedCategory}
+          onChange={e => setSelectedCategory(e.target.value)}
           style={{
+            flex: 1,
+            minWidth: '180px',
             background: '#1e1b4b',
             border: '1px solid rgba(139,92,246,0.4)',
             borderRadius: '0.75rem',
@@ -152,12 +258,34 @@ export default function JobPortal() {
             cursor: 'pointer'
           }}
         >
-          <option value="All">All Locations (India & Global)</option>
-          <option value="Chennai">Chennai</option>
+          {JOB_CATEGORIES.map(cat => (
+            <option key={cat} value={cat}>{cat === 'All' ? 'All Job Categories' : cat}</option>
+          ))}
+        </select>
+
+        <select
+          value={selectedLocation}
+          onChange={e => setSelectedLocation(e.target.value)}
+          style={{
+            flex: 1,
+            minWidth: '160px',
+            background: '#1e1b4b',
+            border: '1px solid rgba(139,92,246,0.4)',
+            borderRadius: '0.75rem',
+            padding: '0.75rem 1rem',
+            color: 'white',
+            fontSize: '0.88rem',
+            outline: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          <option value="All">All Locations</option>
           <option value="Bengaluru">Bengaluru</option>
+          <option value="Chennai">Chennai</option>
           <option value="Hyderabad">Hyderabad</option>
           <option value="Mumbai">Mumbai</option>
           <option value="Delhi">Delhi NCR</option>
+          <option value="Pune">Pune</option>
           <option value="Remote">Remote / Hybrid</option>
         </select>
       </div>
@@ -165,81 +293,12 @@ export default function JobPortal() {
       {/* ── JOBS GRID ──────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
         {filteredJobs.map(job => (
-          <motion.div
+          <JobCard
             key={job.id}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '1.25rem',
-              padding: '1.35rem',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between'
-            }}
-          >
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                <div>
-                  <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.1rem', margin: '0 0 0.2rem' }}>
-                    {job.role}
-                  </h3>
-                  <div style={{ color: '#60a5fa', fontWeight: '700', fontSize: '0.85rem' }}>
-                    {job.company} {job.verified && <span style={{ color: '#4ade80' }}>✓ Verified</span>}
-                  </div>
-                </div>
-                <span style={{
-                  background: 'rgba(74,222,128,0.15)',
-                  color: '#4ade80',
-                  padding: '0.2rem 0.6rem',
-                  borderRadius: '1rem',
-                  fontSize: '0.75rem',
-                  fontWeight: '800'
-                }}>
-                  {job.matchPct}% Match
-                </span>
-              </div>
-
-              <div style={{
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: '0.75rem',
-                padding: '0.75rem',
-                margin: '0.75rem 0',
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '0.4rem',
-                fontSize: '0.78rem'
-              }}>
-                <div><span style={{ color: '#64748b' }}>Location:</span> <span style={{ color: 'white' }}>{job.location}</span></div>
-                <div><span style={{ color: '#64748b' }}>Package:</span> <span style={{ color: '#4ade80', fontWeight: '700' }}>{job.salary}</span></div>
-                <div><span style={{ color: '#64748b' }}>Experience:</span> <span style={{ color: 'white' }}>{job.experience}</span></div>
-                <div><span style={{ color: '#64748b' }}>Safety:</span> <span style={{ color: '#38bdf8' }}>100% Legit</span></div>
-              </div>
-
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '1rem' }}>
-                <strong>Key Skills:</strong> {job.skills}
-              </div>
-            </div>
-
-            <button
-              onClick={() => handleApplyClick(job)}
-              style={{
-                width: '100%',
-                padding: '0.7rem',
-                borderRadius: '0.65rem',
-                background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
-                color: 'white',
-                border: 'none',
-                fontWeight: '800',
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                boxShadow: '0 4px 15px rgba(124,58,237,0.3)'
-              }}
-            >
-              ⚡ Check Eligibility & Apply ➔
-            </button>
-          </motion.div>
+            job={job}
+            user={user}
+            onApply={handleApplyClick}
+          />
         ))}
       </div>
 
@@ -278,7 +337,7 @@ export default function JobPortal() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                 <h3 style={{ color: 'white', fontWeight: '900', fontSize: '1.25rem', margin: 0 }}>
-                  🤖 AI Candidate Eligibility Check
+                  🤖 Real Candidate Match Verification
                 </h3>
                 <button
                   onClick={() => setEligibilityModal(null)}
@@ -307,12 +366,33 @@ export default function JobPortal() {
                 marginBottom: '1.25rem'
               }}>
                 <div style={{ color: eligibilityModal.isEligible ? '#4ade80' : '#fbbf24', fontWeight: '900', fontSize: '1.1rem' }}>
-                  {eligibilityModal.isEligible ? '✅ Profile Match Verified: 100% Eligible!' : '⚠️ Skill Gap Identified: Action Suggested'}
+                  {eligibilityModal.isEligible ? '✅ High Match: Highly Recommended!' : '⚠️ Skill Gap Identified'}
                 </div>
-                <div style={{ color: '#cbd5e1', fontSize: '0.82rem', marginTop: '0.35rem' }}>
-                  ATS Match Score: <strong>{eligibilityModal.score}%</strong>
+                <div style={{ color: '#cbd5e1', fontSize: '0.85rem', marginTop: '0.35rem' }}>
+                  Calculated Match Score: <strong>{eligibilityModal.score}%</strong>
                 </div>
+                {studentSkills.length === 0 && (
+                  <div style={{ color: '#fbbf24', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                    (No skills detected in your profile. Add skills for full match)
+                  </div>
+                )}
               </div>
+
+              {/* Matched & Missing Skills */}
+              {eligibilityModal.matchedSkills && eligibilityModal.matchedSkills.length > 0 && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ color: '#4ade80', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.3rem' }}>
+                    ✓ Matched Skills:
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                    {eligibilityModal.matchedSkills.map((sk, idx) => (
+                      <span key={idx} style={{ background: 'rgba(74,222,128,0.15)', color: '#86efac', padding: '0.2rem 0.5rem', borderRadius: '0.4rem', fontSize: '0.75rem', fontWeight: '700' }}>
+                        ✓ {sk}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Recommendations */}
               <div style={{ marginBottom: '1.5rem' }}>
@@ -354,7 +434,7 @@ export default function JobPortal() {
         )}
       </AnimatePresence>
 
-      {/* ── GMAIL CONFIRMATION & APPLICATION PROOF MODAL ──────────── */}
+      {/* ── GMAIL CONFIRMATION MODAL ────────────────────────────────── */}
       <AnimatePresence>
         {confirmationEmail && (
           <motion.div
