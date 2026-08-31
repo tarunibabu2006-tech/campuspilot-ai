@@ -4,9 +4,19 @@ import { useAuth } from '../../context/AuthContext'
 import { SEED_JOBS as EXTERNAL_SEED_JOBS, JOB_CATEGORIES } from '../../data/seedJobs'
 import { calculateMatch, getProfileCompletion } from '../../utils/profileUtils'
 import JobCard from '../Student/JobCard'
+import toast from 'react-hot-toast'
+
+// Popular skills for quick-select
+const POPULAR_SKILLS = [
+  'Python', 'Java', 'C++', 'JavaScript', 'TypeScript', 'React', 'Node.js', 'SQL',
+  'MongoDB', 'MySQL', 'PostgreSQL', 'HTML5', 'CSS3', 'Git', 'GitHub', 'Docker',
+  'AWS', 'REST API', 'DSA', 'OOP', 'Machine Learning', 'Deep Learning', 'Pandas',
+  'NumPy', 'TensorFlow', 'Scikit-Learn', 'Power BI', 'Tableau', 'Excel', 'MATLAB',
+  'Linux', 'Kubernetes', 'Spring Boot', 'Django', 'Flask', 'Redux', 'Figma'
+]
 
 export default function JobPortal() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const studentSkills = user?.skills || []
   const profileCompletion = useMemo(() => getProfileCompletion(user), [user])
 
@@ -15,6 +25,9 @@ export default function JobPortal() {
   const [selectedLocation, setSelectedLocation] = useState('All')
   const [eligibilityModal, setEligibilityModal] = useState(null)
   const [confirmationEmail, setConfirmationEmail] = useState(null)
+  const [showAddSkillsModal, setShowAddSkillsModal] = useState(false)
+  const [skillInput, setSkillInput] = useState('')
+  const [pendingSkills, setPendingSkills] = useState([])
 
   // Map seed jobs and calculate real match percentage for each job
   const jobs = useMemo(() => {
@@ -84,6 +97,39 @@ export default function JobPortal() {
             'Complete practical modules in Skill Hub to boost your readiness.'
           ]
     })
+  }
+
+  // ── ADD SKILLS HANDLER ──────────────────────────────────────────
+  const openAddSkillsModal = () => {
+    // Pre-populate with user's existing skills
+    setPendingSkills(user?.skills || [])
+    setSkillInput('')
+    setShowAddSkillsModal(true)
+  }
+
+  const addPendingSkill = (skill) => {
+    const trimmed = skill.trim()
+    if (!trimmed) return
+    if (pendingSkills.some(s => s.toLowerCase() === trimmed.toLowerCase())) {
+      toast.error(`"${trimmed}" is already in your list!`)
+      return
+    }
+    setPendingSkills(prev => [...prev, trimmed])
+    setSkillInput('')
+  }
+
+  const removePendingSkill = (idx) => {
+    setPendingSkills(prev => prev.filter((_, i) => i !== idx))
+  }
+
+  const saveSkillsToProfile = () => {
+    if (pendingSkills.length === 0) {
+      toast.error('Please add at least one skill!')
+      return
+    }
+    updateUser({ ...user, skills: pendingSkills })
+    setShowAddSkillsModal(false)
+    toast.success(`✅ ${pendingSkills.length} skills saved to your profile! Match scores updated.`)
   }
 
   const handleProceedApplication = (job) => {
@@ -186,7 +232,7 @@ export default function JobPortal() {
             </div>
           </div>
           <button
-            onClick={() => window.location.hash = '#profile'}
+            onClick={openAddSkillsModal}
             style={{
               background: 'linear-gradient(135deg, #f59e0b, #d97706)',
               color: '#ffffff',
@@ -195,7 +241,11 @@ export default function JobPortal() {
               padding: '0.5rem 1rem',
               fontWeight: '800',
               fontSize: '0.82rem',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              whiteSpace: 'nowrap'
             }}
           >
             ✏️ Add Skills to Profile
@@ -505,6 +555,206 @@ export default function JobPortal() {
                 }}
               >
                 Got It ✓
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── ADD SKILLS INLINE MODAL ─────────────────────────────────── */}
+      <AnimatePresence>
+        {showAddSkillsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.88)',
+              zIndex: 300,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem'
+            }}
+            onClick={() => setShowAddSkillsModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.88, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.88, y: 20 }}
+              style={{
+                background: 'linear-gradient(135deg, #1e1b4b, #0f172a)',
+                border: '2px solid rgba(245,158,11,0.5)',
+                borderRadius: '1.5rem',
+                padding: '2rem',
+                maxWidth: '580px',
+                width: '100%',
+                maxHeight: '90vh',
+                overflowY: 'auto'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div>
+                  <h3 style={{ color: 'white', fontWeight: '900', fontSize: '1.3rem', margin: 0 }}>
+                    🛠️ Add Your Skills
+                  </h3>
+                  <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '0.25rem 0 0' }}>
+                    Skills added here instantly update your job match % scores
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowAddSkillsModal(false)}
+                  style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '34px', height: '34px', cursor: 'pointer', fontSize: '1rem', flexShrink: 0 }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Skill Text Input */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                <input
+                  type="text"
+                  value={skillInput}
+                  onChange={e => setSkillInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addPendingSkill(skillInput)
+                    }
+                  }}
+                  placeholder="Type a skill and press Enter (e.g. Python, React, SQL...)"
+                  style={{
+                    flex: 1,
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '1px solid rgba(245,158,11,0.5)',
+                    borderRadius: '0.65rem',
+                    padding: '0.65rem 0.9rem',
+                    color: 'white',
+                    fontSize: '0.9rem',
+                    outline: 'none'
+                  }}
+                  autoFocus
+                />
+                <button
+                  onClick={() => addPendingSkill(skillInput)}
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.65rem',
+                    padding: '0.65rem 1.1rem',
+                    fontWeight: '800',
+                    fontSize: '0.88rem',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  + Add
+                </button>
+              </div>
+
+              {/* Quick-Select Popular Skills */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <div style={{ color: '#94a3b8', fontSize: '0.78rem', fontWeight: '700', marginBottom: '0.5rem' }}>⚡ Quick Add Popular Skills:</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                  {POPULAR_SKILLS.filter(s => !pendingSkills.some(p => p.toLowerCase() === s.toLowerCase())).map(skill => (
+                    <button
+                      key={skill}
+                      onClick={() => addPendingSkill(skill)}
+                      style={{
+                        background: 'rgba(245,158,11,0.1)',
+                        border: '1px solid rgba(245,158,11,0.3)',
+                        color: '#fbbf24',
+                        padding: '0.25rem 0.65rem',
+                        borderRadius: '1rem',
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.12s ease'
+                      }}
+                    >
+                      + {skill}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Current Pending Skills */}
+              {pendingSkills.length > 0 && (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <div style={{ color: '#4ade80', fontSize: '0.82rem', fontWeight: '800', marginBottom: '0.5rem' }}>
+                    ✓ Your Skills ({pendingSkills.length} added):
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                    {pendingSkills.map((skill, idx) => (
+                      <span
+                        key={idx}
+                        style={{
+                          background: 'rgba(74,222,128,0.15)',
+                          border: '1px solid rgba(74,222,128,0.4)',
+                          color: '#86efac',
+                          padding: '0.3rem 0.65rem',
+                          borderRadius: '1rem',
+                          fontSize: '0.8rem',
+                          fontWeight: '700',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.35rem'
+                        }}
+                      >
+                        {skill}
+                        <button
+                          onClick={() => removePendingSkill(idx)}
+                          style={{
+                            background: 'rgba(255,255,255,0.15)',
+                            border: 'none',
+                            color: '#f87171',
+                            borderRadius: '50%',
+                            width: '16px',
+                            height: '16px',
+                            cursor: 'pointer',
+                            fontSize: '0.65rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: 0
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Save Button */}
+              <button
+                onClick={saveSkillsToProfile}
+                disabled={pendingSkills.length === 0}
+                style={{
+                  width: '100%',
+                  padding: '0.9rem',
+                  borderRadius: '0.75rem',
+                  background: pendingSkills.length === 0
+                    ? 'rgba(255,255,255,0.08)'
+                    : 'linear-gradient(135deg, #10b981, #059669)',
+                  color: pendingSkills.length === 0 ? '#64748b' : 'white',
+                  fontWeight: '900',
+                  fontSize: '1rem',
+                  border: 'none',
+                  cursor: pendingSkills.length === 0 ? 'not-allowed' : 'pointer',
+                  boxShadow: pendingSkills.length > 0 ? '0 4px 20px rgba(16,185,129,0.35)' : 'none'
+                }}
+              >
+                {pendingSkills.length === 0
+                  ? 'Add at least one skill to save'
+                  : `💾 Save ${pendingSkills.length} Skills & Update Match Scores ➔`
+                }
               </button>
             </motion.div>
           </motion.div>
