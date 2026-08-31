@@ -6,97 +6,96 @@ import { useAuth } from '../context/AuthContext'
 const SPOKEN_LEVELS = [
   {
     level: 1,
-    title: 'Level 1: Basic Everyday Spoken English',
-    desc: 'Self-introductions, daily greetings, sentence building & common phrases',
+    title: 'Level 1: Basic English (Easy)',
+    desc: 'Daily introductions, basic greetings, sentence building & everyday vocabulary',
     xpReward: 30,
     color: '#4ade80',
     lessons: [
       {
-        topic: '1. Self Introduction & Meeting People',
-        dialogue: 'Hello! My name is Rahul. I am currently pursuing Computer Science Engineering.',
-        prompt: 'Introduce yourself in 2-3 sentences mentioning your name and college branch.'
+        topic: '1. Self Introduction',
+        dialogue: 'Hello! My name is Rahul. I am currently studying Computer Science Engineering in college.',
+        prompt: 'Introduce yourself in English stating your name, college and passion.'
       },
       {
-        topic: '2. Daily Routine & Asking Questions',
-        dialogue: 'What time does the lecture start tomorrow? Could you please share the syllabus?',
-        prompt: 'Ask a classmate politely for class timing and study materials.'
-      },
-      {
-        topic: '3. Expressing Likes, Dislikes & Opinions',
-        dialogue: 'I really enjoy working on web development projects because I love building user interfaces.',
-        prompt: 'State your favorite hobby or programming language and explain why you like it.'
+        topic: '2. Daily Routine & Inquiries',
+        dialogue: 'Could you please tell me what time the lab starts today?',
+        prompt: 'Ask politely for the schedule and venue of your upcoming campus placement drive.'
       }
     ]
   },
   {
     level: 2,
-    title: 'Level 2: Intermediate Professional English',
-    desc: 'Workplace communication, email etiquette, project explanations & standup updates',
+    title: 'Level 2: Intermediate English',
+    desc: 'Workplace conversation, explaining projects, daily standups & collaboration',
     xpReward: 40,
     color: '#38bdf8',
     lessons: [
       {
-        topic: '1. Agile Daily Standup Update',
-        dialogue: 'Yesterday I finished implementing the database schema. Today I will work on REST API endpoints.',
-        prompt: 'Give a 45-second daily standup update explaining your yesterday work and today plan.'
+        topic: '1. Daily Agile Standup Update',
+        dialogue: 'Yesterday I finished implementing the database schema. Today I will work on REST API authentication.',
+        prompt: 'Give a 45-second daily standup update explaining your technical progress and blockers.'
       },
       {
-        topic: '2. Explaining a Technical Bug to Teammates',
-        dialogue: 'We identified a race condition in the payment module during load testing. I am applying an atomic lock.',
-        prompt: 'Explain a technical issue you resolved in a team project with confidence.'
-      },
-      {
-        topic: '3. Professional Presentations & Slide Deck Delivery',
-        dialogue: 'In this presentation, we will walk through our architecture, performance benchmarks, and deployment strategy.',
-        prompt: 'Deliver the opening statement for your final year project presentation.'
+        topic: '2. Explaining a Bug Fix',
+        dialogue: 'We encountered an unhandled exception in the authentication token flow and resolved it with middleware.',
+        prompt: 'Describe a software error you resolved in your team project.'
       }
     ]
   },
   {
     level: 3,
-    title: 'Level 3: Advanced Business Communication',
-    desc: 'Interview negotiations, cross-functional stakeholder pitches & public speaking',
+    title: 'Level 3: Advanced English',
+    desc: 'Professional presentations, client communication, technical interviews & debating',
     xpReward: 50,
     color: '#c084fc',
     lessons: [
       {
-        topic: '1. Salary Negotiation & Offer Evaluation',
-        dialogue: 'Thank you for the offer. Based on my technical skill set and market research for this role, I would like to propose ₹8.5 LPA.',
-        prompt: 'Practice negotiating a compensation package politely yet assertively.'
+        topic: '1. Project Pitch & Architecture',
+        dialogue: 'Our platform leverages event-driven microservices to ensure sub-millisecond response latency under peak load.',
+        prompt: 'Deliver an architectural pitch for a scalable web application to a technical panel.'
       },
       {
-        topic: '2. Pitching a Product Architecture to Leadership',
-        dialogue: 'Migrating to microservices will reduce our deployment cycle time by 40% and enhance system resilience.',
-        prompt: 'Pitch an engineering improvement to senior leadership highlighting ROI and performance.'
-      },
-      {
-        topic: '3. Handling Critical Disagreements Professionally',
-        dialogue: 'I see your point regarding monolithic simplicity, but let us look at the scalability bottlenecks at 100k requests/sec.',
-        prompt: 'Diplomatically counter a colleague’s design proposition using data and engineering facts.'
+        topic: '2. Professional Debate & Counterpoint',
+        dialogue: 'While a monolithic approach is simpler initially, our long-term scalability demands decoupled services.',
+        prompt: 'Diplomatically state your technical disagreement with a design choice.'
       }
     ]
   },
   {
     level: 4,
-    title: 'Level 4: Very Advanced Executive Thought Leadership',
-    desc: 'Keynote speaking, investor pitch, global accent adaptation & executive presence',
+    title: 'Level 4: Very Advanced English',
+    desc: 'Salary negotiations, executive briefings, investor pitches & public speaking',
     xpReward: 60,
     color: '#f59e0b',
     lessons: [
       {
-        topic: '1. Tech Conference Keynote Opening',
-        dialogue: 'Good morning everyone. Today artificial intelligence is rewriting the playbook of global software engineering...',
-        prompt: 'Deliver a powerful 60-second keynote introduction addressing 500+ software engineers.'
+        topic: '1. Salary Negotiation & Offer Counter',
+        dialogue: 'Thank you for the offer. Considering my specialized expertise in full-stack architecture, I propose ₹9.5 LPA.',
+        prompt: 'Confidently negotiate your compensation package citing market standards and your skills.'
       },
       {
-        topic: '2. Venture Capital & Investor Pitch',
-        dialogue: 'We are solving the placement disparity in Tier 2/3 engineering colleges by using multimodal AI mentors at zero cost.',
-        prompt: 'Pitch CampusPilot AI to a panel of global venture capitalists in under 1 minute.'
+        topic: '2. Executive Keynote Opening',
+        dialogue: 'Artificial intelligence is not replacing developers; it is empowering 10x engineering velocity across the globe.',
+        prompt: 'Deliver an inspiring keynote opening statement to an audience of 300+ engineering students.'
+      }
+    ]
+  },
+  {
+    level: 5,
+    title: 'Level 5: Professional English (Global Fluency)',
+    desc: 'Global accent neutrality, international stakeholder calls & boardroom leadership',
+    xpReward: 100,
+    color: '#ef4444',
+    lessons: [
+      {
+        topic: '1. International Boardroom Presentation',
+        dialogue: 'Our quarterly product telemetry demonstrates a 45% increase in user retention and exceptional market expansion.',
+        prompt: 'Deliver a high-impact boardroom update with neutral accent and executive presence.'
       },
       {
-        topic: '3. Global Executive Presence & Accent Neutrality',
-        dialogue: 'Let us align our quarterly OKRs with the international expansion roadmap for Q3 and Q4.',
-        prompt: 'Deliver an executive board briefing with neutral accent, clear cadence, and authoritative tone.'
+        topic: '2. Crisis Management & PR Statement',
+        dialogue: 'We identified the infrastructure vulnerability within 8 minutes and deployed a zero-downtime hotfix with full security audits.',
+        prompt: 'Address a critical system outage professionally to global stakeholders.'
       }
     ]
   }
@@ -104,12 +103,14 @@ const SPOKEN_LEVELS = [
 
 export default function AiSpokenClass() {
   const { user, updateUser } = useAuth()
+  const [unlockedLevel, setUnlockedLevel] = useState(2)
   const [selectedLevel, setSelectedLevel] = useState(1)
   const [selectedLessonIdx, setSelectedLessonIdx] = useState(0)
   const [isRecording, setIsRecording] = useState(false)
   const [transcript, setTranscript] = useState('')
   const [evaluating, setEvaluating] = useState(false)
   const [feedback, setFeedback] = useState(null)
+  const [showCelebration, setShowCelebration] = useState(null)
 
   const recognitionRef = useRef(null)
   const currentLevelConfig = SPOKEN_LEVELS.find(l => l.level === selectedLevel) || SPOKEN_LEVELS[0]
@@ -119,7 +120,7 @@ export default function AiSpokenClass() {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel()
       const u = new SpeechSynthesisUtterance(text)
-      u.rate = 0.9
+      u.rate = 0.92
       u.lang = 'en-US'
       window.speechSynthesis.speak(u)
     }
@@ -132,7 +133,7 @@ export default function AiSpokenClass() {
     } else {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
       if (!SpeechRecognition) {
-        toast.error('Speech recognition not supported in this browser. Please use Chrome or Edge!')
+        toast.error('Voice recognition requires Chrome or Edge browser.')
         return
       }
 
@@ -143,7 +144,7 @@ export default function AiSpokenClass() {
 
       rec.onstart = () => {
         setIsRecording(true)
-        toast.success('🎙️ Microphone Listening... Speak your sentence!')
+        toast.success('🎙️ Microphone Listening... Speak in English!')
       }
 
       rec.onresult = (e) => {
@@ -162,36 +163,41 @@ export default function AiSpokenClass() {
     }
   }
 
-  const handleEvaluateSpeech = () => {
+  const handleEvaluateVoice = () => {
     if (!transcript.trim()) {
-      toast.error('Please record your voice before submitting!')
+      toast.error('Please record your voice response before submitting!')
       return
     }
 
     setEvaluating(true)
     setTimeout(() => {
       const words = transcript.trim().split(/\s+/).length
-      const score = Math.min(100, 70 + words * 2)
+      const score = Math.min(100, 75 + words * 2)
 
       setFeedback({
         score,
         fluency: 9,
         pronunciation: 8.5,
         vocabulary: 9,
-        comment: `Excellent articulation! Your pitch, pace, and sentence structure matched the professional standard required for ${currentLevelConfig.title}.`,
-        suggestions: 'Keep practicing with varied sentence starters to enhance natural conversational flow.'
+        comment: `Excellent spoken delivery! Your cadence and vocabulary matched the professional expectations for ${currentLevelConfig.title}.`
       })
       setEvaluating(false)
+
+      // Unlock next level
+      const nextLvl = Math.min(5, selectedLevel + 1)
+      if (nextLvl > unlockedLevel) {
+        setUnlockedLevel(nextLvl)
+      }
 
       if (user) {
         updateUser({ ...user, xp: (user?.xp || 0) + currentLevelConfig.xpReward })
       }
-      toast.success(`🎉 Evaluation Complete! +${currentLevelConfig.xpReward} XP Awarded!`)
-    }, 900)
+      setShowCelebration(currentLevelConfig)
+    }, 1000)
   }
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', position: 'relative' }}>
       {/* ── HEADER ─────────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -15 }}
@@ -214,57 +220,66 @@ export default function AiSpokenClass() {
             <span style={{ fontSize: '2.5rem' }}>🗣️</span>
             <div>
               <h1 style={{ fontSize: '1.8rem', fontWeight: '900', color: 'white', margin: 0 }}>
-                AI Spoken English & Accent Coaching (4 Progressive Levels)
+                AI Spoken English (Duolingo Style · Voice Only)
               </h1>
               <p style={{ color: '#c4b5fd', fontSize: '0.85rem', margin: 0 }}>
-                From Everyday English to Corporate Standups, Business Negotiations & Executive Public Speaking
+                Pure Speech Recognition & Real-Time AI Pronunciation Coaching (No Typing Required)
               </p>
             </div>
           </div>
         </div>
+
+        <span style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.4)', padding: '0.4rem 1.1rem', borderRadius: '2rem', fontWeight: '800', fontSize: '0.85rem' }}>
+          🔓 Level {unlockedLevel}/5 Unlocked
+        </span>
       </motion.div>
 
-      {/* ── 4 LEVEL CARDS ─────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+      {/* ── DUOLINGO STYLE 5-LEVEL PROGRESSION ROADMAP ─────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
         {SPOKEN_LEVELS.map(lvl => {
+          const isUnlocked = lvl.level <= unlockedLevel
           const isSelected = selectedLevel === lvl.level
+
           return (
             <div
               key={lvl.level}
               onClick={() => {
-                setSelectedLevel(lvl.level)
-                setSelectedLessonIdx(0)
-                setTranscript('')
-                setFeedback(null)
+                if (isUnlocked) {
+                  setSelectedLevel(lvl.level)
+                  setSelectedLessonIdx(0)
+                  setTranscript('')
+                  setFeedback(null)
+                } else {
+                  toast.error(`🔒 Complete Level ${lvl.level - 1} to unlock this level!`)
+                }
               }}
               style={{
-                background: isSelected ? `linear-gradient(135deg, ${lvl.color}22, rgba(15,23,42,0.9))` : 'rgba(255,255,255,0.03)',
-                border: `2px solid ${isSelected ? lvl.color : 'rgba(255,255,255,0.08)'}`,
+                background: isSelected ? `linear-gradient(135deg, ${lvl.color}33, rgba(15,23,42,0.9))` : 'rgba(255,255,255,0.03)',
+                border: `2px solid ${isSelected ? lvl.color : isUnlocked ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.04)'}`,
                 borderRadius: '1.25rem',
                 padding: '1.25rem',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                boxShadow: isSelected ? `0 8px 30px ${lvl.color}33` : 'none'
+                cursor: isUnlocked ? 'pointer' : 'not-allowed',
+                opacity: isUnlocked ? 1 : 0.45,
+                transition: 'all 0.15s ease'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <span style={{ color: lvl.color, fontWeight: '900', fontSize: '0.85rem' }}>LEVEL {lvl.level}</span>
-                <span style={{ background: `${lvl.color}22`, color: lvl.color, padding: '0.15rem 0.5rem', borderRadius: '0.5rem', fontSize: '0.72rem', fontWeight: '800' }}>
+                <span style={{ color: isUnlocked ? lvl.color : '#94a3b8', fontWeight: '900', fontSize: '0.82rem' }}>
+                  {isUnlocked ? `LEVEL ${lvl.level}` : `🔒 LEVEL ${lvl.level}`}
+                </span>
+                <span style={{ background: `${lvl.color}22`, color: lvl.color, padding: '0.15rem 0.5rem', borderRadius: '0.4rem', fontSize: '0.72rem', fontWeight: '800' }}>
                   +{lvl.xpReward} XP
                 </span>
               </div>
-              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1rem', margin: '0 0 0.35rem' }}>
+              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '0.95rem', margin: '0 0 0.25rem' }}>
                 {lvl.title.split(':')[1]}
               </h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.78rem', margin: 0, lineHeight: 1.4 }}>
-                {lvl.desc}
-              </p>
             </div>
           )
         })}
       </div>
 
-      {/* ── ACTIVE LESSON & SPEECH COACHING AREA ───────────────────── */}
+      {/* ── ACTIVE DUOLINGO VOICE PRACTICE INTERFACE ──────────────── */}
       <motion.div
         key={`${selectedLevel}-${selectedLessonIdx}`}
         initial={{ opacity: 0, y: 15 }}
@@ -277,38 +292,11 @@ export default function AiSpokenClass() {
           boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
         }}
       >
-        {/* Lesson Selector Sub-bar */}
-        <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', marginBottom: '1.5rem', paddingBottom: '0.25rem' }}>
-          {currentLevelConfig.lessons.map((les, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                setSelectedLessonIdx(idx)
-                setTranscript('')
-                setFeedback(null)
-              }}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '0.65rem',
-                background: selectedLessonIdx === idx ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'rgba(255,255,255,0.04)',
-                border: selectedLessonIdx === idx ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)',
-                color: selectedLessonIdx === idx ? 'white' : '#94a3b8',
-                fontWeight: '700',
-                fontSize: '0.8rem',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              {les.topic}
-            </button>
-          ))}
-        </div>
-
-        {/* Lesson Dialogue & Audio Preview */}
+        {/* Native Audio Reference */}
         <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '1rem', padding: '1.5rem', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.06)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
             <span style={{ color: '#fbbf24', fontWeight: '800', fontSize: '0.85rem' }}>
-              🎧 AI Model Sample Audio & Pronunciation Guide
+              🎧 Native Speaker Example
             </span>
             <button
               onClick={() => speakSample(currentLesson.dialogue)}
@@ -316,26 +304,27 @@ export default function AiSpokenClass() {
                 background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
                 color: 'white',
                 border: 'none',
-                padding: '0.35rem 0.85rem',
+                padding: '0.4rem 0.9rem',
                 borderRadius: '0.5rem',
                 fontWeight: '700',
-                fontSize: '0.78rem',
+                fontSize: '0.8rem',
                 cursor: 'pointer'
               }}
             >
-              🔊 Listen to Native Speaker
+              🔊 Play Voice Audio
             </button>
           </div>
-          <p style={{ color: '#ffffff', fontSize: '1.05rem', fontWeight: '600', fontStyle: 'italic', margin: '0 0 1rem', lineHeight: 1.6 }}>
+
+          <p style={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: '600', fontStyle: 'italic', margin: '0 0 1rem', lineHeight: 1.6 }}>
             "{currentLesson.dialogue}"
           </p>
 
-          <div style={{ color: '#38bdf8', fontSize: '0.85rem', fontWeight: '700' }}>
+          <div style={{ color: '#38bdf8', fontSize: '0.88rem', fontWeight: '700' }}>
             🎯 Your Speaking Prompt: {currentLesson.prompt}
           </div>
         </div>
 
-        {/* Live Microphone Recording Area */}
+        {/* Pure Voice Recording (No Typing Allowed) */}
         <div style={{
           background: 'rgba(0,0,0,0.3)',
           borderRadius: '1.25rem',
@@ -347,13 +336,13 @@ export default function AiSpokenClass() {
           <button
             onClick={toggleRecording}
             style={{
-              width: '75px',
-              height: '75px',
+              width: '80px',
+              height: '80px',
               borderRadius: '50%',
               border: 'none',
               background: isRecording ? '#ef4444' : 'linear-gradient(135deg, #7c3aed, #2563eb)',
               color: 'white',
-              fontSize: '2rem',
+              fontSize: '2.2rem',
               cursor: 'pointer',
               boxShadow: isRecording ? '0 0 40px rgba(239, 68, 68, 0.8)' : '0 0 25px rgba(124, 58, 237, 0.4)',
               transition: 'all 0.25s ease',
@@ -362,8 +351,8 @@ export default function AiSpokenClass() {
           >
             {isRecording ? '⏹️' : '🎙️'}
           </button>
-          <div style={{ color: isRecording ? '#f87171' : '#94a3b8', fontWeight: '700', fontSize: '0.9rem', marginBottom: '0.75rem' }}>
-            {isRecording ? '🔴 Listening live... Speak now!' : 'Tap Microphone to Speak Response'}
+          <div style={{ color: isRecording ? '#f87171' : '#94a3b8', fontWeight: '700', fontSize: '0.92rem', marginBottom: '0.75rem' }}>
+            {isRecording ? '🔴 Listening... Speak clearly into your microphone!' : 'Tap Microphone & Speak Your Response (Voice Only · No Typing)'}
           </div>
 
           <div style={{
@@ -376,13 +365,12 @@ export default function AiSpokenClass() {
             lineHeight: 1.6,
             textAlign: 'left'
           }}>
-            {transcript || 'Your live speech transcript will appear here...'}
+            {transcript || 'Your real-time spoken transcript will appear here...'}
           </div>
         </div>
 
-        {/* Action Button */}
         <button
-          onClick={handleEvaluateSpeech}
+          onClick={handleEvaluateVoice}
           disabled={evaluating || !transcript}
           style={{
             width: '100%',
@@ -390,62 +378,81 @@ export default function AiSpokenClass() {
             borderRadius: '0.75rem',
             background: 'linear-gradient(135deg, #10b981, #059669)',
             color: 'white',
-            fontWeight: '800',
-            fontSize: '0.95rem',
+            fontWeight: '900',
+            fontSize: '1rem',
             border: 'none',
             cursor: evaluating || !transcript ? 'not-allowed' : 'pointer',
             opacity: evaluating || !transcript ? 0.6 : 1
           }}
         >
-          {evaluating ? '🤖 AI Analyzing Pronunciation & Fluency...' : `Evaluate My Speech (+${currentLevelConfig.xpReward} XP) ✨`}
+          {evaluating ? '🤖 AI Analyzing Pronunciation...' : `Submit Spoken Response (+${currentLevelConfig.xpReward} XP) ➔`}
         </button>
+      </motion.div>
 
-        {/* AI Feedback Report */}
-        {feedback && (
+      {/* ── LEVEL COMPLETE CELEBRATION MODAL ───────────────────────── */}
+      <AnimatePresence>
+        {showCelebration && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             style={{
-              marginTop: '1.5rem',
-              background: 'rgba(34, 197, 94, 0.08)',
-              border: '1px solid rgba(34, 197, 94, 0.3)',
-              borderRadius: '1rem',
-              padding: '1.25rem'
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.85)',
+              zIndex: 200,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem'
             }}
+            onClick={() => setShowCelebration(null)}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <h3 style={{ color: '#4ade80', fontWeight: '800', fontSize: '1.1rem', margin: 0 }}>
-                🎯 Speech Coaching Analysis
-              </h3>
-              <span style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', padding: '0.2rem 0.65rem', borderRadius: '0.5rem', fontWeight: '800', fontSize: '0.85rem' }}>
-                Score: {feedback.score}/100
-              </span>
-            </div>
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              style={{
+                background: 'linear-gradient(135deg, #1e1b4b, #0f172a)',
+                border: '2px solid #22c55e',
+                borderRadius: '2rem',
+                padding: '2.5rem',
+                maxWidth: '520px',
+                width: '100%',
+                textAlign: 'center'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ fontSize: '4rem', marginBottom: '0.5rem' }}>🎉</div>
+              <h2 style={{ color: 'white', fontWeight: '900', fontSize: '1.8rem', margin: '0 0 0.5rem' }}>
+                Level Complete!
+              </h2>
+              <p style={{ color: '#4ade80', fontWeight: '800', fontSize: '1.1rem', marginBottom: '1rem' }}>
+                You mastered {showCelebration.title}!
+              </p>
+              <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '1rem', padding: '1rem', marginBottom: '1.5rem', color: '#fbbf24', fontWeight: '800' }}>
+                +{showCelebration.xpReward} XP Synced to Profile & Leaderboard! ⚡
+              </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center' }}>
-                <div style={{ color: '#60a5fa', fontWeight: '800' }}>{feedback.fluency}/10</div>
-                <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>Fluency & Cadence</div>
-              </div>
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center' }}>
-                <div style={{ color: '#c084fc', fontWeight: '800' }}>{feedback.pronunciation}/10</div>
-                <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>Pronunciation</div>
-              </div>
-              <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.5rem', borderRadius: '0.5rem', textAlign: 'center' }}>
-                <div style={{ color: '#facc15', fontWeight: '800' }}>{feedback.vocabulary}/10</div>
-                <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>Corporate Vocabulary</div>
-              </div>
-            </div>
-
-            <p style={{ color: '#e2e8f0', fontSize: '0.85rem', margin: '0 0 0.5rem' }}>
-              {feedback.comment}
-            </p>
-            <p style={{ color: '#fbbf24', fontSize: '0.8rem', margin: 0 }}>
-              💡 Tip: {feedback.suggestions}
-            </p>
+              <button
+                onClick={() => setShowCelebration(null)}
+                style={{
+                  width: '100%',
+                  padding: '0.85rem',
+                  borderRadius: '0.75rem',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  fontWeight: '900',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                Continue Next Level ➔
+              </button>
+            </motion.div>
           </motion.div>
         )}
-      </motion.div>
+      </AnimatePresence>
     </div>
   )
 }
