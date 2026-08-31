@@ -204,15 +204,15 @@ export default function Dashboard({ onNavigate }) {
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <button onClick={() => onNavigate('notes')}
                 style={{ background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: 'white', border: 'none', padding: '0.6rem 1.25rem', borderRadius: '0.75rem', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(124,58,237,0.4)' }}>
-                📝 {t('openNotesHub')}
+                {t('openNotesHub')}
               </button>
               <button onClick={() => onNavigate('jobs')}
                 style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.4)', padding: '0.6rem 1.25rem', borderRadius: '0.75rem', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
-                💼 {t('browseJobs')}
+                {t('browseJobs')}
               </button>
               <button onClick={() => onNavigate('chat')}
                 style={{ background: 'rgba(99,102,241,0.15)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.4)', padding: '0.6rem 1.25rem', borderRadius: '0.75rem', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}>
-                🤖 {t('askAi')}
+                {t('askAi')}
               </button>
             </div>
           </div>

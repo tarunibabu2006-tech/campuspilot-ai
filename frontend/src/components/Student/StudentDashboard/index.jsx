@@ -45,7 +45,7 @@ export default function StudentDashboard({ onNavigate }) {
     skillsLearned: statsData?.skillsLearned ?? 0,
     jobsApplied: statsData?.jobsApplied ?? 0,
     interviews: statsData?.mockInterviews ?? 0,
-    xp: statsData?.xpPoints ?? 0
+    xp: statsData?.xpPoints ?? (user?.xp || 0)
   }
 
   const recentActivities = activityData ?? []
@@ -66,8 +66,9 @@ export default function StudentDashboard({ onNavigate }) {
           overflow: 'hidden'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', position: 'relative', zIndex: 1 }}>
+          {/* Left Side: Greeting, Subtitle and Action Buttons */}
+          <div style={{ flex: 1, minWidth: '280px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '2.2rem' }}>🎓</span>
               <div>
@@ -79,21 +80,92 @@ export default function StudentDashboard({ onNavigate }) {
                 </h2>
               </div>
             </div>
-            <p style={{ color: '#a5b4fc', fontSize: '0.9rem', margin: 0, maxWidth: '520px' }}>{t('heroTagline')}</p>
+            <p style={{ color: '#a5b4fc', fontSize: '0.9rem', margin: '0 0 1.25rem', maxWidth: '520px' }}>
+              {t('heroTagline')}
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => onNavigate('notes')}
+                style={{
+                  background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.65rem 1.3rem',
+                  borderRadius: '0.75rem',
+                  fontWeight: '800',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(124,58,237,0.4)'
+                }}
+              >
+                Open Notes Hub
+              </button>
+              <button
+                onClick={() => onNavigate('jobs')}
+                style={{
+                  background: 'rgba(34,197,94,0.15)',
+                  color: '#4ade80',
+                  border: '1px solid rgba(34,197,94,0.4)',
+                  padding: '0.65rem 1.3rem',
+                  borderRadius: '0.75rem',
+                  fontWeight: '800',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Browse Jobs
+              </button>
+              <button
+                onClick={() => onNavigate('chat')}
+                style={{
+                  background: 'rgba(99,102,241,0.15)',
+                  color: '#a5b4fc',
+                  border: '1px solid rgba(99,102,241,0.4)',
+                  padding: '0.65rem 1.3rem',
+                  borderRadius: '0.75rem',
+                  fontWeight: '800',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Ask AI
+              </button>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button
-              onClick={() => onNavigate('notes')}
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: 'white', border: 'none', padding: '0.65rem 1.3rem', borderRadius: '0.75rem', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(124,58,237,0.4)' }}
-            >
-              📝 {t('openNotesHub')}
-            </button>
-            <button
-              onClick={() => onNavigate('jobs')}
-              style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.4)', padding: '0.65rem 1.3rem', borderRadius: '0.75rem', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer' }}
-            >
-              💼 {t('browseJobs')}
-            </button>
+
+          {/* Right Side: 4 Stats Cards Circled by User */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', minWidth: '200px' }}>
+            {[
+              { icon: '📚', label: 'Skills Available', value: '50+', color: '#4ade80' },
+              { icon: '💼', label: 'Job Openings', value: '30+', color: '#fbbf24' },
+              { icon: '📄', label: 'Study Notes', value: '100,000+', color: '#a78bfa' },
+              { icon: '🎯', label: 'Career Modules', value: '28 Tools', color: '#60a5fa' }
+            ].map(s => (
+              <div
+                key={s.label}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '0.75rem',
+                  padding: '0.55rem 1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(8px)'
+                }}
+              >
+                <span style={{ fontSize: '1.25rem' }}>{s.icon}</span>
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: '900', color: s.color, lineHeight: 1.1 }}>
+                    {s.value}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '0.15rem' }}>
+                    {s.label}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </motion.div>
@@ -107,17 +179,7 @@ export default function StudentDashboard({ onNavigate }) {
       {/* ── 3. FEATURED MODULES ──────────────────────────────────── */}
       <FeaturedSection onNavigate={onNavigate} />
 
-      {/* ── 4. ALL MODULES GRID ──────────────────────────────────── */}
-      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.5rem', padding: '1.5rem' }}>
-        <h3 style={{ margin: '0 0 1.25rem', fontSize: '1.2rem', fontWeight: '900', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span>🎓</span> {t('fullFeatureSuite')}
-        </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-          {/* module cards omitted for brevity – same as original implementation */}
-        </div>
-      </div>
-
-      {/* ── 5. RECENT ACTIVITY FEED ──────────────────────────────── */}
+      {/* ── 4. RECENT ACTIVITY FEED ──────────────────────────────── */}
       <RecentActivity activities={recentActivities} user={user} />
     </div>
   )
