@@ -2,11 +2,11 @@ import React, { useEffect, useRef } from 'react';
 
 /**
  * MoleculeBackground
- * - Pure organic floating molecule nodes with glowing atomic cores
- * - Constellation chemical bond lines connecting nearby molecules
- * - Dynamic mouse cursor interaction: molecules gravitate and react smoothly to mouse movement
- * - Blended floating holographic icons (🎓, 🚀, 🧠, 💼, 💻, ⚡, 🏆, 🌐) with screen blending
- * - High-performance 60 FPS Canvas with zero lag
+ * - Soft, subtle ambient floating molecules with gentle, low-alpha glowing cores (not overly bright/distracting)
+ * - Delicate constellation bonding lines connecting neighboring nodes
+ * - Smooth, subtle mouse cursor gravitational reaction
+ * - Central blended platform brand watermark & orbital halo for CampusPilot AI (⚡)
+ * - Ultra-smooth 60 FPS performance
  */
 const MoleculeBackground = () => {
   const canvasRef = useRef(null);
@@ -19,20 +19,20 @@ const MoleculeBackground = () => {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Color theme for glowing molecules
+    // Subtle, soft, harmonious color palette
     const PALETTE = [
-      { r: 56,  g: 189, b: 248, hex: '#38bdf8' }, // Cyan
-      { r: 192, g: 132, b: 252, hex: '#c084fc' }, // Purple
-      { r: 52,  g: 211, b: 153, hex: '#34d399' }, // Emerald
-      { r: 251, g: 191, b: 36,  hex: '#fbbf24' }, // Amber
-      { r: 244, g: 114, b: 182, hex: '#f472b6' }, // Rose Pink
-      { r: 96,  g: 165, b: 250, hex: '#60a5fa' }  // Blue
+      { r: 56,  g: 189, b: 248, hex: '#38bdf8' }, // Soft Cyan
+      { r: 168, g: 85,  b: 247, hex: '#a855f7' }, // Soft Violet
+      { r: 52,  g: 211, b: 153, hex: '#34d399' }, // Soft Emerald
+      { r: 245, g: 158, b: 11,  hex: '#f59e0b' }, // Soft Amber
+      { r: 236, g: 72,  b: 153, hex: '#ec4899' }, // Soft Pink
+      { r: 99,  g: 102, b: 241, hex: '#6366f1' }  // Soft Indigo
     ];
 
     const isMobile = width < 768;
-    const MOLECULE_COUNT = isMobile ? 55 : 95;
-    const BOND_DISTANCE = isMobile ? 95 : 135;
-    const MOUSE_RADIUS = 180;
+    const MOLECULE_COUNT = isMobile ? 40 : 75;
+    const BOND_DISTANCE = isMobile ? 85 : 120;
+    const MOUSE_RADIUS = 160;
 
     // Mouse tracking
     const mouse = {
@@ -46,38 +46,28 @@ const MoleculeBackground = () => {
       lastMoved: 0
     };
 
-    // Molecules
+    // Molecules with light, ambient opacity
     const molecules = [];
     for (let i = 0; i < MOLECULE_COUNT; i++) {
       const col = PALETTE[Math.floor(Math.random() * PALETTE.length)];
       molecules.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        r: 2.2 + Math.random() * 3.8,
-        vx: (Math.random() - 0.5) * 0.7,
-        vy: (Math.random() - 0.5) * 0.7,
+        r: 1.8 + Math.random() * 2.8,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
         color: col,
         pulse: Math.random() * Math.PI * 2,
-        pulseSpeed: 0.02 + Math.random() * 0.02
+        pulseSpeed: 0.015 + Math.random() * 0.015,
+        baseAlpha: 0.22 + Math.random() * 0.2
       });
     }
 
-    // Blended floating icons
-    const ICONS = ['🎓', '🚀', '🧠', '💼', '💻', '⚡', '🏆', '🌐'];
-    const floatingIcons = ICONS.map((icon, idx) => ({
-      icon,
-      x: (width / (ICONS.length + 1)) * (idx + 1) + (Math.random() - 0.5) * 100,
-      y: (height * 0.2) + Math.random() * (height * 0.6),
-      vx: (Math.random() - 0.5) * 0.22,
-      vy: (Math.random() - 0.5) * 0.22,
-      size: 26 + Math.random() * 14,
-      rotation: Math.random() * Math.PI * 2,
-      rotSpeed: (Math.random() - 0.5) * 0.005,
-      opacity: 0.12 + Math.random() * 0.12,
-      pulse: Math.random() * Math.PI * 2
-    }));
+    // Central Emblem Rotation State
+    let emblemAngle = 0;
+    let emblemPulse = 0;
 
-    // Mouse & touch events
+    // Mouse & Touch listeners
     const handleMouseMove = (e) => {
       mouse.targetX = e.clientX;
       mouse.targetY = e.clientY;
@@ -114,12 +104,12 @@ const MoleculeBackground = () => {
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Smooth mouse spring motion
+      // Smooth mouse follow
       if (mouse.active) {
         const dx = mouse.targetX - mouse.x;
         const dy = mouse.targetY - mouse.y;
-        mouse.vx = dx * 0.15;
-        mouse.vy = dy * 0.15;
+        mouse.vx = dx * 0.12;
+        mouse.vy = dy * 0.12;
         mouse.x += mouse.vx;
         mouse.y += mouse.vy;
 
@@ -128,42 +118,77 @@ const MoleculeBackground = () => {
         }
       }
 
-      // ── 1. DRAW BLENDED FLOATING ICONS ──────────────────────────────
-      floatingIcons.forEach((item) => {
-        item.x += item.vx;
-        item.y += item.vy;
-        item.rotation += item.rotSpeed;
-        item.pulse += 0.015;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      emblemAngle += 0.003;
+      emblemPulse += 0.02;
 
-        // Wrap or bounce
-        if (item.x < 40 || item.x > width - 40) item.vx *= -1;
-        if (item.y < 40 || item.y > height - 40) item.vy *= -1;
+      // ── 1. DRAW CENTER BLENDED PLATFORM EMBLEM ───────────────────────
+      const pulseFactor = 1 + Math.sin(emblemPulse) * 0.06;
+      const ringRadius = (isMobile ? 120 : 180) * pulseFactor;
 
-        // Interaction with mouse cursor
-        if (mouse.active) {
-          const mdx = item.x - mouse.x;
-          const mdy = item.y - mouse.y;
-          const dist = Math.sqrt(mdx * mdx + mdy * mdy);
-          if (dist < MOUSE_RADIUS + 40 && dist > 0) {
-            const force = (MOUSE_RADIUS + 40 - dist) / (MOUSE_RADIUS + 40);
-            item.x += (mdx / dist) * force * 1.5;
-            item.y += (mdy / dist) * force * 1.5;
-          }
-        }
+      // Ambient radial glow behind emblem
+      const centerGlow = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, ringRadius * 1.8
+      );
+      centerGlow.addColorStop(0, 'rgba(124, 58, 237, 0.14)');
+      centerGlow.addColorStop(0.4, 'rgba(56, 189, 248, 0.08)');
+      centerGlow.addColorStop(0.8, 'rgba(15, 23, 42, 0.03)');
+      centerGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
-        const currentOpacity = item.opacity + Math.sin(item.pulse) * 0.04;
-        ctx.save();
-        ctx.translate(item.x, item.y);
-        ctx.rotate(item.rotation);
-        ctx.globalAlpha = Math.max(0.06, currentOpacity);
-        ctx.font = `${item.size}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(item.icon, 0, 0);
-        ctx.restore();
-      });
+      ctx.fillStyle = centerGlow;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, ringRadius * 1.8, 0, Math.PI * 2);
+      ctx.fill();
 
-      // ── 2. DRAW MOLECULAR CONSTELLATION BONDS ───────────────────────
+      // Outer delicate orbital ring
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(emblemAngle);
+      ctx.strokeStyle = 'rgba(168, 85, 247, 0.18)';
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([8, 12]);
+      ctx.beginPath();
+      ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Inner counter-rotating ring
+      ctx.rotate(-emblemAngle * 2.2);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 8]);
+      ctx.beginPath();
+      ctx.arc(0, 0, ringRadius * 0.75, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // Central Blended Brand Icon & Text
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // ⚡ Central Lightning Icon
+      ctx.font = `${isMobile ? '64px' : '96px'} -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+      ctx.globalAlpha = 0.22 + Math.sin(emblemPulse) * 0.05;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 24;
+      ctx.fillText('⚡', centerX, centerY - (isMobile ? 18 : 24));
+
+      // Brand Text "CampusPilot AI"
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = '#a855f7';
+      ctx.font = `800 ${isMobile ? '16px' : '22px'} Inter, -apple-system, sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.24)';
+      ctx.letterSpacing = '2px';
+      ctx.fillText('CAMPUSPILOT AI', centerX, centerY + (isMobile ? 48 : 64));
+
+      ctx.font = `600 ${isMobile ? '10px' : '12px'} Inter, -apple-system, sans-serif`;
+      ctx.fillStyle = 'rgba(196, 181, 253, 0.18)';
+      ctx.fillText('PLACEMENT & CAREER OS', centerX, centerY + (isMobile ? 68 : 90));
+      ctx.restore();
+
+      // ── 2. DRAW SOFT MOLECULAR CONSTELLATION BONDS ──────────────────
       for (let i = 0; i < molecules.length; i++) {
         for (let j = i + 1; j < molecules.length; j++) {
           const dx = molecules[i].x - molecules[j].x;
@@ -171,24 +196,10 @@ const MoleculeBackground = () => {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < BOND_DISTANCE) {
-            const alpha = (1 - dist / BOND_DISTANCE) * 0.32;
-            const grad = ctx.createLinearGradient(
-              molecules[i].x,
-              molecules[i].y,
-              molecules[j].x,
-              molecules[j].y
-            );
-            grad.addColorStop(
-              0,
-              `rgba(${molecules[i].color.r}, ${molecules[i].color.g}, ${molecules[i].color.b}, ${alpha})`
-            );
-            grad.addColorStop(
-              1,
-              `rgba(${molecules[j].color.r}, ${molecules[j].color.g}, ${molecules[j].color.b}, ${alpha})`
-            );
-
-            ctx.strokeStyle = grad;
-            ctx.lineWidth = 1.1;
+            // Light, subtle alpha
+            const alpha = (1 - dist / BOND_DISTANCE) * 0.18;
+            ctx.strokeStyle = `rgba(${molecules[i].color.r}, ${molecules[i].color.g}, ${molecules[i].color.b}, ${alpha})`;
+            ctx.lineWidth = 0.9;
             ctx.beginPath();
             ctx.moveTo(molecules[i].x, molecules[i].y);
             ctx.lineTo(molecules[j].x, molecules[j].y);
@@ -196,81 +207,79 @@ const MoleculeBackground = () => {
           }
         }
 
-        // Connect nearby molecules to the cursor position
+        // Connect nearby molecules softly to cursor position
         if (mouse.active) {
           const mdx = molecules[i].x - mouse.x;
           const mdy = molecules[i].y - mouse.y;
           const mDist = Math.sqrt(mdx * mdx + mdy * mdy);
 
           if (mDist < MOUSE_RADIUS) {
-            const mAlpha = (1 - mDist / MOUSE_RADIUS) * 0.6;
+            const mAlpha = (1 - mDist / MOUSE_RADIUS) * 0.35;
             ctx.strokeStyle = `rgba(${molecules[i].color.r}, ${molecules[i].color.g}, ${molecules[i].color.b}, ${mAlpha})`;
-            ctx.lineWidth = 1.2;
+            ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(molecules[i].x, molecules[i].y);
             ctx.lineTo(mouse.x, mouse.y);
             ctx.stroke();
 
-            // Magnetic attraction & displacement along cursor movement
-            const force = ((MOUSE_RADIUS - mDist) / MOUSE_RADIUS) * 2.4;
-            molecules[i].x += (mdx / (mDist || 1)) * force + mouse.vx * 0.08;
-            molecules[i].y += (mdy / (mDist || 1)) * force + mouse.vy * 0.08;
+            // Gentle magnetic attraction towards cursor
+            const force = ((MOUSE_RADIUS - mDist) / MOUSE_RADIUS) * 1.5;
+            molecules[i].x += (mdx / (mDist || 1)) * force + mouse.vx * 0.05;
+            molecules[i].y += (mdy / (mDist || 1)) * force + mouse.vy * 0.05;
           }
         }
       }
 
-      // ── 3. UPDATE & DRAW MOLECULAR NODES ─────────────────────────────
+      // ── 3. UPDATE & DRAW SOFT MOLECULES ─────────────────────────────
       molecules.forEach((m) => {
         m.x += m.vx;
         m.y += m.vy;
         m.pulse += m.pulseSpeed;
 
         // Boundary wrap
-        if (m.x < -20) m.x = width + 20;
-        if (m.x > width + 20) m.x = -20;
-        if (m.y < -20) m.y = height + 20;
-        if (m.y > height + 20) m.y = -20;
+        if (m.x < -15) m.x = width + 15;
+        if (m.x > width + 15) m.x = -15;
+        if (m.y < -15) m.y = height + 15;
+        if (m.y > height + 15) m.y = -15;
 
-        const pulseScale = 1 + Math.sin(m.pulse) * 0.25;
+        const pulseScale = 1 + Math.sin(m.pulse) * 0.2;
         const currentR = m.r * pulseScale;
+        const currentAlpha = m.baseAlpha + Math.sin(m.pulse) * 0.06;
 
-        // Outer glow halo
+        // Soft outer glow halo (subtle, not overly bright)
         const haloGrad = ctx.createRadialGradient(
           m.x, m.y, 0,
-          m.x, m.y, currentR * 3.6
+          m.x, m.y, currentR * 3
         );
-        haloGrad.addColorStop(0, `rgba(${m.color.r}, ${m.color.g}, ${m.color.b}, 0.7)`);
-        haloGrad.addColorStop(0.5, `rgba(${m.color.r}, ${m.color.g}, ${m.color.b}, 0.22)`);
+        haloGrad.addColorStop(0, `rgba(${m.color.r}, ${m.color.g}, ${m.color.b}, ${currentAlpha})`);
+        haloGrad.addColorStop(0.6, `rgba(${m.color.r}, ${m.color.g}, ${m.color.b}, ${currentAlpha * 0.25})`);
         haloGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         ctx.fillStyle = haloGrad;
         ctx.beginPath();
-        ctx.arc(m.x, m.y, currentR * 3.6, 0, Math.PI * 2);
+        ctx.arc(m.x, m.y, currentR * 3, 0, Math.PI * 2);
         ctx.fill();
 
-        // Inner glowing nucleus
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = m.color.hex;
-        ctx.shadowBlur = 14;
+        // Inner nucleus
+        ctx.fillStyle = `rgba(255, 255, 255, ${currentAlpha * 1.5})`;
         ctx.beginPath();
-        ctx.arc(m.x, m.y, Math.max(1.2, currentR * 0.6), 0, Math.PI * 2);
+        ctx.arc(m.x, m.y, Math.max(1, currentR * 0.55), 0, Math.PI * 2);
         ctx.fill();
-        ctx.shadowBlur = 0;
       });
 
-      // ── 4. MOUSE GLOW EMITTER ────────────────────────────────────────
+      // ── 4. SOFT MOUSE AMBIENCE ──────────────────────────────────────
       if (mouse.active) {
         const mouseGlow = ctx.createRadialGradient(
           mouse.x, mouse.y, 0,
-          mouse.x, mouse.y, 75
+          mouse.x, mouse.y, 60
         );
-        mouseGlow.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
-        mouseGlow.addColorStop(0.5, 'rgba(192, 132, 252, 0.1)');
+        mouseGlow.addColorStop(0, 'rgba(56, 189, 248, 0.12)');
+        mouseGlow.addColorStop(0.6, 'rgba(168, 85, 247, 0.05)');
         mouseGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         ctx.fillStyle = mouseGlow;
         ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 75, 0, Math.PI * 2);
+        ctx.arc(mouse.x, mouse.y, 60, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -305,24 +314,6 @@ const MoleculeBackground = () => {
           width: '100%',
           height: '100%',
           background: 'transparent'
-        }}
-      />
-      {/* Central Blended Ambient Watermark */}
-      <img
-        src="/logo192.png"
-        alt=""
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          width: '380px',
-          height: '380px',
-          transform: 'translate(-50%, -50%)',
-          filter: 'blur(32px) saturate(220%) brightness(1.3)',
-          opacity: 0.14,
-          mixBlendMode: 'screen',
-          pointerEvents: 'none'
         }}
       />
     </div>
