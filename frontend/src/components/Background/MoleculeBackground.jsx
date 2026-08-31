@@ -2,12 +2,11 @@ import React, { useEffect, useRef } from 'react';
 
 /**
  * MoleculeBackground
- * - Continuous organic floating molecule nodes with glowing atomic cores
+ * - Pure organic floating molecule nodes with glowing atomic cores
  * - Constellation chemical bond lines connecting nearby molecules
- * - Dynamic mouse/arrow-cursor interaction: molecules gravitate and move with cursor motion
- * - Cosmic vector arrows and energy rays
+ * - Dynamic mouse cursor interaction: molecules gravitate and react smoothly to mouse movement
  * - Blended floating holographic icons (🎓, 🚀, 🧠, 💼, 💻, ⚡, 🏆, 🌐) with screen blending
- * - 60 FPS Canvas with zero lag and high-DPI Retina support
+ * - High-performance 60 FPS Canvas with zero lag
  */
 const MoleculeBackground = () => {
   const canvasRef = useRef(null);
@@ -20,7 +19,7 @@ const MoleculeBackground = () => {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Color theme
+    // Color theme for glowing molecules
     const PALETTE = [
       { r: 56,  g: 189, b: 248, hex: '#38bdf8' }, // Cyan
       { r: 192, g: 132, b: 252, hex: '#c084fc' }, // Purple
@@ -30,11 +29,9 @@ const MoleculeBackground = () => {
       { r: 96,  g: 165, b: 250, hex: '#60a5fa' }  // Blue
     ];
 
-    // Responsive molecule counts
     const isMobile = width < 768;
-    const MOLECULE_COUNT = isMobile ? 45 : 85;
-    const ARROW_COUNT = isMobile ? 8 : 16;
-    const BOND_DISTANCE = isMobile ? 90 : 130;
+    const MOLECULE_COUNT = isMobile ? 55 : 95;
+    const BOND_DISTANCE = isMobile ? 95 : 135;
     const MOUSE_RADIUS = 180;
 
     // Mouse tracking
@@ -56,29 +53,12 @@ const MoleculeBackground = () => {
       molecules.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        originX: 0,
-        originY: 0,
         r: 2.2 + Math.random() * 3.8,
-        vx: (Math.random() - 0.5) * 0.65,
-        vy: (Math.random() - 0.5) * 0.65,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: (Math.random() - 0.5) * 0.7,
         color: col,
         pulse: Math.random() * Math.PI * 2,
-        pulseSpeed: 0.02 + Math.random() * 0.02,
-        mass: 1 + Math.random() * 1.5
-      });
-    }
-
-    // Directional vector arrows
-    const arrows = [];
-    for (let i = 0; i < ARROW_COUNT; i++) {
-      arrows.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        length: 18 + Math.random() * 14,
-        angle: Math.random() * Math.PI * 2,
-        speed: 0.35 + Math.random() * 0.45,
-        rotSpeed: (Math.random() - 0.5) * 0.01,
-        color: PALETTE[Math.floor(Math.random() * PALETTE.length)]
+        pulseSpeed: 0.02 + Math.random() * 0.02
       });
     }
 
@@ -88,8 +68,8 @@ const MoleculeBackground = () => {
       icon,
       x: (width / (ICONS.length + 1)) * (idx + 1) + (Math.random() - 0.5) * 100,
       y: (height * 0.2) + Math.random() * (height * 0.6),
-      vx: (Math.random() - 0.5) * 0.25,
-      vy: (Math.random() - 0.5) * 0.25,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: (Math.random() - 0.5) * 0.22,
       size: 26 + Math.random() * 14,
       rotation: Math.random() * Math.PI * 2,
       rotSpeed: (Math.random() - 0.5) * 0.005,
@@ -97,7 +77,7 @@ const MoleculeBackground = () => {
       pulse: Math.random() * Math.PI * 2
     }));
 
-    // Mouse listeners
+    // Mouse & touch events
     const handleMouseMove = (e) => {
       mouse.targetX = e.clientX;
       mouse.targetY = e.clientY;
@@ -134,7 +114,7 @@ const MoleculeBackground = () => {
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Smooth mouse follow
+      // Smooth mouse spring motion
       if (mouse.active) {
         const dx = mouse.targetX - mouse.x;
         const dy = mouse.targetY - mouse.y;
@@ -143,7 +123,6 @@ const MoleculeBackground = () => {
         mouse.x += mouse.vx;
         mouse.y += mouse.vy;
 
-        // Inactive timeout
         if (Date.now() - mouse.lastMoved > 3000) {
           mouse.active = false;
         }
@@ -156,9 +135,9 @@ const MoleculeBackground = () => {
         item.rotation += item.rotSpeed;
         item.pulse += 0.015;
 
-        // Bounce screen edges
-        if (item.x < 50 || item.x > width - 50) item.vx *= -1;
-        if (item.y < 50 || item.y > height - 50) item.vy *= -1;
+        // Wrap or bounce
+        if (item.x < 40 || item.x > width - 40) item.vx *= -1;
+        if (item.y < 40 || item.y > height - 40) item.vy *= -1;
 
         // Interaction with mouse cursor
         if (mouse.active) {
@@ -192,7 +171,7 @@ const MoleculeBackground = () => {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < BOND_DISTANCE) {
-            const alpha = (1 - dist / BOND_DISTANCE) * 0.28;
+            const alpha = (1 - dist / BOND_DISTANCE) * 0.32;
             const grad = ctx.createLinearGradient(
               molecules[i].x,
               molecules[i].y,
@@ -209,7 +188,7 @@ const MoleculeBackground = () => {
             );
 
             ctx.strokeStyle = grad;
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 1.1;
             ctx.beginPath();
             ctx.moveTo(molecules[i].x, molecules[i].y);
             ctx.lineTo(molecules[j].x, molecules[j].y);
@@ -217,14 +196,14 @@ const MoleculeBackground = () => {
           }
         }
 
-        // Connect nearby molecules to the mouse cursor arrow
+        // Connect nearby molecules to the cursor position
         if (mouse.active) {
           const mdx = molecules[i].x - mouse.x;
           const mdy = molecules[i].y - mouse.y;
           const mDist = Math.sqrt(mdx * mdx + mdy * mdy);
 
           if (mDist < MOUSE_RADIUS) {
-            const mAlpha = (1 - mDist / MOUSE_RADIUS) * 0.55;
+            const mAlpha = (1 - mDist / MOUSE_RADIUS) * 0.6;
             ctx.strokeStyle = `rgba(${molecules[i].color.r}, ${molecules[i].color.g}, ${molecules[i].color.b}, ${mAlpha})`;
             ctx.lineWidth = 1.2;
             ctx.beginPath();
@@ -232,8 +211,8 @@ const MoleculeBackground = () => {
             ctx.lineTo(mouse.x, mouse.y);
             ctx.stroke();
 
-            // Magnetic attraction & displacement towards/along cursor motion
-            const force = ((MOUSE_RADIUS - mDist) / MOUSE_RADIUS) * 2.2;
+            // Magnetic attraction & displacement along cursor movement
+            const force = ((MOUSE_RADIUS - mDist) / MOUSE_RADIUS) * 2.4;
             molecules[i].x += (mdx / (mDist || 1)) * force + mouse.vx * 0.08;
             molecules[i].y += (mdy / (mDist || 1)) * force + mouse.vy * 0.08;
           }
@@ -246,7 +225,7 @@ const MoleculeBackground = () => {
         m.y += m.vy;
         m.pulse += m.pulseSpeed;
 
-        // Wrap or bounce around canvas boundaries
+        // Boundary wrap
         if (m.x < -20) m.x = width + 20;
         if (m.x > width + 20) m.x = -20;
         if (m.y < -20) m.y = height + 20;
@@ -258,85 +237,32 @@ const MoleculeBackground = () => {
         // Outer glow halo
         const haloGrad = ctx.createRadialGradient(
           m.x, m.y, 0,
-          m.x, m.y, currentR * 3.5
+          m.x, m.y, currentR * 3.6
         );
-        haloGrad.addColorStop(0, `rgba(${m.color.r}, ${m.color.g}, ${m.color.b}, 0.65)`);
-        haloGrad.addColorStop(0.5, `rgba(${m.color.r}, ${m.color.g}, ${m.color.b}, 0.2)`);
+        haloGrad.addColorStop(0, `rgba(${m.color.r}, ${m.color.g}, ${m.color.b}, 0.7)`);
+        haloGrad.addColorStop(0.5, `rgba(${m.color.r}, ${m.color.g}, ${m.color.b}, 0.22)`);
         haloGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
         ctx.fillStyle = haloGrad;
         ctx.beginPath();
-        ctx.arc(m.x, m.y, currentR * 3.5, 0, Math.PI * 2);
+        ctx.arc(m.x, m.y, currentR * 3.6, 0, Math.PI * 2);
         ctx.fill();
 
         // Inner glowing nucleus
         ctx.fillStyle = '#ffffff';
         ctx.shadowColor = m.color.hex;
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 14;
         ctx.beginPath();
         ctx.arc(m.x, m.y, Math.max(1.2, currentR * 0.6), 0, Math.PI * 2);
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset shadow for next draws
+        ctx.shadowBlur = 0;
       });
 
-      // ── 4. DRAW VECTOR ARROWS ────────────────────────────────────────
-      arrows.forEach((a) => {
-        a.x += Math.cos(a.angle) * a.speed;
-        a.y += Math.sin(a.angle) * a.speed;
-        a.angle += a.rotSpeed;
-
-        // Mouse orientation influence: arrows gently steer towards cursor movement
-        if (mouse.active) {
-          const adx = mouse.x - a.x;
-          const ady = mouse.y - a.y;
-          const aDist = Math.sqrt(adx * adx + ady * ady);
-          if (aDist < MOUSE_RADIUS * 1.5 && aDist > 10) {
-            const targetAngle = Math.atan2(ady, adx);
-            a.angle += (targetAngle - a.angle) * 0.02;
-            a.x += (adx / aDist) * 0.6;
-            a.y += (ady / aDist) * 0.6;
-          }
-        }
-
-        // Boundary wrap
-        if (a.x < -50) a.x = width + 50;
-        if (a.x > width + 50) a.x = -50;
-        if (a.y < -50) a.y = height + 50;
-        if (a.y > height + 50) a.y = -50;
-
-        // Render arrow
-        const headLen = a.length * 0.38;
-        const tailX = a.x - Math.cos(a.angle) * a.length;
-        const tailY = a.y - Math.sin(a.angle) * a.length;
-
-        ctx.strokeStyle = `rgba(${a.color.r}, ${a.color.g}, ${a.color.b}, 0.35)`;
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.moveTo(tailX, tailY);
-        ctx.lineTo(a.x, a.y);
-        ctx.stroke();
-
-        // Arrowhead
-        ctx.fillStyle = `rgba(${a.color.r}, ${a.color.g}, ${a.color.b}, 0.45)`;
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(
-          a.x - Math.cos(a.angle - Math.PI / 6) * headLen,
-          a.y - Math.sin(a.angle - Math.PI / 6) * headLen
-        );
-        ctx.lineTo(
-          a.x - Math.cos(a.angle + Math.PI / 6) * headLen,
-          a.y - Math.sin(a.angle + Math.PI / 6) * headLen
-        );
-        ctx.closePath();
-        ctx.fill();
-      });
-
-      // ── 5. MOUSE GLOW EMITTER ────────────────────────────────────────
+      // ── 4. MOUSE GLOW EMITTER ────────────────────────────────────────
       if (mouse.active) {
         const mouseGlow = ctx.createRadialGradient(
           mouse.x, mouse.y, 0,
-          mouse.x, mouse.y, 70
+          mouse.x, mouse.y, 75
         );
         mouseGlow.addColorStop(0, 'rgba(56, 189, 248, 0.25)');
         mouseGlow.addColorStop(0.5, 'rgba(192, 132, 252, 0.1)');
@@ -344,7 +270,7 @@ const MoleculeBackground = () => {
 
         ctx.fillStyle = mouseGlow;
         ctx.beginPath();
-        ctx.arc(mouse.x, mouse.y, 70, 0, Math.PI * 2);
+        ctx.arc(mouse.x, mouse.y, 75, 0, Math.PI * 2);
         ctx.fill();
       }
 
