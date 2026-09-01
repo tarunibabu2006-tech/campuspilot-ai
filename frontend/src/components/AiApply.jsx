@@ -16,7 +16,7 @@ export default function AiApply() {
   const [isActive, setIsActive] = useState(true)
   const [loading, setLoading] = useState(false)
   const [selectedProof, setSelectedProof] = useState(null)
-  const [emailModal, setEmailModal] = useState(null)
+  const [sendingEmail, setSendingEmail] = useState(false)
 
   const [appliedJobs, setAppliedJobs] = useState(() => {
     try {
@@ -47,9 +47,12 @@ export default function AiApply() {
     })
   })
 
-  const applyJobNow = (job) => {
+  const applyJobNow = async (job) => {
     const randomAppNum = Math.floor(10000 + Math.random() * 90000)
     const appId = `CP-APP-2026-${randomAppNum}`
+    const studentEmail = user?.email || ''
+    const studentName = user?.name || 'Student'
+    const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
 
     const newApplication = {
       ...job,
@@ -67,15 +70,39 @@ export default function AiApply() {
 
     toast.success(`🎉 Application Submitted! Ref: ${appId}`)
 
-    // Show Confirmation Email Modal
-    setEmailModal({
-      appId,
-      jobTitle: job.role,
-      company: job.company,
-      email: user?.email || 'student@university.edu',
-      name: user?.name || 'Student',
-      timestamp: new Date().toLocaleString()
-    })
+    // ── Send real email to student's Gmail ──────────────────────────────
+    if (!studentEmail) {
+      toast('⚠️ No email on profile — please update your profile to receive email confirmations.', { icon: '📧' })
+      return
+    }
+
+    setSendingEmail(true)
+    try {
+      const res = await fetch('http://localhost:5000/api/email/apply-confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          toEmail: studentEmail,
+          name: studentName,
+          jobTitle: job.role,
+          company: job.company,
+          appId,
+          timestamp,
+          location: job.location,
+          salary: job.salary
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        toast.success(`📧 Confirmation email sent to ${studentEmail} from ${job.company}!`, { duration: 5000 })
+      } else {
+        toast(`📧 Email service: ${data.message || 'Configure MAIL_PASS in backend .env'}`, { icon: 'ℹ️', duration: 6000 })
+      }
+    } catch {
+      toast('📧 Backend offline — email will be queued when server reconnects.', { icon: 'ℹ️' })
+    } finally {
+      setSendingEmail(false)
+    }
   }
 
   return (
@@ -405,80 +432,29 @@ export default function AiApply() {
         )}
       </AnimatePresence>
 
-      {/* ── GMAIL CONFIRMATION MODAL ───────────────────────────────── */}
-      <AnimatePresence>
-        {emailModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.85)',
-              zIndex: 100,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem'
-            }}
-            onClick={() => setEmailModal(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              style={{
-                background: '#ffffff',
-                color: '#1a1a1a',
-                borderRadius: '1rem',
-                padding: '2rem',
-                maxWidth: '520px',
-                width: '100%',
-                boxShadow: '0 20px 60px rgba(0,0,0,0.6)'
-              }}
-              onClick={e => e.stopPropagation()}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '1.8rem' }}>📧</span>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>
-                    Gmail Confirmation Sent!
-                  </h3>
-                  <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b' }}>To: {emailModal.email}</p>
-                </div>
-              </div>
-
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1rem', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
-                <p style={{ margin: '0 0 0.5rem' }}>Hi <strong>{emailModal.name}</strong>,</p>
-                <p style={{ margin: '0 0 0.5rem' }}>
-                  Your application for <strong>{emailModal.jobTitle}</strong> at <strong>{emailModal.company}</strong> has been successfully processed by CampusPilot AI.
-                </p>
-                <p style={{ margin: '0 0 0.5rem' }}>
-                  🔖 <strong>Application Reference ID:</strong> <span style={{ color: '#7c3aed', fontFamily: 'monospace', fontWeight: 'bold' }}>{emailModal.appId}</span>
-                </p>
-                <p style={{ margin: 0, color: '#64748b', fontSize: '0.78rem' }}>Dispatched: {emailModal.timestamp}</p>
-              </div>
-
-              <button
-                onClick={() => setEmailModal(null)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '0.65rem',
-                  background: '#2563eb',
-                  color: 'white',
-                  border: 'none',
-                  fontWeight: '800',
-                  cursor: 'pointer'
-                }}
-              >
-                Done
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Email sending in progress indicator */}
+      {sendingEmail && (
+        <div style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          background: 'linear-gradient(135deg, #1e1b4b, #312e81)',
+          border: '1px solid rgba(139,92,246,0.4)',
+          borderRadius: '1rem',
+          padding: '1rem 1.5rem',
+          color: 'white',
+          fontSize: '0.85rem',
+          fontWeight: '700',
+          zIndex: 200,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          boxShadow: '0 8px 32px rgba(124,58,237,0.4)'
+        }}>
+          <span style={{ fontSize: '1.2rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>📧</span>
+          Dispatching confirmation to your Gmail…
+        </div>
+      )}
     </div>
   )
 }

@@ -41,6 +41,7 @@ import notificationRoutes from './routes/notifications.js'
 import groupRoutes from './routes/groups.js'
 import companyArchiveRoutes from './routes/companyArchives.js'
 import alumniRoutes from './routes/alumni.js'
+import emailNotifyRoutes from './routes/emailNotify.js'
 import { trackActivity } from './middleware/trackActivity.js'
 import { connectRedis } from './utils/redis.js'
 
@@ -189,6 +190,7 @@ app.use('/api/notifications', notificationRoutes)
 app.use('/api/groups', groupRoutes)
 app.use('/api/company-archives', companyArchiveRoutes)
 app.use('/api/alumni', alumniRoutes)
+app.use('/api/email', emailNotifyRoutes)
 
 // Health Check with Database Status
 app.get('/api/health', (req, res) => {

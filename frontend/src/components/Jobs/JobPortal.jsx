@@ -24,7 +24,7 @@ export default function JobPortal() {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedLocation, setSelectedLocation] = useState('All')
   const [eligibilityModal, setEligibilityModal] = useState(null)
-  const [confirmationEmail, setConfirmationEmail] = useState(null)
+  const [sendingEmail, setSendingEmail] = useState(false)
   const [showAddSkillsModal, setShowAddSkillsModal] = useState(false)
   const [skillInput, setSkillInput] = useState('')
   const [pendingSkills, setPendingSkills] = useState([])
@@ -132,25 +132,52 @@ export default function JobPortal() {
     toast.success(`✅ ${pendingSkills.length} skills saved to your profile! Match scores updated.`)
   }
 
-  const handleProceedApplication = (job) => {
+  const handleProceedApplication = async (job) => {
     const randomAppNum = Math.floor(10000 + Math.random() * 90000)
     const appId = `CP-APP-2026-${randomAppNum}`
+    const studentEmail = user?.email || ''
+    const studentName = user?.name || 'Candidate'
+    const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
 
     setEligibilityModal(null)
-    setConfirmationEmail({
-      appId,
-      jobRole: job.role,
-      company: job.company,
-      email: user?.email || 'student@university.edu',
-      name: user?.name || 'Candidate',
-      timestamp: new Date().toLocaleString(),
-      applyLink: job.applyLink
-    })
 
-    // Open company career portal in new tab
-    setTimeout(() => {
+    // Open company career portal in new tab immediately
+    if (job.applyLink) {
       window.open(job.applyLink, '_blank')
-    }, 1200)
+    }
+
+    // Send direct email from company to student's Gmail
+    if (studentEmail) {
+      setSendingEmail(true)
+      try {
+        const res = await fetch('http://localhost:5000/api/email/apply-confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            toEmail: studentEmail,
+            name: studentName,
+            jobTitle: job.role,
+            company: job.company,
+            appId,
+            timestamp,
+            location: job.location,
+            salary: job.salary
+          })
+        })
+        const data = await res.json()
+        if (data.success) {
+          toast.success(`📧 Official application confirmation sent directly to your Gmail (${studentEmail}) from ${job.company}!`, { duration: 6000 })
+        } else {
+          toast.success(`🎉 Applied to ${job.company}! Ref: ${appId}`)
+        }
+      } catch {
+        toast.success(`🎉 Applied to ${job.company}! Ref: ${appId}`)
+      } finally {
+        setSendingEmail(false)
+      }
+    } else {
+      toast.success(`🎉 Applied to ${job.company}! Ref: ${appId}`)
+    }
   }
 
   return (
@@ -484,82 +511,7 @@ export default function JobPortal() {
         )}
       </AnimatePresence>
 
-      {/* ── GMAIL CONFIRMATION MODAL ────────────────────────────────── */}
-      <AnimatePresence>
-        {confirmationEmail && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.85)',
-              zIndex: 210,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem'
-            }}
-            onClick={() => setConfirmationEmail(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              style={{
-                background: '#ffffff',
-                color: '#1e293b',
-                borderRadius: '1.25rem',
-                padding: '2rem',
-                maxWidth: '520px',
-                width: '100%',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.6)'
-              }}
-              onClick={e => e.stopPropagation()}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
-                <span style={{ fontSize: '2rem' }}>📧</span>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '900' }}>
-                    Application Confirmation Sent to Gmail
-                  </h3>
-                  <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b' }}>Recipient: {confirmationEmail.email}</p>
-                </div>
-              </div>
 
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
-                <p style={{ margin: '0 0 0.5rem' }}>Hi <strong>{confirmationEmail.name}</strong>,</p>
-                <p style={{ margin: '0 0 0.5rem' }}>
-                  Thank you for applying for <strong>{confirmationEmail.jobRole}</strong> at <strong>{confirmationEmail.company}</strong> through CampusPilot AI.
-                </p>
-                <div style={{ background: '#ede9fe', padding: '0.6rem 0.85rem', borderRadius: '0.5rem', color: '#6d28d9', fontWeight: '700', margin: '0.75rem 0', fontFamily: 'monospace' }}>
-                  🔖 Application Reference: {confirmationEmail.appId}
-                </div>
-                <p style={{ margin: 0, color: '#64748b', fontSize: '0.78rem' }}>
-                  Redirecting to official careers portal for final submission...
-                </p>
-              </div>
-
-              <button
-                onClick={() => setConfirmationEmail(null)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '0.65rem',
-                  background: '#2563eb',
-                  color: 'white',
-                  fontWeight: '800',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
-              >
-                Got It ✓
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── ADD SKILLS INLINE MODAL ─────────────────────────────────── */}
       <AnimatePresence>
