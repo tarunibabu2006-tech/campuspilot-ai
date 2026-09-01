@@ -106,8 +106,8 @@ function MainApp() {
       case 'placement':        return <Placements language={language} />;
       case 'notes':            return <NotesHub language={language} />;
       case 'bunk':             return <BunkPlanner language={language} />;
-      case 'job':              return <JobChecker language={language} />;
-      case 'skill':            return <SkillGapAnalyzer language={language} />;
+      case 'skill':
+      case 'skill-gap':        return <SkillGapAnalyzer language={language} />;
       case 'chat':             return <ChatAssistant language={language} />;
 
       // 🌟 FLAGSHIP ENHANCEMENTS & NEW MODULES
