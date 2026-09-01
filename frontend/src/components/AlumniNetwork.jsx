@@ -1,497 +1,826 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { SEED_COMPANIES } from '../data/seedCompanies'
+import { useAuth } from '../context/AuthContext'
 
-// Generate real alumni entries across all 200+ Indian companies
-const SEEDED_ALUMNI = SEED_COMPANIES.map((c, idx) => ({
-  id: `alum-${c.id}`,
-  name: `${['Karthik', 'Priya', 'Arjun', 'Sneha', 'Vikas', 'Meera', 'Rohan', 'Divya'][idx % 8]} ${['Subramanian', 'Raman', 'Venkatesh', 'Sundaram', 'Nair', 'Sharma', 'Mukherjee', 'Reddy'][idx % 8]}`,
-  gradYear: `${2022 + (idx % 4)}`,
-  dept: idx % 2 === 0 ? 'B.Tech CSE / IT' : 'B.Sc CS / BCA',
-  company: c.name,
-  role: c.roles.split(', ')[0] || 'Software Engineer',
-  exp: `${2 + (idx % 4)} Yrs`,
-  location: c.hq,
-  skills: c.topSkills.split(', '),
-  verified: true,
-  availableForMentorship: true,
-  openForReferral: true,
-  careerJourney: [
-    { year: `${2021 + (idx % 4)}`, title: `🎓 Graduated in ${idx % 2 === 0 ? 'Engineering' : 'Arts & Science'}` },
-    { year: `${2022 + (idx % 4)}`, title: `💻 Joined ${c.name} as ${c.roles.split(', ')[0]}` },
-    { year: '2026', title: `🚀 ${c.roles.split(', ')[0]} @ ${c.name}` }
-  ],
-  interviewTips: `Focus on ${c.topSkills} for written & technical rounds at ${c.name}. Master core projects!`
-}))
+const COLLEGE_PRESETS = [
+  { id: 'all', name: 'All Colleges', keyword: '' },
+  { id: 'kec', name: '🏛️ Kongu Engineering College (KEC)', keyword: 'Kongu' },
+  { id: 'vcet', name: '🏛️ Vellalar College of Engineering (VCET)', keyword: 'Vellalar' },
+  { id: 'psg', name: '🏛️ PSG College of Technology (PSG Tech)', keyword: 'PSG' },
+  { id: 'cit', name: '🏛️ Coimbatore Institute of Technology (CIT)', keyword: 'CIT' },
+  { id: 'kct', name: '🏛️ Kumaraguru College of Tech (KCT)', keyword: 'Kumaraguru' },
+  { id: 'bit', name: '🏛️ Bannari Amman Institute (BIT)', keyword: 'Bannari' },
+  { id: 'skcet', name: '🏛️ Sri Krishna College (SKCET)', keyword: 'Sri Krishna' },
+  { id: 'anna', name: '🏛️ Anna University (CEG / MIT)', keyword: 'Anna University' },
+  { id: 'vit', name: '🏛️ Vellore Institute of Tech (VIT)', keyword: 'VIT' },
+  { id: 'sastra', name: '🏛️ SASTRA Deemed University', keyword: 'SASTRA' },
+  { id: 'amrita', name: '🏛️ Amrita Vishwa Vidyapeetham', keyword: 'Amrita' }
+]
 
-const MOCK_ALUMNI = [
+const ENRICHED_ALUMNI = [
   {
-    id: '1',
-    name: 'Karthik Subbaraj',
-    gradYear: '2023',
-    dept: 'B.Sc CS',
+    id: 'alum-1',
+    name: 'Karthik Subramanian',
+    college: 'Kongu Engineering College (KEC)',
+    collegeKeyword: 'Kongu',
+    gradYear: '2022',
+    dept: 'B.E CSE',
     company: 'Zoho Corporation',
     role: 'Senior Software Developer',
+    exp: '4 Yrs',
+    location: 'Chennai, TN',
+    linkedinUrl: 'https://www.linkedin.com/search/results/people/?keywords=Kongu%20Zoho%20Karthik',
+    skills: ['Java', 'Spring Boot', 'SQL', 'System Design', 'Kafka'],
+    verified: true,
+    availableForMentorship: true,
+    openForReferral: true,
+    careerJourney: [
+      { year: '2022', title: '🎓 B.E CSE from Kongu Engineering College' },
+      { year: '2022', title: '💼 Joined Zoho Corporation as Software Developer' },
+      { year: '2025', title: '🚀 Promoted to Senior Developer @ Zoho Backend' }
+    ],
+    interviewTips: 'Zoho focuses heavily on basic Java/C logic (Round 1), Low-Level OOP Design (Round 2), and clean problem-solving. Practice matrix traversal!'
+  },
+  {
+    id: 'alum-2',
+    name: 'Priya Rajendran',
+    college: 'Vellalar College of Engineering & Technology (VCET)',
+    collegeKeyword: 'Vellalar',
+    gradYear: '2023',
+    dept: 'B.Tech IT',
+    company: 'TCS Digital',
+    role: 'Cloud System Engineer',
+    exp: '3 Yrs',
+    location: 'Bengaluru, KA',
+    linkedinUrl: 'https://www.linkedin.com/search/results/people/?keywords=Vellalar%20TCS%20Priya',
+    skills: ['Python', 'AWS', 'Docker', 'PostgreSQL', 'FastAPI'],
+    verified: true,
+    availableForMentorship: true,
+    openForReferral: true,
+    careerJourney: [
+      { year: '2023', title: '🎓 B.Tech IT from Vellalar College of Engineering (VCET)' },
+      { year: '2023', title: '💻 System Engineer @ TCS Digital' },
+      { year: '2025', title: '⚡ Cloud Architecture Specialist @ TCS' }
+    ],
+    interviewTips: 'TCS NQT Advanced coding tests string manipulation and arrays. For interviews, highlight cloud projects and GitHub repos!'
+  },
+  {
+    id: 'alum-3',
+    name: 'Arjun Venkatesh',
+    college: 'Kongu Engineering College (KEC)',
+    collegeKeyword: 'Kongu',
+    gradYear: '2021',
+    dept: 'B.E ECE',
+    company: 'Amazon AWS',
+    role: 'Software Development Engineer 2 (SDE-2)',
+    exp: '5 Yrs',
+    location: 'Hyderabad, TS',
+    linkedinUrl: 'https://www.linkedin.com/search/results/people/?keywords=Kongu%20Amazon%20Arjun',
+    skills: ['C++', 'DSA', 'Distributed Systems', 'DynamoDB', 'AWS'],
+    verified: true,
+    availableForMentorship: true,
+    openForReferral: true,
+    careerJourney: [
+      { year: '2021', title: '🎓 B.E ECE from Kongu Engineering College' },
+      { year: '2021', title: '💼 SDE-1 @ Amazon AWS' },
+      { year: '2024', title: '🚀 SDE-2 @ Amazon Cloud Services' }
+    ],
+    interviewTips: 'Master Amazon 16 Leadership Principles! 50% of your interview evaluation depends on STAR method behavioral answers.'
+  },
+  {
+    id: 'alum-4',
+    name: 'Sneha Sundaram',
+    college: 'Vellalar College of Engineering & Technology (VCET)',
+    collegeKeyword: 'Vellalar',
+    gradYear: '2023',
+    dept: 'B.E CSE',
+    company: 'Freshworks',
+    role: 'Full Stack Frontend Engineer',
     exp: '3 Yrs',
     location: 'Chennai, TN',
-    skills: ['Java', 'Spring Boot', 'SQL', 'System Design'],
+    linkedinUrl: 'https://www.linkedin.com/search/results/people/?keywords=Vellalar%20Freshworks%20Sneha',
+    skills: ['React.js', 'TypeScript', 'Node.js', 'GraphQL', 'TailwindCSS'],
     verified: true,
     availableForMentorship: true,
     openForReferral: true,
     careerJourney: [
-      { year: '2023', title: '🎓 B.Sc CS Graduate' },
-      { year: '2023', title: '💼 Software Intern @ Zoho' },
-      { year: '2024', title: '💻 Software Developer @ Zoho' },
-      { year: '2026', title: '🚀 Senior Developer @ Zoho' }
+      { year: '2023', title: '🎓 B.E CSE from Vellalar College of Engineering' },
+      { year: '2023', title: '💻 Frontend Intern @ Freshworks' },
+      { year: '2024', title: '🚀 Full-Time Frontend Engineer @ Freshworks' }
     ],
-    interviewTips: 'Zoho focuses heavily on Low-Level Design (Round 3) and clean code logic in Round 2. Master OOPs!'
+    interviewTips: 'Freshworks loves clean component architecture, JavaScript closures, Event Loop questions, and responsive design prototypes.'
   },
   {
-    id: '2',
-    name: 'Ananya Ramesh',
+    id: 'alum-5',
+    name: 'Rohan Sharma',
+    college: 'PSG College of Technology (PSG Tech)',
+    collegeKeyword: 'PSG',
+    gradYear: '2022',
+    dept: 'B.E Robotics & Automation',
+    company: 'Google',
+    role: 'AI / ML Engineer',
+    exp: '4 Yrs',
+    location: 'Bengaluru, KA',
+    linkedinUrl: 'https://www.linkedin.com/search/results/people/?keywords=PSG%20Google%20Rohan',
+    skills: ['PyTorch', 'TensorFlow', 'LLMs', 'C++', 'Computer Vision'],
+    verified: true,
+    availableForMentorship: true,
+    openForReferral: true,
+    careerJourney: [
+      { year: '2022', title: '🎓 B.E from PSG Tech' },
+      { year: '2022', title: '💼 AI Research Fellow @ Google AI' },
+      { year: '2025', title: '🚀 Machine Learning Engineer @ Google Cloud' }
+    ],
+    interviewTips: 'Google interviews test LeetCode Medium/Hard DP and Graph problems. Be crystal clear on time & space complexities!'
+  },
+  {
+    id: 'alum-6',
+    name: 'Divya Nair',
+    college: 'Kongu Engineering College (KEC)',
+    collegeKeyword: 'Kongu',
     gradYear: '2024',
-    dept: 'B.Tech CSE',
-    company: 'TCS Digital',
-    role: 'Digital System Engineer',
+    dept: 'B.Tech AI & Data Science',
+    company: 'Microsoft',
+    role: 'Azure Cloud Solutions Architect',
     exp: '2 Yrs',
     location: 'Bengaluru, KA',
-    skills: ['Python', 'Django', 'AWS', 'PostgreSQL'],
+    linkedinUrl: 'https://www.linkedin.com/search/results/people/?keywords=Kongu%20Microsoft%20Divya',
+    skills: ['Azure', 'Kubernetes', 'Python', 'DevOps', 'Terraform'],
     verified: true,
     availableForMentorship: true,
     openForReferral: true,
     careerJourney: [
-      { year: '2024', title: '🎓 B.Tech CSE Graduate' },
-      { year: '2024', title: '💻 System Engineer @ TCS' },
-      { year: '2025', title: '⚡ Promoted to TCS Digital' }
+      { year: '2024', title: '🎓 B.Tech AI&DS from Kongu Engineering College' },
+      { year: '2024', title: '💻 Cloud Consultant @ Microsoft' }
     ],
-    interviewTips: 'NQT Aptitude is easy if you practice R.S. Aggarwal. For coding, practice string manipulation.'
+    interviewTips: 'Microsoft focuses on clean code and system design fundamentals. Practice designing scalable microservices.'
   },
   {
-    id: '3',
-    name: 'Mohammed Rizwan',
+    id: 'alum-7',
+    name: 'Vikas Krishnan',
+    college: 'Vellalar College of Engineering & Technology (VCET)',
+    collegeKeyword: 'Vellalar',
     gradYear: '2022',
-    dept: 'BCA',
-    company: 'Amazon',
-    role: 'SDE-2',
+    dept: 'B.E EEE',
+    company: 'Infosys Springboard',
+    role: 'Specialist Programmer (Power Programmer)',
     exp: '4 Yrs',
-    location: 'Hyderabad, TS',
-    skills: ['C++', 'DSA', 'System Design', 'Distributed Systems'],
-    verified: true,
-    availableForMentorship: false,
-    openForReferral: true,
-    careerJourney: [
-      { year: '2022', title: '🎓 BCA Graduate' },
-      { year: '2022', title: '💻 SDE-1 @ Amazon' },
-      { year: '2025', title: '🚀 SDE-2 @ Amazon' }
-    ],
-    interviewTips: 'Prepare Leadership Principles thoroughly! Every interview round has 20-30 mins of behavioral questions.'
-  },
-  {
-    id: '4',
-    name: 'Priya Rajendran',
-    gradYear: '2024',
-    dept: 'B.Com CA',
-    company: 'Freshworks',
-    role: 'Product Analyst',
-    exp: '2 Yrs',
-    location: 'Chennai, TN',
-    skills: ['Power BI', 'SQL', 'Data Analytics', 'Excel'],
+    location: 'Mysuru / Chennai',
+    linkedinUrl: 'https://www.linkedin.com/search/results/people/?keywords=Vellalar%20Infosys%20Vikas',
+    skills: ['Java', 'Microservices', 'Spring Cloud', 'Docker', 'MySQL'],
     verified: true,
     availableForMentorship: true,
-    openForReferral: false,
+    openForReferral: true,
     careerJourney: [
-      { year: '2024', title: '🎓 B.Com CA Graduate' },
-      { year: '2024', title: '📊 Data Analyst Intern' },
-      { year: '2025', title: '💼 Product Analyst @ Freshworks' }
+      { year: '2022', title: '🎓 B.E EEE from Vellalar College of Engineering' },
+      { year: '2022', title: '💻 Cleared InfyTQ & joined as Specialist Programmer' }
     ],
-    interviewTips: 'Commerce students can easily switch to Data Analytics if you master SQL & Power BI dashboards!'
+    interviewTips: 'InfyTQ requires deep knowledge of DBMS, normalization, and OOPs concepts in Java or Python.'
+  },
+  {
+    id: 'alum-8',
+    name: 'Meera Nandakumar',
+    college: 'Coimbatore Institute of Technology (CIT)',
+    collegeKeyword: 'CIT',
+    gradYear: '2023',
+    dept: 'B.E CSE',
+    company: 'Wipro Turbo',
+    role: 'Senior Digital Engineer',
+    exp: '3 Yrs',
+    location: 'Chennai, TN',
+    linkedinUrl: 'https://www.linkedin.com/search/results/people/?keywords=CIT%20Wipro%20Meera',
+    skills: ['React.js', 'Node.js', 'MongoDB', 'Cloud APIs'],
+    verified: true,
+    availableForMentorship: true,
+    openForReferral: true,
+    careerJourney: [
+      { year: '2023', title: '🎓 B.E CSE from CIT Coimbatore' },
+      { year: '2023', title: '💻 Digital Engineer @ Wipro Turbo' }
+    ],
+    interviewTips: 'Wipro coding questions test string reversing, prime factorization, and matrix rotations. Focus on basic math logic.'
   }
 ]
 
-const COMPANY_STATS = [
-  { company: 'Zoho', alumniCount: 24, mentorshipOpen: 12, referralsOpen: 18 },
-  { company: 'TCS', alumniCount: 42, mentorshipOpen: 20, referralsOpen: 30 },
-  { company: 'Amazon', alumniCount: 12, mentorshipOpen: 5, referralsOpen: 8 },
-  { company: 'Infosys', alumniCount: 35, mentorshipOpen: 15, referralsOpen: 25 },
-  { company: 'Freshworks', alumniCount: 16, mentorshipOpen: 8, referralsOpen: 11 }
-]
-
 export default function AlumniNetwork() {
+  const { user } = useAuth()
+  const candidateName = user?.name || 'Aspirant'
+  const userCollege = user?.college || 'Kongu / Vellalar Engineering College'
+
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCollegeKeyword, setSelectedCollegeKeyword] = useState('')
   const [filterCompany, setFilterCompany] = useState('All')
-  const [filterDept, setFilterDept] = useState('All')
+  const [activeTab, setActiveTab] = useState('directory') // 'directory', 'radar', 'requests'
 
-  const [referralModal, setReferralModal] = useState(null)
-  const [adviceModal, setAdviceModal] = useState(null)
-  const [journeyModal, setJourneyModal] = useState(null)
-  const [becomeMentorModal, setBecomeMentorModal] = useState(false)
+  // LinkedIn Connection Modal
+  const [linkedinModal, setLinkedinModal] = useState(null)
+  const [customNote, setCustomNote] = useState('')
+  const [connectionPurpose, setConnectionPurpose] = useState('Mentorship & Guidance')
 
-  const [referralForm, setReferralForm] = useState({ jobRole: '', jobLink: '', message: '', resumeAttached: true })
-  const [adviceForm, setAdviceForm] = useState({ question: '', topic: 'Career Guidance' })
+  // Live LinkedIn Radar Search
+  const [radarCollege, setRadarCollege] = useState('Kongu Engineering College')
+  const [radarRole, setRadarRole] = useState('Software Engineer')
+  const [radarCompany, setRadarCompany] = useState('Zoho')
 
-  const [alumniRequests, setAlumniRequests] = useState(() => {
+  // Sent Requests Store
+  const [sentRequests, setSentRequests] = useState(() => {
     try {
-      const saved = localStorage.getItem('campuspilot_alumni_requests')
+      const saved = localStorage.getItem('campuspilot_linkedin_alumni_requests')
       return saved ? JSON.parse(saved) : []
     } catch {
       return []
     }
   })
 
-  const ALL_ALUMNI_LIST = SEEDED_ALUMNI
-
-  const filteredAlumni = ALL_ALUMNI_LIST.filter(a => {
-    const matchesSearch = a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  // Filter Alumni by Search, College Keyword, and Company
+  const filteredAlumni = ENRICHED_ALUMNI.filter(a => {
+    const matchesSearch =
+      a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       a.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
       a.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.college.toLowerCase().includes(searchTerm.toLowerCase()) ||
       a.skills.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesCompany = filterCompany === 'All' || a.company === filterCompany
-    const matchesDept = filterDept === 'All' || a.dept === filterDept
-    return matchesSearch && matchesCompany && matchesDept
+
+    const matchesCollege = !selectedCollegeKeyword || a.collegeKeyword.toLowerCase().includes(selectedCollegeKeyword.toLowerCase()) || a.college.toLowerCase().includes(selectedCollegeKeyword.toLowerCase())
+    const matchesCompany = filterCompany === 'All' || a.company.toLowerCase().includes(filterCompany.toLowerCase())
+
+    return matchesSearch && matchesCollege && matchesCompany
   })
 
-  const handleReferralSubmit = (e) => {
-    e.preventDefault()
-    const newReq = {
-      id: Date.now(),
-      type: 'Job Referral',
-      targetName: referralModal.name,
-      targetCompany: referralModal.company,
-      jobRole: referralForm.jobRole,
-      jobLink: referralForm.jobLink,
-      message: referralForm.message,
-      status: 'Pending Review ⏳',
-      timestamp: new Date().toISOString()
-    }
-    const updated = [newReq, ...alumniRequests]
-    setAlumniRequests(updated)
-    localStorage.setItem('campuspilot_alumni_requests', JSON.stringify(updated))
-    toast.success(`📩 Referral request dispatched to ${referralModal.name} at ${referralModal.company}! Status tracked in your dashboard.`)
-    setReferralModal(null)
+  // Open LinkedIn Connection Modal with Pre-generated note
+  const openConnectModal = (alumni) => {
+    setLinkedinModal(alumni)
+    setCustomNote(`Hi ${alumni.name},\n\nI am a fellow student from ${alumni.collegeKeyword || 'College'}. I came across your inspiring journey as a ${alumni.role} at ${alumni.company}. I would love to connect with you on LinkedIn for mentorship and guidance regarding industry prep!`)
   }
 
-  const handleAdviceSubmit = (e) => {
-    e.preventDefault()
+  // Submit LinkedIn Request
+  const handleSendLinkedinRequest = () => {
+    if (!linkedinModal) return
+
+    // Copy personalized note to clipboard
+    navigator.clipboard.writeText(customNote).then(() => {
+      toast.success('📋 Personalized LinkedIn connection note copied to clipboard!')
+    }).catch(() => {})
+
+    // Open LinkedIn Profile / Search URL
+    const linkedInTargetUrl = linkedinModal.linkedinUrl || `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(linkedinModal.collegeKeyword + ' ' + linkedinModal.company + ' ' + linkedinModal.name)}`
+    window.open(linkedInTargetUrl, '_blank')
+
+    // Record request in tracker
     const newReq = {
       id: Date.now(),
-      type: 'Career Mentorship',
-      targetName: adviceModal.name,
-      targetCompany: adviceModal.company,
-      topic: adviceForm.topic,
-      question: adviceForm.question,
-      status: 'Awaiting Response 💬',
-      timestamp: new Date().toISOString()
+      alumniId: linkedinModal.id,
+      alumniName: linkedinModal.name,
+      college: linkedinModal.college,
+      company: linkedinModal.company,
+      role: linkedinModal.role,
+      purpose: connectionPurpose,
+      note: customNote,
+      status: 'Request Dispatched on LinkedIn ⏳',
+      timestamp: new Date().toLocaleString()
     }
-    const updated = [newReq, ...alumniRequests]
-    setAlumniRequests(updated)
-    localStorage.setItem('campuspilot_alumni_requests', JSON.stringify(updated))
-    toast.success(`💬 Question submitted to ${adviceModal.name}! Mentor notification generated.`)
-    setAdviceModal(null)
+
+    const updated = [newReq, ...sentRequests]
+    setSentRequests(updated)
+    localStorage.setItem('campuspilot_linkedin_alumni_requests', JSON.stringify(updated))
+
+    toast.success(`🚀 LinkedIn Connection Request dispatched to ${linkedinModal.name}! Opened LinkedIn profile tab.`)
+    setLinkedinModal(null)
+  }
+
+  // Toggle Acceptance Status
+  const toggleRequestStatus = (reqId) => {
+    const updated = sentRequests.map(r => {
+      if (r.id === reqId) {
+        const nextStatus = r.status.includes('Accepted') ? 'Request Dispatched on LinkedIn ⏳' : '✅ Connected & Accepted 🎉'
+        return { ...r, status: nextStatus }
+      }
+      return r
+    })
+    setSentRequests(updated)
+    localStorage.setItem('campuspilot_linkedin_alumni_requests', JSON.stringify(updated))
+    toast.success('Connection status updated!')
+  }
+
+  // Launch Direct LinkedIn Deep-Search Radar
+  const handleLaunchLinkedInRadar = () => {
+    const query = `${radarCollege} ${radarCompany} ${radarRole}`.trim()
+    const url = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(query)}`
+    window.open(url, '_blank')
+    toast.success(`🌐 Opening LinkedIn Alumni Radar for: "${query}"`)
   }
 
   return (
-    <div style={{ padding: '1.5rem', maxWidth: '1100px', margin: '0 auto' }}>
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-        style={{ background: 'linear-gradient(135deg, #065f46, #047857, #1e293b)', borderRadius: '1.5rem', padding: '2rem', marginBottom: '1.5rem', border: '1px solid rgba(52,211,153,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}
+    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* ── HEADER BANNER ─────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={{
+          background: 'linear-gradient(135deg, #064e3b 0%, #065f46 40%, #0f172a 100%)',
+          borderRadius: '1.5rem',
+          padding: '2rem',
+          border: '1px solid rgba(52,211,153,0.35)',
+          boxShadow: '0 8px 32px rgba(16,185,129,0.25)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem', flexWrap: 'wrap' }}>
-            <h1 style={{ fontSize: '2.2rem', fontWeight: '900', color: 'white', margin: 0 }}>
-              🤝 Verified Alumni Network & Referrals
-            </h1>
-            <span style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', padding: '0.35rem 0.85rem', borderRadius: '0.6rem', fontWeight: '800', fontSize: '0.85rem' }}>
-              100+ Verified Mentors
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>🤝</span>
+            <div>
+              <h1 style={{ fontSize: '1.8rem', fontWeight: '900', color: 'white', margin: 0 }}>
+                LinkedIn Verified Alumni Network
+              </h1>
+              <p style={{ color: '#a7f3d0', fontSize: '0.85rem', margin: 0 }}>
+                Search alumni by college keywords (Kongu, Vellalar, PSG, CIT, etc.), send automated LinkedIn connection requests & get referrals!
+              </p>
+            </div>
           </div>
-          <p style={{ color: '#a7f3d0', margin: 0 }}>
-            Connect with placed seniors, request job referrals, ask career advice & trace real alumni journeys.
-          </p>
         </div>
-        <button
-          onClick={() => setBecomeMentorModal(true)}
-          style={{ padding: '0.75rem 1.5rem', borderRadius: '0.75rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', fontWeight: '800', border: 'none', cursor: 'pointer', boxShadow: '0 4px 20px rgba(16,185,129,0.4)', whiteSpace: 'nowrap' }}
-        >
-          🧑‍🏫 Become a Mentor
-        </button>
+
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <span style={{ background: 'rgba(52, 211, 153, 0.2)', color: '#6ee7b7', border: '1px solid rgba(52, 211, 153, 0.4)', padding: '0.4rem 0.9rem', borderRadius: '2rem', fontWeight: '800', fontSize: '0.8rem' }}>
+            🔗 LinkedIn Live Sync Active
+          </span>
+        </div>
       </motion.div>
 
-      {/* Company-wise Alumni Highlights */}
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.25rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ color: '#34d399', fontWeight: '800', fontSize: '1.05rem', marginBottom: '0.75rem' }}>🏢 Company-wise Alumni Community</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.75rem' }}>
-          {COMPANY_STATS.map(c => (
-            <div key={c.company} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0.75rem', padding: '0.75rem 1rem' }}>
-              <div style={{ color: 'white', fontWeight: '700', fontSize: '0.95rem' }}>{c.company}</div>
-              <div style={{ color: '#94a3b8', fontSize: '0.78rem', marginTop: '0.2rem' }}>👥 {c.alumniCount} Alumni</div>
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.4rem', fontSize: '0.7rem' }}>
-                <span style={{ color: '#34d399' }}>🤝 {c.referralsOpen} Referrals</span>
-                <span style={{ color: '#60a5fa' }}>🧑‍🏫 {c.mentorshipOpen} Mentors</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Search & Filters */}
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-        <input
-          type="text"
-          placeholder="🔍 Search alumni by name, role, skills (e.g. Python, Developer)..."
-          value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
-          style={{ flex: 1, minWidth: '240px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.75rem', padding: '0.75rem 1rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
-        />
-        <select
-          value={filterCompany} onChange={e => setFilterCompany(e.target.value)}
-          style={{ background: 'rgba(6,95,70,0.9)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '0.75rem', padding: '0.75rem 1rem', color: 'white', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
-        >
-          <option value="All">All Companies</option>
-          <option value="Zoho">Zoho</option>
-          <option value="TCS Digital">TCS Digital</option>
-          <option value="Amazon">Amazon</option>
-          <option value="Freshworks">Freshworks</option>
-        </select>
-      </div>
-
-      {/* Alumni Directory Grid */}
-      <h2 style={{ color: 'white', fontWeight: '800', fontSize: '1.3rem', marginBottom: '1rem' }}>👨‍💼 Alumni Directory ({filteredAlumni.length})</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-        {filteredAlumni.map((alum, index) => (
-          <motion.div
-            key={alum.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.08 }}
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyBetween: 'space-between' }}
+      {/* ── NAVIGATION TABS ────────────────────────────────────────── */}
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        {[
+          { id: 'directory', label: `👨‍💼 Verified Alumni Directory (${filteredAlumni.length})` },
+          { id: 'radar', label: '🔎 Live LinkedIn College Radar' },
+          { id: 'requests', label: `📬 My Sent Requests & Status (${sentRequests.length})` }
+        ].map(t => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTab(t.id)}
+            style={{
+              padding: '0.6rem 1.25rem',
+              borderRadius: '0.65rem',
+              background: activeTab === t.id ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.04)',
+              border: activeTab === t.id ? '1px solid #34d399' : '1px solid rgba(255,255,255,0.08)',
+              color: activeTab === t.id ? 'white' : '#94a3b8',
+              fontWeight: '800',
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
           >
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', fontWeight: '800', color: 'white' }}>
-                  {alum.name.charAt(0)}
-                </div>
-                <div>
-                  <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    {alum.name} {alum.verified && <span title="Verified Alumni" style={{ color: '#34d399', fontSize: '0.85rem' }}>✅</span>}
-                  </h3>
-                  <p style={{ color: '#34d399', fontWeight: '700', fontSize: '0.85rem' }}>{alum.role} @ {alum.company}</p>
-                  <p style={{ color: '#94a3b8', fontSize: '0.75rem' }}>{alum.dept} · Batch of {alum.gradYear} · {alum.location}</p>
-                </div>
-              </div>
-
-              {/* Skills */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem' }}>
-                {alum.skills.map(skill => (
-                  <span key={skill} style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399', padding: '0.15rem 0.5rem', borderRadius: '0.4rem', fontSize: '0.72rem', border: '1px solid rgba(52,211,153,0.3)' }}>
-                    {skill}
-                  </span>
-                ))}
-              </div>
-
-              {/* Interview Tip Preview */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '0.6rem', padding: '0.6rem 0.8rem', marginBottom: '1rem', borderLeft: '3px solid #34d399' }}>
-                <div style={{ color: '#34d399', fontSize: '0.7rem', fontWeight: '700' }}>💡 Interview Advice</div>
-                <div style={{ color: '#94a3b8', fontSize: '0.78rem' }}>"{alum.interviewTips.slice(0, 75)}..."</div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <div style={{ display: 'flex', gap: '0.4rem' }}>
-                <button
-                  onClick={() => setAdviceModal(alum)}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '0.6rem', background: 'rgba(255,255,255,0.06)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', fontWeight: '600', fontSize: '0.8rem', cursor: 'pointer' }}
-                >
-                  💬 Ask Advice
-                </button>
-                <button
-                  onClick={() => setJourneyModal(alum)}
-                  style={{ flex: 1, padding: '0.5rem', borderRadius: '0.6rem', background: 'rgba(52,211,153,0.15)', color: '#34d399', border: '1px solid rgba(52,211,153,0.3)', fontWeight: '600', fontSize: '0.8rem', cursor: 'pointer' }}
-                >
-                  🚀 Career Journey
-                </button>
-              </div>
-              {alum.openForReferral && (
-                <button
-                  onClick={() => setReferralModal(alum)}
-                  style={{ width: '100%', padding: '0.6rem', borderRadius: '0.6rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', fontWeight: '700', fontSize: '0.85rem', cursor: 'pointer' }}
-                >
-                  📄 Request Referral at {alum.company}
-                </button>
-              )}
-            </div>
-          </motion.div>
+            {t.label}
+          </button>
         ))}
       </div>
 
-      {/* Referral Request Modal */}
-      <AnimatePresence>
-        {referralModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            onClick={() => setReferralModal(null)}
-          >
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-              style={{ background: 'linear-gradient(135deg, #064e3b, #111827)', border: '1px solid rgba(52,211,153,0.4)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '500px', width: '100%' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '0.25rem' }}>📄 Request Referral from {referralModal.name}</h3>
-              <p style={{ color: '#34d399', fontSize: '0.85rem', marginBottom: '1.25rem' }}>{referralModal.role} @ {referralModal.company}</p>
-
-              <form onSubmit={handleReferralSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Job Title / Role Target</label>
-                  <input
-                    type="text" required placeholder="e.g. Software Engineer / Data Analyst" value={referralForm.jobRole} onChange={e => setReferralForm({ ...referralForm, jobRole: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Job Opening Link (Optional)</label>
-                  <input
-                    type="url" placeholder="https://careers.company.com/job/123" value={referralForm.jobLink} onChange={e => setReferralForm({ ...referralForm, jobLink: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Short Message to Alumni</label>
-                  <textarea
-                    rows={3} required placeholder="Hi! I am a final year CS student with Python & SQL skills..." value={referralForm.message} onChange={e => setReferralForm({ ...referralForm, message: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', resize: 'vertical' }}
-                  />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#34d399', fontSize: '0.82rem' }}>
-                  <span>✓ Profile Resume Attached Automatically</span>
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                  <button type="button" onClick={() => setReferralModal(null)} style={{ flex: 1, padding: '0.75rem', borderRadius: '0.6rem', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', fontWeight: '600', cursor: 'pointer' }}>Cancel</button>
-                  <button type="submit" style={{ flex: 1, padding: '0.75rem', borderRadius: '0.6rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Send Request</button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Ask Advice Modal */}
-      <AnimatePresence>
-        {adviceModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            onClick={() => setAdviceModal(null)}
-          >
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-              style={{ background: 'linear-gradient(135deg, #0f172a, #064e3b)', border: '1px solid rgba(52,211,153,0.4)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '500px', width: '100%' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '0.25rem' }}>💬 Ask Career Advice — {adviceModal.name}</h3>
-              <p style={{ color: '#34d399', fontSize: '0.85rem', marginBottom: '1.25rem' }}>{adviceModal.role} @ {adviceModal.company}</p>
-
-              <form onSubmit={handleAdviceSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Advice Topic</label>
-                  <select
-                    value={adviceForm.topic} onChange={e => setAdviceForm({ ...adviceForm, topic: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(6,95,70,0.9)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* ── TAB 1: VERIFIED ALUMNI DIRECTORY WITH COLLEGE KEYWORDS ───── */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {activeTab === 'directory' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* College Keyword Selector Bar */}
+          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.25rem' }}>
+            <div style={{ color: '#a7f3d0', fontSize: '0.78rem', textTransform: 'uppercase', fontWeight: '800', marginBottom: '0.65rem' }}>
+              🎓 Filter by College Keyword (Click to find alumni from your specific campus):
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {COLLEGE_PRESETS.map(c => {
+                const isSelected = selectedCollegeKeyword.toLowerCase() === c.keyword.toLowerCase()
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedCollegeKeyword(c.keyword)}
+                    style={{
+                      background: isSelected ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.04)',
+                      border: isSelected ? '1px solid #34d399' : '1px solid rgba(255,255,255,0.08)',
+                      color: isSelected ? 'white' : '#cbd5e1',
+                      padding: '0.45rem 0.85rem',
+                      borderRadius: '0.6rem',
+                      fontWeight: isSelected ? '800' : '600',
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
                   >
-                    <option>Career Guidance</option>
-                    <option>Interview Preparation</option>
-                    <option>Resume Review Tips</option>
-                    <option>Skill Development</option>
+                    {c.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Search & Company Filter Inputs */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: '0.75rem' }}>
+            <input
+              type="text"
+              placeholder="🔍 Search alumni by name, college keyword (Kongu, Vellalar), role, skills (Java, AWS)..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '0.75rem',
+                padding: '0.75rem 1rem',
+                color: 'white',
+                fontSize: '0.88rem',
+                outline: 'none'
+              }}
+            />
+
+            <select
+              value={filterCompany}
+              onChange={e => setFilterCompany(e.target.value)}
+              style={{
+                background: 'rgba(6,95,70,0.8)',
+                border: '1px solid rgba(52,211,153,0.3)',
+                borderRadius: '0.75rem',
+                padding: '0.75rem 1rem',
+                color: 'white',
+                fontSize: '0.88rem',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="All">All Companies (Zoho, TCS, Amazon...)</option>
+              <option value="Zoho">Zoho Corporation</option>
+              <option value="TCS">TCS / TCS Digital</option>
+              <option value="Amazon">Amazon AWS</option>
+              <option value="Freshworks">Freshworks</option>
+              <option value="Google">Google</option>
+              <option value="Microsoft">Microsoft</option>
+              <option value="Infosys">Infosys</option>
+              <option value="Wipro">Wipro Turbo</option>
+            </select>
+          </div>
+
+          {/* Alumni Profiles Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+            {filteredAlumni.map((alum, index) => (
+              <motion.div
+                key={alum.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
+                style={{
+                  background: 'rgba(15, 23, 42, 0.95)',
+                  border: '1px solid rgba(52,211,153,0.3)',
+                  borderRadius: '1.25rem',
+                  padding: '1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.3)'
+                }}
+              >
+                <div>
+                  {/* Top Avatar & Name */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.75rem' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', fontWeight: '900', color: 'white', flexShrink: 0 }}>
+                      {alum.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.05rem', margin: '0 0 0.2rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        {alum.name} <span title="Verified Alumni" style={{ color: '#34d399', fontSize: '0.85rem' }}>✅</span>
+                      </h3>
+                      <div style={{ color: '#34d399', fontWeight: '700', fontSize: '0.85rem' }}>
+                        {alum.role} @ <strong>{alum.company}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* College Badge */}
+                  <div style={{ background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.25)', borderRadius: '0.5rem', padding: '0.4rem 0.65rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span style={{ fontSize: '1rem' }}>🏛️</span>
+                    <div style={{ color: '#a7f3d0', fontSize: '0.78rem', fontWeight: '700' }}>
+                      {alum.college} · Batch of {alum.gradYear}
+                    </div>
+                  </div>
+
+                  {/* Skills Tags */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.85rem' }}>
+                    {alum.skills.map((skill, sIdx) => (
+                      <span key={sIdx} style={{ background: 'rgba(255,255,255,0.05)', color: '#cbd5e1', padding: '0.15rem 0.45rem', borderRadius: '0.35rem', fontSize: '0.72rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Interview Advice */}
+                  <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.8rem', marginBottom: '1.25rem', borderLeft: '3px solid #10b981' }}>
+                    <div style={{ color: '#34d399', fontSize: '0.7rem', fontWeight: '800' }}>💡 Alumni Advice:</div>
+                    <div style={{ color: '#94a3b8', fontSize: '0.76rem', lineHeight: 1.4 }}>"{alum.interviewTips.slice(0, 85)}..."</div>
+                  </div>
+                </div>
+
+                {/* Connect Buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => openConnectModal(alum)}
+                    style={{
+                      background: 'linear-gradient(135deg, #0a66c2, #004182)',
+                      color: 'white',
+                      border: 'none',
+                      padding: '0.65rem',
+                      borderRadius: '0.65rem',
+                      fontWeight: '800',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      boxShadow: '0 4px 15px rgba(10,102,194,0.35)'
+                    }}
+                  >
+                    <span>🔗 Connect via LinkedIn</span> ➔
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* ── TAB 2: LIVE LINKEDIN COLLEGE ALUMNI RADAR ────────────────── */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {activeTab === 'radar' && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ background: 'rgba(15, 23, 42, 0.95)', border: '2px solid rgba(52,211,153,0.35)', borderRadius: '1.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '2rem' }}>🔎</span>
+            <div>
+              <h3 style={{ color: 'white', margin: 0, fontWeight: '900', fontSize: '1.3rem' }}>
+                Live LinkedIn Alumni Radar by College Keyword
+              </h3>
+              <p style={{ color: '#a7f3d0', fontSize: '0.85rem', margin: 0 }}>
+                Directly surface and connect with all real live alumni profiles on LinkedIn who studied at your college!
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', color: '#a7f3d0', fontWeight: '800', fontSize: '0.82rem', marginBottom: '0.35rem' }}>
+                🏛️ College Keyword
+              </label>
+              <input
+                type="text"
+                value={radarCollege}
+                onChange={e => setRadarCollege(e.target.value)}
+                placeholder="e.g. Kongu Engineering College, Vellalar College..."
+                style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.65rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.88rem' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', color: '#a7f3d0', fontWeight: '800', fontSize: '0.82rem', marginBottom: '0.35rem' }}>
+                🏢 Target Company
+              </label>
+              <input
+                type="text"
+                value={radarCompany}
+                onChange={e => setRadarCompany(e.target.value)}
+                placeholder="e.g. Zoho, Google, TCS, Amazon, Microsoft..."
+                style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.65rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.88rem' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', color: '#a7f3d0', fontWeight: '800', fontSize: '0.82rem', marginBottom: '0.35rem' }}>
+                💼 Target Role
+              </label>
+              <input
+                type="text"
+                value={radarRole}
+                onChange={e => setRadarRole(e.target.value)}
+                placeholder="e.g. Software Engineer, Cloud Architect, Data Scientist..."
+                style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.65rem', padding: '0.65rem 0.9rem', color: 'white', fontSize: '0.88rem' }}
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={handleLaunchLinkedInRadar}
+            style={{
+              background: 'linear-gradient(135deg, #0a66c2, #004182)',
+              color: 'white',
+              border: 'none',
+              padding: '0.85rem',
+              borderRadius: '0.75rem',
+              fontWeight: '900',
+              fontSize: '0.95rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              boxShadow: '0 4px 20px rgba(10,102,194,0.4)'
+            }}
+          >
+            <span>🌐 Open Live LinkedIn Directory for "{radarCollege}"</span> ➔
+          </button>
+        </motion.div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* ── TAB 3: MY SENT LINKEDIN REQUESTS TRACKER ─────────────────── */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {activeTab === 'requests' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {sentRequests.length === 0 ? (
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '2.5rem', textAlign: 'center', color: '#94a3b8' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📬</div>
+              <h3 style={{ color: 'white', margin: 0, fontWeight: '800' }}>No LinkedIn Requests Sent Yet</h3>
+              <p style={{ fontSize: '0.85rem', margin: '0.4rem 0 1rem' }}>Go to the Alumni Directory and click "Connect via LinkedIn" on any senior to send connection requests.</p>
+              <button
+                onClick={() => setActiveTab('directory')}
+                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', padding: '0.6rem 1.25rem', borderRadius: '0.6rem', fontWeight: '800', cursor: 'pointer' }}
+              >
+                Browse Alumni Directory ➔
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {sentRequests.map((req) => (
+                <div
+                  key={req.id}
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.9)',
+                    border: '1px solid rgba(52,211,153,0.3)',
+                    borderRadius: '1rem',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '1rem'
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                      <strong style={{ color: 'white', fontSize: '1rem' }}>{req.alumniName}</strong>
+                      <span style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399', padding: '0.1rem 0.4rem', borderRadius: '0.3rem', fontSize: '0.7rem', fontWeight: '800' }}>
+                        {req.role} @ {req.company}
+                      </span>
+                    </div>
+                    <div style={{ color: '#94a3b8', fontSize: '0.8rem' }}>
+                      🏛️ {req.college} · Dispatched: {req.timestamp}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <button
+                      onClick={() => toggleRequestStatus(req.id)}
+                      style={{
+                        background: req.status.includes('Accepted') ? 'rgba(34,197,94,0.2)' : 'rgba(251,191,36,0.15)',
+                        border: req.status.includes('Accepted') ? '1px solid #22c55e' : '1px solid #fbbf24',
+                        color: req.status.includes('Accepted') ? '#4ade80' : '#fbbf24',
+                        padding: '0.45rem 0.85rem',
+                        borderRadius: '0.6rem',
+                        fontWeight: '800',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {req.status} (Click to toggle)
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── LINKEDIN CONNECTION ASSISTANT MODAL ───────────────────────── */}
+      <AnimatePresence>
+        {linkedinModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.85)',
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem',
+              backdropFilter: 'blur(6px)'
+            }}
+            onClick={() => setLinkedinModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9 }}
+              style={{
+                background: 'linear-gradient(135deg, #0b192c, #064e3b)',
+                border: '2px solid #0a66c2',
+                borderRadius: '1.5rem',
+                padding: '2rem',
+                maxWidth: '560px',
+                width: '100%',
+                boxShadow: '0 15px 50px rgba(10,102,194,0.4)'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.6rem' }}>🔗</span>
+                  <div>
+                    <h3 style={{ color: 'white', fontWeight: '900', fontSize: '1.2rem', margin: 0 }}>
+                      Send LinkedIn Connection Request
+                    </h3>
+                    <p style={{ color: '#60a5fa', fontSize: '0.78rem', margin: 0 }}>
+                      To: <strong>{linkedinModal.name}</strong> ({linkedinModal.role} @ {linkedinModal.company})
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setLinkedinModal(null)}
+                  style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', color: '#a7f3d0', fontSize: '0.8rem', fontWeight: '700', marginBottom: '0.3rem' }}>
+                    🎯 Connection Purpose
+                  </label>
+                  <select
+                    value={connectionPurpose}
+                    onChange={e => setConnectionPurpose(e.target.value)}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '0.6rem', padding: '0.6rem 0.8rem', color: 'white', fontSize: '0.85rem' }}
+                  >
+                    <option>Career Guidance & Mentorship</option>
+                    <option>Job Referral Request</option>
+                    <option>Resume Review & Mock Feedback</option>
+                    <option>College Senior Networking</option>
                   </select>
                 </div>
+
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Your Question</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                    <label style={{ color: '#a7f3d0', fontSize: '0.8rem', fontWeight: '700' }}>
+                      📝 Personalized LinkedIn Invitation Note (Auto-filled with College Keyword)
+                    </label>
+                    <span style={{ color: '#4ade80', fontSize: '0.72rem' }}>✨ Auto-copies to clipboard</span>
+                  </div>
                   <textarea
-                    rows={4} required placeholder="Ask about preparation tips, tech stack, rounds..." value={adviceForm.question} onChange={e => setAdviceForm({ ...adviceForm, question: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none', resize: 'vertical' }}
+                    rows={5}
+                    value={customNote}
+                    onChange={e => setCustomNote(e.target.value)}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '0.6rem', padding: '0.75rem', color: 'white', fontSize: '0.85rem', lineHeight: 1.5, resize: 'vertical' }}
                   />
                 </div>
+
+                <div style={{ background: 'rgba(10,102,194,0.15)', border: '1px solid rgba(10,102,194,0.3)', borderRadius: '0.6rem', padding: '0.75rem', fontSize: '0.78rem', color: '#93c5fd' }}>
+                  ℹ️ When you click the button below, this note is <strong>automatically copied to your clipboard</strong> and the senior's LinkedIn profile tab will open so you can paste & send!
+                </div>
+
                 <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                  <button type="button" onClick={() => setAdviceModal(null)} style={{ flex: 1, padding: '0.75rem', borderRadius: '0.6rem', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', fontWeight: '600', cursor: 'pointer' }}>Cancel</button>
-                  <button type="submit" style={{ flex: 1, padding: '0.75rem', borderRadius: '0.6rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Submit Question</button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  <button
+                    type="button"
+                    onClick={() => setLinkedinModal(null)}
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: '0.65rem', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
 
-      {/* Career Journey Flow Modal */}
-      <AnimatePresence>
-        {journeyModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            onClick={() => setJourneyModal(null)}
-          >
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-              style={{ background: 'linear-gradient(135deg, #064e3b, #0f172a)', border: '1px solid rgba(52,211,153,0.4)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '550px', width: '100%' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <div>
-                  <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem' }}>🚀 Career Journey — {journeyModal.name}</h3>
-                  <p style={{ color: '#34d399', fontSize: '0.85rem' }}>{journeyModal.dept} Grad → {journeyModal.company}</p>
+                  <button
+                    type="button"
+                    onClick={handleSendLinkedinRequest}
+                    style={{
+                      flex: 2,
+                      padding: '0.75rem',
+                      borderRadius: '0.65rem',
+                      background: 'linear-gradient(135deg, #0a66c2, #004182)',
+                      color: 'white',
+                      border: 'none',
+                      fontWeight: '900',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 15px rgba(10,102,194,0.4)'
+                    }}
+                  >
+                    🚀 Copy Note & Open on LinkedIn ➔
+                  </button>
                 </div>
-                <button onClick={() => setJourneyModal(null)} style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}>✕</button>
               </div>
-
-              {/* Journey Stepper */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative', paddingLeft: '1.5rem', marginBottom: '1.5rem' }}>
-                <div style={{ position: 'absolute', left: '7px', top: '10px', bottom: '10px', width: '2px', background: '#34d399' }} />
-                {journeyModal.careerJourney.map((step, idx) => (
-                  <div key={idx} style={{ position: 'relative' }}>
-                    <div style={{ position: 'absolute', left: '-1.5rem', top: '3px', width: '12px', height: '12px', borderRadius: '50%', background: '#34d399', border: '2px solid #064e3b' }} />
-                    <span style={{ color: '#34d399', fontSize: '0.75rem', fontWeight: '700' }}>{step.year}</span>
-                    <div style={{ color: 'white', fontWeight: '700', fontSize: '0.95rem' }}>{step.title}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '0.75rem', padding: '1rem', marginBottom: '1.25rem' }}>
-                <div style={{ color: '#34d399', fontWeight: '700', fontSize: '0.85rem', marginBottom: '0.3rem' }}>🔑 Recommended Preparation Tips:</div>
-                <p style={{ color: '#cbd5e1', fontSize: '0.85rem' }}>"{journeyModal.interviewTips}"</p>
-              </div>
-
-              <button onClick={() => setJourneyModal(null)} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.6rem', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Close Journey View</button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Become a Mentor Modal */}
-      <AnimatePresence>
-        {becomeMentorModal && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            onClick={() => setBecomeMentorModal(false)}
-          >
-            <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-              style={{ background: 'linear-gradient(135deg, #064e3b, #0f172a)', border: '1px solid rgba(52,211,153,0.4)', borderRadius: '1.5rem', padding: '2rem', maxWidth: '500px', width: '100%' }}
-              onClick={e => e.stopPropagation()}
-            >
-              <h3 style={{ color: 'white', fontWeight: '800', fontSize: '1.2rem', marginBottom: '0.25rem' }}>🧑‍🏫 Register as an Alumni Mentor</h3>
-              <p style={{ color: '#34d399', fontSize: '0.85rem', marginBottom: '1.25rem' }}>Guide current college students & help them secure dream placements!</p>
-
-              <form onSubmit={e => { e.preventDefault(); toast.success('🎉 Mentor registration submitted for verification!'); setBecomeMentorModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Mentoring Domain / Focus Areas</label>
-                  <input type="text" required placeholder="e.g. System Design, Resume Review, Python Coding" style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.3rem', fontWeight: '600' }}>Available Hours / Week</label>
-                  <select style={{ width: '100%', background: 'rgba(6,95,70,0.9)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '0.6rem', padding: '0.6rem 0.9rem', color: 'white', fontSize: '0.9rem', outline: 'none' }}>
-                    <option>1-2 Hours (Weekends)</option>
-                    <option>3-5 Hours</option>
-                    <option>Flexible / As Needed</option>
-                  </select>
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                  <button type="button" onClick={() => setBecomeMentorModal(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: '0.6rem', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', fontWeight: '600', cursor: 'pointer' }}>Cancel</button>
-                  <button type="submit" style={{ flex: 1, padding: '0.75rem', borderRadius: '0.6rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Submit Verification</button>
-                </div>
-              </form>
             </motion.div>
           </motion.div>
         )}

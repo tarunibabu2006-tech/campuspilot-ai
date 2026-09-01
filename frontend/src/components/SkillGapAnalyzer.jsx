@@ -36,7 +36,7 @@ export default function SkillGapAnalyzer({ language = 'en' }) {
   const calculateLocalGapAnalysis = (currSkillsList, roleName) => {
     const preset = PRESET_CAREERS.find(p => p.role.toLowerCase() === roleName.toLowerCase())
     const requiredSkills = preset ? preset.topSkills : ['Core Architecture', 'Database Optimization', 'System Design', 'Cloud Deployment', 'Testing & CI/CD', 'Security Best Practices']
-    
+
     const currLower = currSkillsList.map(s => s.toLowerCase().trim())
     const matched = []
     const missing = []
