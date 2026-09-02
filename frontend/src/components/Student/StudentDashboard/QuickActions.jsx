@@ -3,6 +3,7 @@ import React from 'react'
 export default function QuickActions({ onNavigate }) {
   // Requirement: Remove icons from "Open Notes Hub", "Browse Jobs", and "Ask AI"
   const actions = [
+    { id: 'daily-updates', label: '📡 Daily Updates & Vacancies 🇮🇳', bg: 'linear-gradient(135deg, #7c3aed, #2563eb)', text: '#ffffff', border: null },
     { id: 'notes', label: 'Open Notes Hub', bg: 'linear-gradient(135deg, #f59e0b, #d97706)', text: '#1a1a1a', border: null },
     { id: 'jobs', label: 'Browse Jobs', bg: 'rgba(34, 197, 94, 0.15)', text: '#4ade80', border: 'rgba(34, 197, 94, 0.4)' },
     { id: 'chat', label: 'Ask AI', bg: 'rgba(129, 140, 248, 0.15)', text: '#a5b4fc', border: 'rgba(129, 140, 248, 0.4)' },

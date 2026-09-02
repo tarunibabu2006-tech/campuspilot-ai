@@ -52,6 +52,7 @@ import GovernmentExams from './components/GovernmentExams';
 import AiSpokenClass from './components/AiSpokenClass';
 import SchoolStudentsSupport from './components/SchoolStudentsSupport';
 import AdvancedCourses from './components/AdvancedCourses';
+import DailyOpportunityRadar from './components/DailyOpportunityRadar';
 
 import StudentLayout from './components/Student/StudentLayout';
 
@@ -93,6 +94,7 @@ function MainApp() {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'dashboard':        return <StudentDashboard onNavigate={(tab) => setActiveTab(tab)} />;
+      case 'daily-updates':    return <DailyOpportunityRadar onNavigateToJobs={() => setActiveTab('jobs')} />;
       case 'skills':           return <SkillHub onSelectSkill={handleSelectSkillModule} />;
       case 'skill-detail':     return <SkillDetail skillId={selectedSkillId} onBack={() => setActiveTab('skills')} />;
       case 'role-learning':    return <RoleBasedLearning onSelectSkill={handleSelectSkillModule} />;

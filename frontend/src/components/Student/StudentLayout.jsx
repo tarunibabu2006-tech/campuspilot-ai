@@ -19,6 +19,7 @@ const StudentLayout = ({
       title: 'Core Platform',
       items: [
         { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+        { id: 'daily-updates', icon: '📡', label: 'Daily Updates & Vacancies 🇮🇳' },
         { id: 'profile', icon: '👤', label: 'My Profile' },
         { id: 'skills', icon: '📚', label: 'Skill Hub (All India)' },
         { id: 'notes', icon: '📝', label: 'Notes Hub (Govt & Core)' },
