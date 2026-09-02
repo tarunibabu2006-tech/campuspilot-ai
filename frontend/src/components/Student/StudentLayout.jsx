@@ -45,7 +45,6 @@ const StudentLayout = ({
       items: [
         { id: 'resume', icon: '📄', label: 'Resume Builder' },
         { id: 'resume-scorer', icon: '📈', label: 'Resume Scorer' },
-        { id: 'ai-apply', icon: '⚡', label: 'AI Apply & Track' },
         { id: 'government-exams', icon: '🏛️', label: 'Government Exams' },
         { id: 'advanced-courses', icon: '🚀', label: 'Advanced AI Courses' },
         { id: 'school-support', icon: '🎒', label: 'School Students Support' },

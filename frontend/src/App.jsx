@@ -124,7 +124,7 @@ function MainApp() {
       case 'all-users-message':return <AllUsersMessage />;
       case 'career-gps':       return <CareerGps />;
       case 'resume-scorer':    return <ResumeScorer />;
-      case 'ai-apply':         return <AiApply />;
+      case 'ai-apply':         return <JobPortal />;
       case 'skill-badge':      return <SkillBadge />;
       case 'mentors':          return <MentorConnect />;
       case 'mock-tests':       return <CompanyMockTests />;
