@@ -162,48 +162,18 @@ router.post('/:id/ai-apply', async (req, res) => {
       await newApp.save()
     } catch { }
 
-    // Auto-send Confirmation Email to student's Gmail
+    // Auto-send Company-Branded Confirmation Email to student's Gmail
     if (studentEmail) {
       try {
-        await sendEmail({
-          to: studentEmail,
-          subject: `✅ Application Submitted for ${role} at ${company} (Ref: ${applicationId})`,
-          html: `
-            <div style="font-family: Arial, sans-serif; background: #0f172a; color: #ffffff; padding: 25px; border-radius: 12px;">
-              <h2 style="color: #4ade80; margin-top: 0;">✅ Application Successfully Submitted</h2>
-              <p>Dear <strong>${studentName}</strong>,</p>
-              <p>Your application for <strong>${role}</strong> at <strong>${company}</strong> has been submitted successfully.</p>
-              
-              <div style="background: rgba(255,255,255,0.05); padding: 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin: 20px 0; line-height: 1.7;">
-                <div>📋 <strong>Application Details:</strong></div>
-                <div>──────────────────────────</div>
-                <div>📌 <strong>Application ID:</strong> ${applicationId}</div>
-                <div>🏢 <strong>Company:</strong> ${company}</div>
-                <div>💼 <strong>Role:</strong> ${role}</div>
-                <div>💰 <strong>Offered Package:</strong> ${salary}</div>
-                <div>📍 <strong>Location:</strong> ${location}</div>
-                <div>📅 <strong>Date:</strong> ${new Date().toLocaleString()}</div>
-                <div>🌐 <strong>Applied Via:</strong> ${source.toUpperCase()} Board</div>
-                <div>🔗 <strong>Official Link:</strong> <a href="${applicationLink}" style="color: #60a5fa;">${applicationLink}</a></div>
-              </div>
-              
-              <div style="background: rgba(59,130,246,0.1); border: 1px solid #3b82f6; border-radius: 8px; padding: 12px; margin: 15px 0;">
-                <div>📊 <strong>Status:</strong> ✅ Applied</div>
-                <div>🔎 <strong>Next Steps:</strong> Wait for company response</div>
-                <div>📧 Company will contact you at: <strong>${studentEmail}</strong></div>
-              </div>
-              
-              <div style="color: #94a3b8; font-size: 13px; line-height: 1.6;">
-                💡 <strong>Tips:</strong><br />
-                • Check your email regularly for interview invites & coding test links.<br />
-                • Prepare for technical rounds using CampusPilot Mock Interview modules.<br />
-                • Update your profile with any new certifications or project links.
-              </div>
-              
-              <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;" />
-              <small style="color: #64748b;">CampusPilot AI Automated Career Engine · Powered by Advanced Agentic Automation</small>
-            </div>
-          `
+        const { sendApplicationConfirmationEmail } = await import('../utils/emailService.js')
+        await sendApplicationConfirmationEmail(studentEmail, {
+          name: studentName,
+          jobTitle: role,
+          company,
+          appId: applicationId,
+          timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+          location,
+          salary
         })
       } catch (err) {
         console.warn('Gmail delivery notice:', err.message)

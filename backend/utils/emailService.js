@@ -33,33 +33,114 @@ function createTransporter() {
   return transporter
 }
 
-// ─── Company SMTP personas ────────────────────────────────────────────────────
+// ─── Company SMTP personas (50+ companies) ───────────────────────────────────
 const COMPANY_FROM_NAMES = {
-  TCS: 'TCS Talent Acquisition',
-  Infosys: 'Infosys Recruitment Team',
-  Wipro: 'Wipro HR Operations',
-  Cognizant: 'Cognizant Campus Recruitment',
-  Accenture: 'Accenture Talent Connect',
-  Capgemini: 'Capgemini Campus Hiring',
-  HCLTech: 'HCLTech HR Team',
-  'Tech Mahindra': 'Tech Mahindra Talent Team',
-  Zoho: 'Zoho Careers',
-  Amazon: 'Amazon Campus Recruiting',
-  'Amazon India': 'Amazon Campus Recruiting',
-  Google: 'Google University Programs',
-  'Google India': 'Google University Programs',
-  Microsoft: 'Microsoft University Recruiting',
-  Flipkart: 'Flipkart Campus Hiring',
-  'L&T': 'L&T HR Division',
-  BHEL: 'BHEL Recruitment Cell',
-  ISRO: 'ISRO HR Wing',
-  DRDO: 'DRDO Recruitment Authority',
-  IBPS: 'IBPS Examination Cell',
-  SBI: 'SBI HR Corporate Centre',
+  // IT Services & Consulting
+  TCS: 'TCS Talent Acquisition Team',
+  Infosys: 'Infosys Campus Recruitment',
+  Wipro: 'Wipro HR - Campus Hiring',
+  Cognizant: 'Cognizant Campus Recruitment Cell',
+  Accenture: 'Accenture Talent Connect India',
+  Capgemini: 'Capgemini Campus Hiring Team',
+  HCLTech: 'HCLTech Talent Acquisition',
+  'Tech Mahindra': 'Tech Mahindra HR Operations',
+  'Mphasis': 'Mphasis Campus Recruitment',
+  'Mindtree': 'LTIMindtree Hiring Team',
+  'L&T Infotech': 'LTIMindtree Campus Hiring',
+  'Hexaware': 'Hexaware Technologies HR',
+
+  // Product Companies
+  Zoho: 'Zoho Corporation - Careers',
+  'Zoho Corporation': 'Zoho Corporation - Careers',
+  Freshworks: 'Freshworks Talent Team',
+  Razorpay: 'Razorpay People & Talent',
+  PhonePe: 'PhonePe Campus Recruiting',
+  Swiggy: 'Swiggy Engineering Recruiting',
+  Zomato: 'Zomato People Operations',
+  Paytm: 'Paytm Hiring Team',
+  CRED: 'CRED Talent Acquisition',
+  Meesho: 'Meesho Campus Hiring',
+  Groww: 'Groww HR Team',
+  Zerodha: 'Zerodha People Team',
+
+  // Global Giants
+  Amazon: 'Amazon University Talent Acquisition',
+  'Amazon India': 'Amazon University Talent Acquisition',
+  Google: 'Google University Programs - India',
+  'Google India': 'Google University Programs - India',
+  Microsoft: 'Microsoft University Recruiting India',
+  'Microsoft India': 'Microsoft University Recruiting India',
+  Meta: 'Meta University Programs',
+  Apple: 'Apple Talent Team',
+  Netflix: 'Netflix Campus Recruiting',
+  Uber: 'Uber Campus Hiring India',
+  Flipkart: 'Flipkart Campus Recruitment Cell',
+  'Goldman Sachs': 'Goldman Sachs Campus Recruitment',
+  'JP Morgan': 'JP Morgan Campus Hiring India',
+  'Morgan Stanley': 'Morgan Stanley Talent Acquisition',
+  Oracle: 'Oracle Campus Recruiting India',
+  SAP: 'SAP Labs India HR',
+  IBM: 'IBM India Talent Acquisition',
+  Dell: 'Dell Technologies Campus Hiring',
+  VMware: 'VMware by Broadcom Hiring Team',
+  Cisco: 'Cisco University Recruiting',
+  Adobe: 'Adobe Campus Recruiting India',
+  Salesforce: 'Salesforce India Talent Team',
+  Atlassian: 'Atlassian University Hiring',
+  Deloitte: 'Deloitte India Campus Recruitment',
+  EY: 'EY India Campus Hiring',
+  KPMG: 'KPMG Recruitment India',
+  PwC: 'PwC India Talent Acquisition',
+
+  // Core Engineering & Manufacturing
+  'L&T': 'L&T HR - Campus Recruitment Division',
+  'Tata Motors': 'Tata Motors HR Department',
+  'Maruti Suzuki': 'Maruti Suzuki India - Campus Hiring',
+  'Siemens India': 'Siemens India HR Team',
+  Bosch: 'Bosch India - University Recruitment',
+
+  // PSU / Government
+  BHEL: 'BHEL - HR Recruitment Cell',
+  ISRO: 'ISRO - Human Resources Wing',
+  DRDO: 'DRDO - Recruitment & Assessment Centre',
+  NTPC: 'NTPC Limited - HR Recruitment',
+  ONGC: 'ONGC - Recruitment Cell',
+  IBPS: 'IBPS Examination Authority',
+  SBI: 'State Bank of India - HR Corporate Centre',
+  'HDFC Bank': 'HDFC Bank - Talent Acquisition',
+  'ICICI Bank': 'ICICI Bank - Campus Hiring',
+  'Axis Bank': 'Axis Bank - HR Team',
+}
+
+// Company-specific Reply-To addresses (simulated official look)
+const COMPANY_REPLY_TO = {
+  TCS: 'careers@tcs.com',
+  Infosys: 'campus.recruitment@infosys.com',
+  Wipro: 'campushiring@wipro.com',
+  Cognizant: 'campusrecruitment@cognizant.com',
+  Accenture: 'campus.hiring@accenture.com',
+  Amazon: 'university-hiring@amazon.com',
+  'Amazon India': 'university-hiring@amazon.com',
+  Google: 'university-programs@google.com',
+  'Google India': 'university-programs@google.com',
+  Microsoft: 'msurjobs@microsoft.com',
+  Flipkart: 'campus-recruitment@flipkart.com',
+  Zoho: 'careers@zoho.com',
+  Razorpay: 'talent@razorpay.com',
+  PhonePe: 'campus@phonepe.com',
+  Swiggy: 'eng-recruiting@swiggy.in',
+  'Goldman Sachs': 'campus-recruiting@gs.com',
+  SBI: 'recruitment@sbi.co.in',
+  ISRO: 'recruitment@isro.gov.in',
+  DRDO: 'rac@drdo.gov.in',
 }
 
 function getFromName(company) {
-  return COMPANY_FROM_NAMES[company] || `${company} Talent Acquisition`
+  return COMPANY_FROM_NAMES[company] || `${company} - Talent Acquisition Team`
+}
+
+function getReplyTo(company) {
+  return COMPANY_REPLY_TO[company] || `careers@${company.toLowerCase().replace(/\s+/g, '')}.com`
 }
 
 // ─── Email Templates ──────────────────────────────────────────────────────────
@@ -109,8 +190,8 @@ function buildApplicationConfirmHTML({ name, jobTitle, company, appId, timestamp
 <body>
 <div class="wrapper">
   <div class="header">
-    <h1>✅ Application Successfully Received!</h1>
-    <p>${fromName} · CampusPilot AI Verified Application</p>
+    <h1>✅ Application Successfully Received</h1>
+    <p>From: ${fromName}</p>
     <div class="badge-row">
       <span class="badge">🟢 Application Submitted</span>
       <span class="badge">🔖 Ref: ${appId}</span>
@@ -250,21 +331,27 @@ export async function sendApplicationConfirmationEmail(toEmail, payload) {
   try {
     const fromUser = process.env.MAIL_USER || process.env.ADMIN_EMAIL
     const fromName = getFromName(payload.company)
+    const replyTo = getReplyTo(payload.company)
     const html = buildApplicationConfirmHTML(payload)
 
     const info = await t.sendMail({
-      from: `"${fromName} via CampusPilot AI" <${fromUser}>`,
+      from: `"${fromName}" <${fromUser}>`,
+      replyTo: replyTo,
       to: toEmail,
-      subject: `✅ Application Confirmation — ${payload.jobTitle} at ${payload.company} [Ref: ${payload.appId}]`,
+      subject: `✅ Application Received — ${payload.jobTitle} at ${payload.company} [Ref: ${payload.appId}]`,
       html,
       text: [
         `Dear ${payload.name},`,
         '',
-        `Your application for ${payload.jobTitle} at ${payload.company} has been received.`,
+        `Your application for ${payload.jobTitle} at ${payload.company} has been received successfully.`,
         `Application Reference ID: ${payload.appId}`,
-        `Dispatched: ${payload.timestamp}`,
+        `Applied on: ${payload.timestamp}`,
         '',
-        'CampusPilot AI — Your Campus Placement OS'
+        `This is an automated confirmation from ${fromName}.`,
+        `Do not reply to this email. For queries, contact: ${replyTo}`,
+        '',
+        `Best regards,`,
+        `${fromName}`
       ].join('\n')
     })
 
@@ -285,7 +372,8 @@ export async function sendInterviewAlertEmail(toEmail, payload) {
     const html = buildInterviewAlertHTML(payload)
 
     const info = await t.sendMail({
-      from: `"${getFromName(payload.company)} via CampusPilot AI" <${fromUser}>`,
+      from: `"${getFromName(payload.company)}" <${fromUser}>`,
+      replyTo: getReplyTo(payload.company),
       to: toEmail,
       subject: `🎤 Interview Scheduled — ${payload.jobTitle} at ${payload.company} [${payload.interviewDate}]`,
       html
