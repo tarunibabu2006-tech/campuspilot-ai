@@ -15,9 +15,9 @@ const AI_STEPS = [
 ]
 
 export default function AIApplyFlow({ job, onClose, onApplicationSuccess }) {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const studentName = user?.name || 'Student'
-  const studentEmail = user?.email || 'student@campus.edu'
+  const [targetEmail, setTargetEmail] = useState(user?.email || 'tarunibabu1506@gmail.com')
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [isCompleted, setIsCompleted] = useState(false)
@@ -41,16 +41,34 @@ export default function AIApplyFlow({ job, onClose, onApplicationSuccess }) {
         clearInterval(interval)
         setIsCompleted(true)
 
-        // Submit to backend
+        const activeEmail = targetEmail || user?.email || 'tarunibabu1506@gmail.com'
+
+        // 1. Submit to backend jobs route
         axios.post(`/api/jobs/${job.id}/ai-apply`, {
           studentName,
-          studentEmail,
+          studentEmail: activeEmail,
           role: job.title || job.role,
           company: job.company,
           source: job.source || 'company',
           location: job.location,
           salary: job.salary || job.ctc,
           skills: job.skills || ['Python', 'Java', 'SQL', 'AWS']
+        }).catch(() => { })
+
+        // 2. Call direct Email Dispatch API
+        axios.post('/api/email/apply-confirm', {
+          toEmail: activeEmail,
+          name: studentName,
+          jobTitle: job.title || job.role,
+          company: job.company,
+          appId: generatedId,
+          timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+          location: job.location,
+          salary: job.salary || job.ctc
+        }).then(res => {
+          if (res.data?.success) {
+            toast.success(`📧 Confirmation email delivered to ${activeEmail}!`)
+          }
         }).catch(() => { })
 
         const appRecord = {
@@ -188,7 +206,7 @@ export default function AIApplyFlow({ job, onClose, onApplicationSuccess }) {
               • <strong>Application ID:</strong> {appId}<br />
               • <strong>Company:</strong> {job.company}<br />
               • <strong>Role:</strong> {job.title || job.role}<br />
-              • <strong>Confirmation:</strong> Sent to {studentEmail}<br />
+              • <strong>Confirmation:</strong> Sent to {targetEmail || 'tarunibabu1506@gmail.com'}<br />
               • <strong>Portal Link:</strong> <a href={applicationLink} target="_blank" rel="noreferrer" style={{ color: '#38bdf8' }}>{applicationLink}</a>
             </div>
 
