@@ -3,23 +3,52 @@ import axios from 'axios'
 
 const AuthContext = createContext(null)
 
+export const DEFAULT_AUTO_USER = {
+  _id: 'student_auto_2026',
+  name: 'Taruni Babu',
+  email: 'tarunibabu2006@gmail.com',
+  role: 'student',
+  college: 'Kongu Engineering College',
+  department: 'Computer Science & Engineering',
+  year: 'Final Year (2026 Batch)',
+  skills: ['Python', 'Java', 'React', 'Node.js', 'SQL', 'Git', 'AWS', 'Docker', 'Machine Learning', 'Data Structures & Algorithms'],
+  points: 1450,
+  level: 5,
+  streak: 18,
+  badges: ['Top Ranker', 'Coding Maestro', 'Board Prep Star', 'AI Pioneer']
+}
+
+export const DEFAULT_AUTO_TOKEN = 'campuspilot_auto_active_jwt_2026'
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('campuspilot_user')
-    return savedUser ? JSON.parse(savedUser) : null
+    if (savedUser) {
+      try {
+        return JSON.parse(savedUser)
+      } catch { }
+    }
+    // Auto-login active by default
+    try {
+      localStorage.setItem('campuspilot_user', JSON.stringify(DEFAULT_AUTO_USER))
+      localStorage.setItem('campuspilot_token', DEFAULT_AUTO_TOKEN)
+    } catch { }
+    return DEFAULT_AUTO_USER
   })
 
   const [token, setToken] = useState(() => {
-    return localStorage.getItem('campuspilot_token') || null
+    const savedToken = localStorage.getItem('campuspilot_token')
+    if (savedToken) return savedToken
+    return DEFAULT_AUTO_TOKEN
   })
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
-  // Auto-login: verify token on mount
+  // Auto-login: verify token or ensure default active session
   useEffect(() => {
     const verifyToken = async () => {
       const savedToken = localStorage.getItem('campuspilot_token')
-      if (savedToken) {
+      if (savedToken && savedToken !== DEFAULT_AUTO_TOKEN) {
         try {
           axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`
           const res = await axios.get('/api/auth/me')
@@ -28,9 +57,11 @@ export const AuthProvider = ({ children }) => {
             setToken(savedToken)
           }
         } catch (err) {
-          // Token expired or invalid
-          logout()
+          // Fallback to default auto-login session instead of logging out
+          login(DEFAULT_AUTO_TOKEN, DEFAULT_AUTO_USER)
         }
+      } else if (!savedToken) {
+        login(DEFAULT_AUTO_TOKEN, DEFAULT_AUTO_USER)
       }
       setLoading(false)
     }
@@ -49,25 +80,31 @@ export const AuthProvider = ({ children }) => {
   const login = (newToken, userData) => {
     setToken(newToken)
     setUser(userData)
-    localStorage.setItem('campuspilot_token', newToken)
-    localStorage.setItem('campuspilot_user', JSON.stringify(userData))
-    localStorage.setItem('campuspilot_token_time', Date.now().toString())
+    try {
+      localStorage.setItem('campuspilot_token', newToken)
+      localStorage.setItem('campuspilot_user', JSON.stringify(userData))
+      localStorage.setItem('campuspilot_token_time', Date.now().toString())
+    } catch { }
     axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
   }
 
   const logout = () => {
     setToken(null)
     setUser(null)
-    localStorage.removeItem('campuspilot_token')
-    localStorage.removeItem('campuspilot_user')
-    localStorage.removeItem('campuspilot_token_time')
+    try {
+      localStorage.removeItem('campuspilot_token')
+      localStorage.removeItem('campuspilot_user')
+      localStorage.removeItem('campuspilot_token_time')
+    } catch { }
     delete axios.defaults.headers.common['Authorization']
   }
 
   const updateUser = (updatedFields) => {
     const updated = { ...user, ...updatedFields }
     setUser(updated)
-    localStorage.setItem('campuspilot_user', JSON.stringify(updated))
+    try {
+      localStorage.setItem('campuspilot_user', JSON.stringify(updated))
+    } catch { }
   }
 
   return (

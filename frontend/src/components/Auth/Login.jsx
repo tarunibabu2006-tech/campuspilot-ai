@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth, DEFAULT_AUTO_TOKEN, DEFAULT_AUTO_USER } from '../../context/AuthContext'
 
 function Login({ onSwitchToRegister }) {
   // Admin Login States
@@ -18,6 +18,11 @@ function Login({ onSwitchToRegister }) {
   const [customName, setCustomName] = useState('')
   const [customEmail, setCustomEmail] = useState('')
   const { login } = useAuth()
+
+  const handleInstantAutoLogin = () => {
+    login(DEFAULT_AUTO_TOKEN, DEFAULT_AUTO_USER)
+    toast.success('⚡ Auto-Logged in to CampusPilot AI!')
+  }
 
   // Sign in with entered Name & Google Account
   const handleGoogleSignIn = async (selectedName, selectedEmail) => {
@@ -130,6 +135,31 @@ function Login({ onSwitchToRegister }) {
         <div className="dark-right-login">
           <h2 className="dark-welcome-title">Welcome Back!</h2>
           <p className="dark-welcome-sub">Sign in to access your placement dashboard</p>
+
+          {/* ⚡ 1-Click Instant Auto Login */}
+          <button
+            onClick={handleInstantAutoLogin}
+            style={{
+              width: '100%',
+              padding: '0.9rem',
+              borderRadius: '0.75rem',
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              color: 'white',
+              border: 'none',
+              fontWeight: '900',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 20px rgba(16,185,129,0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              marginBottom: '1rem'
+            }}
+          >
+            <span>⚡</span>
+            <span>1-Click Instant Auto Login (Bypass) ➔</span>
+          </button>
 
           {/* Student Login - Direct Name & Gmail */}
           <div className="dark-box dark-box-student">
