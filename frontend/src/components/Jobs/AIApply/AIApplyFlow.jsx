@@ -146,6 +146,18 @@ export default function AIApplyFlow({ job, onClose, onApplicationSuccess }) {
           )}
         </div>
 
+        {/* Recipient User Badge */}
+        <div style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '0.65rem', padding: '0.5rem 0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+          <span style={{ color: '#93c5fd', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span>👤</span>
+            <span>Applicant: <strong>{studentName}</strong></span>
+          </span>
+          <span style={{ color: '#4ade80', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <span>📧</span>
+            <span>{activeEmail}</span>
+          </span>
+        </div>
+
         {/* Step Progress Container */}
         <div style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {AI_STEPS.map((step, idx) => {
