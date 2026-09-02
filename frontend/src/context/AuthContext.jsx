@@ -5,30 +5,31 @@ const AuthContext = createContext(null)
 
 export const DEFAULT_AUTO_USER = {
   _id: 'student_auto_2026',
-  name: 'Taruni Babu',
-  email: 'tarunibabu2006@gmail.com',
+  name: 'Student User',
+  email: 'student@campuspilot.ai',
   role: 'student',
-  college: 'Kongu Engineering College',
-  department: 'Computer Science & Engineering',
-  year: 'Final Year (2026 Batch)',
-  skills: ['Python', 'Java', 'React', 'Node.js', 'SQL', 'Git', 'AWS', 'Docker', 'Machine Learning', 'Data Structures & Algorithms'],
-  points: 1450,
-  level: 5,
-  streak: 18,
-  badges: ['Top Ranker', 'Coding Maestro', 'Board Prep Star', 'AI Pioneer']
+  college: 'Engineering College',
+  department: 'B.Tech Computer Science Engineering (CSE)',
+  year: '4th Year (Final Year)',
+  skills: ['Python', 'Java', 'React', 'Node.js', 'SQL', 'Git', 'AWS', 'Docker', 'Data Structures & Algorithms'],
+  points: 100,
+  xp: 100,
+  level: 1,
+  streak: 1,
+  badges: ['Active Learner']
 }
 
 export const DEFAULT_AUTO_TOKEN = 'campuspilot_auto_active_jwt_2026'
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('campuspilot_user')
-    if (savedUser) {
-      try {
+    try {
+      const savedUser = localStorage.getItem('campuspilot_user')
+      if (savedUser) {
         return JSON.parse(savedUser)
-      } catch { }
-    }
-    // Auto-login active by default
+      }
+    } catch { }
+    // If no user exists at all, set default
     try {
       localStorage.setItem('campuspilot_user', JSON.stringify(DEFAULT_AUTO_USER))
       localStorage.setItem('campuspilot_token', DEFAULT_AUTO_TOKEN)
@@ -37,31 +38,38 @@ export const AuthProvider = ({ children }) => {
   })
 
   const [token, setToken] = useState(() => {
-    const savedToken = localStorage.getItem('campuspilot_token')
-    if (savedToken) return savedToken
-    return DEFAULT_AUTO_TOKEN
+    return localStorage.getItem('campuspilot_token') || DEFAULT_AUTO_TOKEN
   })
 
   const [loading, setLoading] = useState(false)
 
-  // Auto-login: verify token or ensure default active session
+  // Verify token or retain active user session — NEVER overwrite existing user's name/email on refresh!
   useEffect(() => {
     const verifyToken = async () => {
       const savedToken = localStorage.getItem('campuspilot_token')
+      const savedUserStr = localStorage.getItem('campuspilot_user')
+
       if (savedToken && savedToken !== DEFAULT_AUTO_TOKEN) {
         try {
           axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`
           const res = await axios.get('/api/auth/me')
-          if (res.data.user) {
+          if (res.data?.user) {
             setUser(res.data.user)
-            setToken(savedToken)
+            localStorage.setItem('campuspilot_user', JSON.stringify(res.data.user))
           }
         } catch (err) {
-          // Fallback to default auto-login session instead of logging out
-          login(DEFAULT_AUTO_TOKEN, DEFAULT_AUTO_USER)
+          // Keep saved user from localStorage if API is offline or deployed on client-only Vercel
+          if (savedUserStr) {
+            try {
+              const parsed = JSON.parse(savedUserStr)
+              setUser(parsed)
+            } catch { }
+          }
         }
-      } else if (!savedToken) {
-        login(DEFAULT_AUTO_TOKEN, DEFAULT_AUTO_USER)
+      } else if (savedUserStr) {
+        try {
+          setUser(JSON.parse(savedUserStr))
+        } catch { }
       }
       setLoading(false)
     }

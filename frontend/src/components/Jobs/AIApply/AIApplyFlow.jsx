@@ -15,9 +15,9 @@ const AI_STEPS = [
 ]
 
 export default function AIApplyFlow({ job, onClose, onApplicationSuccess }) {
-  const { user, updateUser } = useAuth()
+  const { user } = useAuth()
   const studentName = user?.name || 'Student'
-  const [targetEmail, setTargetEmail] = useState(user?.email || 'tarunibabu1506@gmail.com')
+  const activeEmail = user?.email || 'student@campus.edu'
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [isCompleted, setIsCompleted] = useState(false)
@@ -27,7 +27,7 @@ export default function AIApplyFlow({ job, onClose, onApplicationSuccess }) {
   useEffect(() => {
     const randomAppNum = Math.floor(10000 + Math.random() * 90000)
     const generatedId = `APP-2026-${randomAppNum}`
-    const generatedLink = `https://${job.company.toLowerCase().replace(/\s+/g, '')}.com/careers/app/${randomAppNum}`
+    const generatedLink = job.applyLink || `https://${job.company.toLowerCase().replace(/\s+/g, '')}.com/careers/app/${randomAppNum}`
     setAppId(generatedId)
     setApplicationLink(generatedLink)
 
@@ -40,8 +40,6 @@ export default function AIApplyFlow({ job, onClose, onApplicationSuccess }) {
       } else {
         clearInterval(interval)
         setIsCompleted(true)
-
-        const activeEmail = targetEmail || user?.email || 'tarunibabu1506@gmail.com'
 
         // 1. Submit to backend jobs route
         axios.post(`/api/jobs/${job.id}/ai-apply`, {
@@ -206,7 +204,7 @@ export default function AIApplyFlow({ job, onClose, onApplicationSuccess }) {
               • <strong>Application ID:</strong> {appId}<br />
               • <strong>Company:</strong> {job.company}<br />
               • <strong>Role:</strong> {job.title || job.role}<br />
-              • <strong>Confirmation:</strong> Sent to {targetEmail || 'tarunibabu1506@gmail.com'}<br />
+              • <strong>Confirmation:</strong> Sent to {activeEmail}<br />
               • <strong>Portal Link:</strong> <a href={applicationLink} target="_blank" rel="noreferrer" style={{ color: '#38bdf8' }}>{applicationLink}</a>
             </div>
 

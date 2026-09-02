@@ -32,6 +32,18 @@ export default function ManualApply({ job, onClose, onApplicationSuccess }) {
         company: job.company,
         source: job.source || 'company'
       })
+
+      // Dispatch real confirmation email to student
+      await axios.post('/api/email/apply-confirm', {
+        toEmail: candidateEmail,
+        name: candidateName,
+        jobTitle: job.title || job.role,
+        company: job.company,
+        appId,
+        timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+        location: job.location,
+        salary: job.salary || job.ctc
+      })
     } catch { }
 
     const applicationRecord = {

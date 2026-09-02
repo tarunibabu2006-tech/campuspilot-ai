@@ -91,20 +91,63 @@ export default function JobPortal() {
       const roleSlug = (j.title || j.role).toLowerCase().replace(/\s+/g, '-')
 
       let applyLink = `https://${compSlug}.com/careers`
+      const roleText = j.title || j.role
+      const compText = j.company
+
       if (assignedSource === 'linkedin') {
-        applyLink = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(j.company + ' ' + (j.title || j.role))}`
+        applyLink = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(compText + ' ' + roleText)}&location=India`
       } else if (assignedSource === 'naukri') {
-        applyLink = `https://www.naukri.com/${roleSlug}-jobs-at-${compSlug}`
+        applyLink = `https://www.naukri.com/${encodeURIComponent(roleSlug)}-jobs?k=${encodeURIComponent(compText + ' ' + roleText)}`
       } else if (assignedSource === 'internshala') {
-        applyLink = `https://internshala.com/jobs/${roleSlug}-at-${compSlug}`
+        applyLink = `https://internshala.com/jobs/keywords-${encodeURIComponent(roleSlug)}/`
       } else if (assignedSource === 'indeed') {
-        applyLink = `https://in.indeed.com/jobs?q=${encodeURIComponent(j.company + ' ' + (j.title || j.role))}`
+        applyLink = `https://in.indeed.com/jobs?q=${encodeURIComponent(compText + ' ' + roleText)}&l=India`
       } else if (assignedSource === 'wellfound') {
-        applyLink = `https://wellfound.com/jobs?role=${roleSlug}`
+        applyLink = `https://wellfound.com/jobs?role=${encodeURIComponent(roleText)}`
+      } else if (assignedSource === 'monster') {
+        applyLink = `https://www.foundit.in/srp/results?query=${encodeURIComponent(compText + ' ' + roleText)}`
+      } else if (assignedSource === 'timesjobs') {
+        applyLink = `https://www.timesjobs.com/candidate/job-search.html?searchType=personalizedSearch&from=submit&txtKeywords=${encodeURIComponent(compText + ' ' + roleText)}`
       } else if (assignedSource === 'freshersworld') {
-        applyLink = `https://www.freshersworld.com/jobs/${compSlug}-${roleSlug}-jobs`
+        applyLink = `https://www.freshersworld.com/jobs/jobsearch/${encodeURIComponent(roleSlug)}-jobs`
+      } else if (assignedSource === 'cutshort') {
+        applyLink = `https://cutshort.io/jobs?search=${encodeURIComponent(roleText)}`
       } else if (assignedSource === 'hirist') {
-        applyLink = `https://www.hirist.com/k/${roleSlug}-jobs`
+        applyLink = `https://www.hirist.tech/search?q=${encodeURIComponent(compText + ' ' + roleText)}`
+      } else if (assignedSource === 'hasjob') {
+        applyLink = `https://hasjob.co/search?q=${encodeURIComponent(roleText)}`
+      } else if (assignedSource === 'shine') {
+        applyLink = `https://www.shine.com/job-search/${encodeURIComponent(roleSlug)}-jobs?q=${encodeURIComponent(compText + ' ' + roleText)}`
+      } else if (assignedSource === 'upGrad') {
+        applyLink = `https://www.upgrad.com/jobs/?search=${encodeURIComponent(roleText)}`
+      } else if (assignedSource === 'adzuna') {
+        applyLink = `https://www.adzuna.in/search?q=${encodeURIComponent(compText + ' ' + roleText)}`
+      } else {
+        // Direct Company Careers portals
+        const cLower = compText.toLowerCase()
+        if (cLower.includes('google')) {
+          applyLink = `https://www.google.com/about/careers/applications/jobs/results/?q=${encodeURIComponent(roleText)}`
+        } else if (cLower.includes('amazon')) {
+          applyLink = `https://www.amazon.jobs/en/search?base_query=${encodeURIComponent(roleText)}&loc_query=India`
+        } else if (cLower.includes('tcs')) {
+          applyLink = `https://www.tcs.com/careers/india`
+        } else if (cLower.includes('infosys')) {
+          applyLink = `https://www.infosys.com/careers/apply.html`
+        } else if (cLower.includes('zoho')) {
+          applyLink = `https://www.zoho.com/careers/jobdetails/`
+        } else if (cLower.includes('flipkart')) {
+          applyLink = `https://www.flipkartcareers.com/#!/`
+        } else if (cLower.includes('microsoft')) {
+          applyLink = `https://careers.microsoft.com/v2/global/en/home.html`
+        } else if (cLower.includes('wipro')) {
+          applyLink = `https://careers.wipro.com/`
+        } else if (cLower.includes('accenture')) {
+          applyLink = `https://www.accenture.com/in-en/careers`
+        } else if (cLower.includes('cognizant')) {
+          applyLink = `https://careers.cognizant.com/global-en/jobs/`
+        } else {
+          applyLink = `https://${compSlug}.com/careers`
+        }
       }
 
       return {
