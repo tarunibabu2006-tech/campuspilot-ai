@@ -20,15 +20,21 @@ const userSchema = new mongoose.Schema({
   linkedin: { type: String },
   skills: [{ type: String }],
   targetRole: { type: String },
+  experience: { type: Number, default: 0 },
+  education: { type: String, default: 'B.Tech / B.E / BCA' },
   resume: { type: Object },
   progress: { type: Object, default: {} },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date },
-  createdAt: { type: Date, default: Date.now }
-})
 
-// Students can ONLY login with Google
-// Admin ONLY with email/password
+  // Gmail OAuth & Verification Settings
+  gmailConnected: { type: Boolean, default: false },
+  gmailEmail: { type: String },
+  gmailRefreshToken: { type: String },
+  gmailAccessToken: { type: String },
+  emailNotificationsEnabled: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+}, { timestamps: true })
 
 const User = mongoose.models.User || mongoose.model('User', userSchema)
 export default User

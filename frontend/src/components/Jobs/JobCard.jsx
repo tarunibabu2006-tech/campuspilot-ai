@@ -62,12 +62,12 @@ export const calculateRealMatch = (student, job) => {
     message: matchPercentage >= 70
       ? "✅ You're a strong candidate!"
       : matchPercentage >= 40
-      ? '📈 Keep building your skills'
-      : '⚠️ Significant skill gaps'
+        ? '📈 Keep building your skills'
+        : '⚠️ Significant skill gaps'
   }
 }
 
-export default function JobCard({ job, onManualApply, onAiApply }) {
+export default function JobCard({ job, onManualApply, onAiApply, onCheckEligibility }) {
   const { user } = useAuth()
 
   // Real eligibility calculation based on live student user profile
@@ -140,8 +140,10 @@ export default function JobCard({ job, onManualApply, onAiApply }) {
           </div>
         </div>
 
-        {/* ── REAL ELIGIBILITY CHECK (AI ANALYZED) ─────────────────── */}
-        <div style={{ marginTop: '0.85rem', background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.85rem', padding: '1rem' }}>
+        <div
+          onClick={() => onCheckEligibility && onCheckEligibility(job)}
+          style={{ marginTop: '0.85rem', background: 'rgba(0,0,0,0.45)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.85rem', padding: '1rem', cursor: 'pointer' }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
             <span style={{ color: '#c4b5fd', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase' }}>
               📋 Eligibility Check (AI Analyzed)
