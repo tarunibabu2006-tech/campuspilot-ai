@@ -26,69 +26,7 @@ function Login({ onSwitchToRegister }) {
     toast.success('⚡ Auto-Logged in to CampusPilot AI!')
   }
 
-  const handleInstantAdminLogin = () => {
-    const adminUser = {
-      id: 'admin',
-      name: 'Admin User',
-      email: 'tarunibabu2006@gmail.com',
-      role: 'admin'
-    }
-    const adminToken = 'admin_jwt_' + Date.now()
-    login(adminToken, adminUser)
-    if (setActiveTab) setActiveTab('admin')
-    toast.success('Welcome Admin! 👑 Logged in to Admin Control Center')
-  }
-
-  // Sign in with entered Name & Google Account
-  const handleGoogleSignIn = async (selectedName, selectedEmail) => {
-    const finalEmail = (selectedEmail || customEmail).trim().toLowerCase()
-
-    // Determine accurate student name from input or email
-    let finalName = selectedName || customName.trim()
-    if (!finalName && finalEmail) {
-      const emailPrefix = finalEmail.split('@')[0]
-      // Format e.g. s.santhiya -> S.Santhiya, john.doe -> John Doe
-      finalName = emailPrefix
-        .split(/[._]/)
-        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(' ')
-    }
-
-    if (!finalEmail || !finalEmail.includes('@')) {
-      toast.error('Please enter a valid Gmail address!')
-      return
-    }
-
-    setLoading(true)
-    try {
-      try {
-        const res = await axios.post('/api/auth/google', {
-          email: finalEmail,
-          name: finalName || 'Student',
-          googleId: 'google_device_' + Date.now()
-        })
-        login(res.data.token, res.data.user)
-      } catch (apiErr) {
-        // Resilient client fallback
-        const mockToken = 'student_jwt_' + Date.now()
-        const mockUser = {
-          id: 'student_' + Date.now(),
-          name: finalName || 'Student',
-          email: finalEmail,
-          role: 'student',
-          department: '',
-          year: ''
-        }
-        login(mockToken, mockUser)
-      }
-      toast.success(`Welcome, ${finalName}! Logged in as ${finalEmail} 🎓`)
-    } catch (err) {
-      toast.error('Login failed, please retry!')
-    }
-    setLoading(false)
-  }
-
-  // Admin Login - Secure with Resilient Client Fallback
+  // Admin Login - Secure & Strict (tarunibabu2006@gmail.com & prawinkumar_0704)
   const handleAdminLogin = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
     const inputEmail = email.trim().toLowerCase()
@@ -96,6 +34,12 @@ function Login({ onSwitchToRegister }) {
 
     if (!inputEmail || !inputPassword) {
       toast.error('Please enter your Admin Email and Password!')
+      return
+    }
+
+    // STRICT CHECK: Only tarunibabu2006@gmail.com & prawinkumar_0704 allowed!
+    if (inputEmail !== 'tarunibabu2006@gmail.com' || inputPassword !== 'prawinkumar_0704') {
+      toast.error('Access Denied: Invalid Admin Credentials!')
       return
     }
 
@@ -111,32 +55,20 @@ function Login({ onSwitchToRegister }) {
         if (setActiveTab) setActiveTab('admin')
         toast.success('Welcome Admin! 👑')
       } catch (apiErr) {
-        // Resilient client-side fallback for admin credentials
-        const allowedAdminEmails = ['tarunibabu2006@gmail.com', 'admin@campuspilot.ai', 'admin@gmail.com']
-        const allowedAdminPasswords = ['prawinkumar_0704', 'admin', 'admin123', 'tarunibabu2006']
-
-        if (
-          allowedAdminEmails.includes(inputEmail) ||
-          inputEmail.includes('admin') ||
-          allowedAdminPasswords.includes(inputPassword) ||
-          inputPassword.length >= 4
-        ) {
-          const adminUser = {
-            id: 'admin',
-            name: 'Admin User',
-            email: inputEmail || 'tarunibabu2006@gmail.com',
-            role: 'admin'
-          }
-          const adminToken = 'admin_jwt_' + Date.now()
-          login(adminToken, adminUser)
-          if (setActiveTab) setActiveTab('admin')
-          toast.success('Welcome Admin! 👑 Logged in to Admin Control Center')
-        } else {
-          throw apiErr
+        // Resilient client fallback for exact admin credentials
+        const adminUser = {
+          id: 'admin',
+          name: 'Admin',
+          email: 'tarunibabu2006@gmail.com',
+          role: 'admin'
         }
+        const adminToken = 'admin_jwt_' + Date.now()
+        login(adminToken, adminUser)
+        if (setActiveTab) setActiveTab('admin')
+        toast.success('Welcome Admin! 👑 Logged in to Admin Control Center')
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Access Denied: Invalid Admin Credentials!')
+      toast.error('Access Denied: Invalid Admin Credentials!')
     }
     setLoading(false)
   }
@@ -248,32 +180,7 @@ function Login({ onSwitchToRegister }) {
           {/* Admin Login */}
           <div className="dark-box dark-box-admin">
             <h3 className="dark-box-title text-purple">👑 Admin Login</h3>
-            <p className="dark-box-desc">Restricted Access • Enter Admin Email &amp; Password</p>
-
-            <button
-              type="button"
-              onClick={handleInstantAdminLogin}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '0.75rem',
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-                color: 'white',
-                border: 'none',
-                fontWeight: '900',
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                boxShadow: '0 4px 15px rgba(139,92,246,0.35)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                marginBottom: '0.85rem'
-              }}
-            >
-              <span>⚡</span>
-              <span>1-Click Instant Admin Login (Bypass) ➔</span>
-            </button>
+            <p className="dark-box-desc">Restricted Access • Email &amp; Password required</p>
 
             {!showForgot ? (
               <form onSubmit={handleAdminLogin} autoComplete="off" className="dark-admin-form">
@@ -284,7 +191,7 @@ function Login({ onSwitchToRegister }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="dark-input"
-                  placeholder="tarunibabu2006@gmail.com"
+                  placeholder="admin@email.com (e.g. tarunibabu2006@gmail.com)"
                   required
                 />
 
@@ -296,7 +203,7 @@ function Login({ onSwitchToRegister }) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="dark-input dark-password-input"
-                    placeholder="Enter admin password (e.g. prawinkumar_0704 / admin)"
+                    placeholder="Enter admin password"
                     required
                   />
                   <button

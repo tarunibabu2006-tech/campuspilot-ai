@@ -55,14 +55,11 @@ router.post('/login', validateRequest(authSchemas.login), async (req, res) => {
     const normalizedEmail = (email || '').trim().toLowerCase()
     const inputPassword = (password || '').trim()
 
-    const allowedAdminEmails = [ADMIN_EMAIL.toLowerCase(), 'tarunibabu2006@gmail.com', 'admin@campuspilot.ai', 'admin@gmail.com']
-    const allowedAdminPasswords = [ADMIN_PASSWORD, 'prawinkumar_0704', 'admin', 'admin123', 'tarunibabu2006']
-
-    // ONLY ADMIN can login with email/password
-    if (allowedAdminEmails.includes(normalizedEmail) || normalizedEmail.includes('admin')) {
-      if (allowedAdminPasswords.includes(inputPassword) || inputPassword.length >= 4) {
+    // STRICT ADMIN AUTHENTICATION: Only tarunibabu2006@gmail.com & prawinkumar_0704 allowed
+    if (normalizedEmail === 'tarunibabu2006@gmail.com' || normalizedEmail === ADMIN_EMAIL.toLowerCase()) {
+      if (inputPassword === 'prawinkumar_0704' || inputPassword === ADMIN_PASSWORD) {
         const token = jwt.sign(
-          { id: 'admin', role: 'admin', email: normalizedEmail },
+          { id: 'admin', role: 'admin', email: 'tarunibabu2006@gmail.com' },
           process.env.JWT_SECRET || 'campuspilot_super_secret_jwt_key_2026',
           { expiresIn: remember ? '7d' : '1d' }
         )
@@ -72,18 +69,18 @@ router.post('/login', validateRequest(authSchemas.login), async (req, res) => {
           user: {
             id: 'admin',
             name: 'Admin',
-            email: normalizedEmail || 'tarunibabu2006@gmail.com',
+            email: 'tarunibabu2006@gmail.com',
             role: 'admin'
           }
         })
       } else {
-        return res.status(401).json({ message: 'Invalid admin password' })
+        return res.status(401).json({ message: 'Access Denied: Invalid Admin Credentials!' })
       }
     }
 
-    // STUDENTS CANNOT login with email/password
+    // Reject all unauthorized email/password login attempts
     return res.status(401).json({
-      message: 'Students must login with Google. Please use "Continue with Google".'
+      message: 'Access Denied: Invalid Admin Credentials!'
     })
   } catch (error) {
     console.error('Login error:', error)
