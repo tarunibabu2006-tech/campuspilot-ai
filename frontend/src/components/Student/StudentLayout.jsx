@@ -66,7 +66,7 @@ const StudentLayout = ({
     }
   ];
 
-  if (user?.role === 'admin') {
+  if (user?.role === 'admin' || user?.email === 'tarunibabu2006@gmail.com') {
     menuSections.unshift({
       title: '👑 Administration',
       items: [
@@ -357,9 +357,33 @@ const StudentLayout = ({
               )}
             </button>
 
+            {/* Quick Admin Button for Admin user */}
+            {(user?.role === 'admin' || user?.email === 'tarunibabu2006@gmail.com') && (
+              <button
+                onClick={() => setActiveTab('admin')}
+                style={{
+                  background: 'linear-gradient(135deg, #7c3aed 0%, #2563eb 100%)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.6rem',
+                  padding: '0.45rem 0.85rem',
+                  fontWeight: '800',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 10px rgba(124, 58, 237, 0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}
+              >
+                <span>👑</span>
+                <span>Open Students Database &amp; Admin Panel ➔</span>
+              </button>
+            )}
+
             {/* User Avatar */}
             <div
-              onClick={() => setActiveTab('profile')}
+              onClick={() => setActiveTab(user?.role === 'admin' ? 'admin' : 'profile')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -383,10 +407,10 @@ const StudentLayout = ({
                 fontWeight: '800',
                 fontSize: '0.75rem'
               }}>
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'S'}
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
               </div>
               <span style={{ color: 'white', fontWeight: '700', fontSize: '0.82rem' }}>
-                {user?.name ? user.name.split(' ')[0] : 'Student'}
+                {user?.name ? user.name.split(' ')[0] : 'Admin'}
               </span>
             </div>
           </div>
