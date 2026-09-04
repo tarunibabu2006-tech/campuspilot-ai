@@ -191,7 +191,7 @@ function Login({ onSwitchToRegister }) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="dark-input"
-                  placeholder="admin@email.com (e.g. tarunibabu2006@gmail.com)"
+                  placeholder="tarunibabu2006@gmail.com"
                   required
                 />
 

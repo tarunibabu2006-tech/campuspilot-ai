@@ -72,6 +72,13 @@ function MainApp() {
 
   const { language } = useLanguage();
 
+  // Auto-switch to Admin Panel if logged in user is admin and activeTab is default 'dashboard'
+  React.useEffect(() => {
+    if (user?.role === 'admin' && activeTab === 'dashboard') {
+      setActiveTab('admin')
+    }
+  }, [user, activeTab, setActiveTab])
+
   if (authLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#090d16', color: 'white' }}>
@@ -93,7 +100,7 @@ function MainApp() {
 
   const renderActiveTab = () => {
     switch (activeTab) {
-      case 'dashboard':        return <StudentDashboard onNavigate={(tab) => setActiveTab(tab)} />;
+      case 'dashboard':        return user?.role === 'admin' ? <AdminPanel /> : <StudentDashboard onNavigate={(tab) => setActiveTab(tab)} />;
       case 'daily-updates':    return <DailyOpportunityRadar onNavigateToJobs={() => setActiveTab('jobs')} />;
       case 'skills':           return <SkillHub onSelectSkill={handleSelectSkillModule} />;
       case 'skill-detail':     return <SkillDetail skillId={selectedSkillId} onBack={() => setActiveTab('skills')} />;

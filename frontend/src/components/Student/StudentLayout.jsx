@@ -67,8 +67,8 @@ const StudentLayout = ({
   ];
 
   if (user?.role === 'admin') {
-    menuSections.push({
-      title: 'Administration',
+    menuSections.unshift({
+      title: '👑 Administration',
       items: [
         { id: 'admin', icon: '👑', label: 'Admin Control Center' },
         { id: 'student-analytics', icon: '📊', label: 'Student Analytics' },
