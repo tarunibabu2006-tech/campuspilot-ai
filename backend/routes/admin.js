@@ -331,6 +331,174 @@ const MASTER_SEED_STUDENTS = [
       notesHub: 6
     },
     createdAt: new Date('2026-08-15T10:00:00Z')
+  },
+  {
+    _id: 'std_kavitha_2026',
+    name: 'Kavitha S',
+    email: 'kavitha.s@gmail.com',
+    department: 'B.E Electrical & Electronics Engineering (EEE)',
+    year: '4',
+    targetRole: 'Power Systems & Automation Engineer',
+    skills: ['MATLAB', 'Electrical CAD', 'PLC Programming', 'Python', 'C++'],
+    xpPoints: 310,
+    badges: ['Power Pro', 'Core Specialist'],
+    streak: 6,
+    loginCount: 16,
+    firstLogin: new Date('2026-07-28T09:15:00Z'),
+    lastLogin: new Date('2026-09-04T15:40:00Z'),
+    loginHistory: [
+      { date: new Date('2026-09-04T15:40:00Z'), ip: '117.218.42.18', device: 'Chrome on Android', browser: 'Mobile Chrome' }
+    ],
+    activities: [
+      { action: 'GET', page: '/api/notes/eee-power', feature: 'Notes Hub', timestamp: new Date('2026-09-04T15:30:00Z') }
+    ],
+    featureUsage: {
+      notesHub: 22,
+      vivaPrep: 8,
+      jobPortal: 6,
+      aptitudeTest: 7
+    },
+    createdAt: new Date('2026-07-28T09:15:00Z')
+  },
+  {
+    _id: 'std_anand_2026',
+    name: 'Anand R',
+    email: 'anand.r@gmail.com',
+    department: 'B.E Mechanical Engineering (MECH)',
+    year: '4',
+    targetRole: 'Mechanical Design & CAD Engineer',
+    skills: ['SolidWorks', 'AutoCAD', 'ANSYS', 'Python', 'Thermodynamics'],
+    xpPoints: 270,
+    badges: ['CAD Expert', 'Mechanical Pro'],
+    streak: 4,
+    loginCount: 12,
+    firstLogin: new Date('2026-08-03T11:00:00Z'),
+    lastLogin: new Date('2026-09-03T18:20:00Z'),
+    loginHistory: [
+      { date: new Date('2026-09-03T18:20:00Z'), ip: '182.72.110.88', device: 'Edge on Windows', browser: 'Edge 128.0' }
+    ],
+    activities: [
+      { action: 'POST', page: '/api/jobs/apply', feature: 'Job Portal', timestamp: new Date('2026-09-03T18:15:00Z') }
+    ],
+    featureUsage: {
+      jobPortal: 9,
+      notesHub: 14,
+      examEmergency: 6,
+      resumeBuilder: 2
+    },
+    createdAt: new Date('2026-08-03T11:00:00Z')
+  },
+  {
+    _id: 'std_divya_2026',
+    name: 'Divya V',
+    email: 'divya.v@gmail.com',
+    department: 'B.Tech Computer Science Engineering (CSE)',
+    year: '3',
+    targetRole: 'Cybersecurity & Ethical Hacking Specialist',
+    skills: ['Python', 'Linux', 'Network Security', 'Wireshark', 'Metasploit', 'SQL'],
+    xpPoints: 390,
+    badges: ['Security Ninja', 'Linux Pro'],
+    streak: 7,
+    loginCount: 19,
+    firstLogin: new Date('2026-07-22T13:45:00Z'),
+    lastLogin: new Date('2026-09-04T17:10:00Z'),
+    loginHistory: [
+      { date: new Date('2026-09-04T17:10:00Z'), ip: '106.208.99.12', device: 'Chrome on Linux', browser: 'Chrome 128.0' }
+    ],
+    activities: [
+      { action: 'POST', page: '/api/interview/start', feature: 'Mock Interview', timestamp: new Date('2026-09-04T17:00:00Z') }
+    ],
+    featureUsage: {
+      mockInterview: 6,
+      skillHub: 18,
+      notesHub: 10,
+      jobPortal: 7
+    },
+    createdAt: new Date('2026-07-22T13:45:00Z')
+  },
+  {
+    _id: 'std_karthik_2026',
+    name: 'Karthik Raja',
+    email: 'karthik.raja@gmail.com',
+    department: 'B.E Information Technology (IT)',
+    year: '4',
+    targetRole: 'DevOps & Site Reliability Engineer (SRE)',
+    skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'CI/CD', 'Bash', 'Python'],
+    xpPoints: 440,
+    badges: ['DevOps Master', 'Cloud Architect'],
+    streak: 9,
+    loginCount: 21,
+    firstLogin: new Date('2026-07-18T10:30:00Z'),
+    lastLogin: new Date('2026-09-04T19:00:00Z'),
+    loginHistory: [
+      { date: new Date('2026-09-04T19:00:00Z'), ip: '49.206.14.77', device: 'Chrome on Windows', browser: 'Chrome 128.0' }
+    ],
+    activities: [
+      { action: 'POST', page: '/api/ai-apply/start', feature: 'AI Auto Apply', timestamp: new Date('2026-09-04T18:45:00Z') }
+    ],
+    featureUsage: {
+      aiApply: 9,
+      jobPortal: 12,
+      mockTests: 6,
+      careerGps: 5
+    },
+    createdAt: new Date('2026-07-18T10:30:00Z')
+  },
+  {
+    _id: 'std_meena_2026',
+    name: 'Meena Krishnan',
+    email: 'meena.k@gmail.com',
+    department: 'B.Tech Artificial Intelligence & Data Science (AI&DS)',
+    year: '3',
+    targetRole: 'Data Analyst & Business Intelligence Specialist',
+    skills: ['Python', 'SQL', 'Power BI', 'Tableau', 'Pandas', 'NumPy', 'Excel'],
+    xpPoints: 360,
+    badges: ['Data Wizard', 'Analytics Pro'],
+    streak: 5,
+    loginCount: 15,
+    firstLogin: new Date('2026-08-02T14:10:00Z'),
+    lastLogin: new Date('2026-09-04T16:25:00Z'),
+    loginHistory: [
+      { date: new Date('2026-09-04T16:25:00Z'), ip: '157.48.201.44', device: 'Chrome on macOS', browser: 'Chrome 128.0' }
+    ],
+    activities: [
+      { action: 'GET', page: '/api/skills/python-data', feature: 'Skill Hub', timestamp: new Date('2026-09-04T16:10:00Z') }
+    ],
+    featureUsage: {
+      skillHub: 16,
+      aptitudeTest: 8,
+      notesHub: 11,
+      jobPortal: 5
+    },
+    createdAt: new Date('2026-08-02T14:10:00Z')
+  },
+  {
+    _id: 'std_suresh_2026',
+    name: 'Suresh Kumar',
+    email: 'suresh.k@gmail.com',
+    department: 'B.E Electronics & Communication Engineering (ECE)',
+    year: '4',
+    targetRole: 'Wireless Communications & 5G Specialist',
+    skills: ['C++', 'Python', 'MATLAB', 'Wireless Protocols', 'Signal Processing'],
+    xpPoints: 280,
+    badges: ['Telecom Expert'],
+    streak: 3,
+    loginCount: 10,
+    firstLogin: new Date('2026-08-08T12:00:00Z'),
+    lastLogin: new Date('2026-09-03T14:50:00Z'),
+    loginHistory: [
+      { date: new Date('2026-09-03T14:50:00Z'), ip: '117.216.90.33', device: 'Chrome on Windows', browser: 'Chrome 128.0' }
+    ],
+    activities: [
+      { action: 'GET', page: '/api/notes/ece-wireless', feature: 'Notes Hub', timestamp: new Date('2026-09-03T14:40:00Z') }
+    ],
+    featureUsage: {
+      notesHub: 15,
+      vivaPrep: 5,
+      jobPortal: 4,
+      examEmergency: 4
+    },
+    createdAt: new Date('2026-08-08T12:00:00Z')
   }
 ]
 
