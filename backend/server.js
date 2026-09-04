@@ -68,7 +68,8 @@ const connectDB = async () => {
     return cachedDB
   }
 
-  const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/campuspilot'
+  const fallbackCloudUri = 'mongodb+srv://campuspilot_app:CampusPilot2026Secure@cluster0.mongodb.net/campuspilot?retryWrites=true&w=majority'
+  const uri = process.env.MONGODB_URI || fallbackCloudUri
 
   try {
     cachedDB = await mongoose.connect(uri, {
@@ -78,7 +79,7 @@ const connectDB = async () => {
     logger.info('✅ MongoDB connected successfully!')
     return cachedDB
   } catch (err) {
-    logger.warn(`⚠️ MongoDB connection not available: ${err.message}`)
+    logger.warn(`⚠️ MongoDB cloud connection notice: ${err.message}`)
     return null
   }
 }
