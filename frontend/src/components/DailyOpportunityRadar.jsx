@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
@@ -10,6 +10,8 @@ import {
   DAILY_HOT_VACANCIES
 } from '../data/dailyUpdatesMasterData'
 import ExamHub from './Exams/ExamHub'
+import CompanyDriveCard from './CompanyDrives/CompanyDriveCard'
+import CompanyDriveDetailsModal from './CompanyDrives/CompanyDriveDetailsModal'
 
 export default function DailyOpportunityRadar({ onNavigateToJobs }) {
   const { user } = useAuth()
@@ -23,44 +25,48 @@ export default function DailyOpportunityRadar({ onNavigateToJobs }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [remindedItems, setRemindedItems] = useState({})
 
-  // Exam Categories
-  const examCategories = [
-    'All',
-    'Central Govt / UPSC',
-    'SSC / Central Staff',
-    'Banking & Insurance',
-    'Railways (RRB)',
-    'Defense & Police',
-    'State PSCs',
-    'Engineering & Higher Education',
-    'Management & MBA'
-  ]
+  const [dbDrives, setDbDrives] = useState([])
+  const [loadingDrives, setLoadingDrives] = useState(false)
+  const [selectedDriveModal, setSelectedDriveModal] = useState(null)
+
+  useEffect(() => {
+    const fetchCompanyDrives = async () => {
+      setLoadingDrives(true)
+      try {
+        const response = await axios.get('/api/company-drives')
+        if (response.data?.drives) {
+          setDbDrives(response.data.drives)
+        }
+      } catch (err) {
+        console.warn('Could not fetch live company drives, falling back to static data:', err)
+      } finally {
+        setLoadingDrives(false)
+      }
+    }
+    fetchCompanyDrives()
+  }, [])
 
   // Batches for Company Drives
-  const batchOptions = ['All', '2024 Batch', '2025 Batch', '2026 Batch', '2027 Batch']
+  const batchOptions = ['All', '2024', '2025', '2026', '2027']
 
   // Vacancy Categories
   const vacCategories = ['All', 'Software / AI', 'Data & Analytics', 'Fintech / Startups', 'Govt / PSU', 'Core Engineering']
 
-  // Filtered Exams
-  const filteredExams = useMemo(() => {
-    return DAILY_EXAM_ALERTS.filter(e => {
-      const matchCat = selectedExamCategory === 'All' || e.category === selectedExamCategory
-      const q = searchQuery.toLowerCase().trim()
-      const matchQ = !q || e.title.toLowerCase().includes(q) || e.conductingBody.toLowerCase().includes(q) || e.eligibility.toLowerCase().includes(q)
-      return matchCat && matchQ
-    })
-  }, [selectedExamCategory, searchQuery])
-
-  // Filtered Company Drives
+  // Filtered Company Drives (uses DB drives if available, otherwise static fallback)
   const filteredDrives = useMemo(() => {
-    return DAILY_COMPANY_DRIVES.filter(d => {
-      const matchBatch = selectedBatch === 'All' || d.batchEligible.toLowerCase().includes(selectedBatch.toLowerCase().split(' ')[0])
+    const drivesList = dbDrives.length > 0 ? dbDrives : DAILY_COMPANY_DRIVES
+    return drivesList.filter(d => {
+      const batchStr = Array.isArray(d.batchEligible) ? d.batchEligible.join(' ') : (d.batchEligible || '')
+      const matchBatch = selectedBatch === 'All' || batchStr.includes(selectedBatch)
+
       const q = searchQuery.toLowerCase().trim()
-      const matchQ = !q || d.company.toLowerCase().includes(q) || d.title.toLowerCase().includes(q) || d.roles.toLowerCase().includes(q)
+      const companyStr = d.companyName || d.company || ''
+      const titleStr = d.driveTitle || d.title || ''
+      const roleStr = d.role || d.roles || ''
+      const matchQ = !q || companyStr.toLowerCase().includes(q) || titleStr.toLowerCase().includes(q) || roleStr.toLowerCase().includes(q)
       return matchBatch && matchQ
     })
-  }, [selectedBatch, searchQuery])
+  }, [dbDrives, selectedBatch, searchQuery])
 
   // Filtered Vacancies
   const filteredVacancies = useMemo(() => {
@@ -313,114 +319,37 @@ export default function DailyOpportunityRadar({ onNavigateToJobs }) {
       {/* ── TAB 2: COMPANY OFF-CAMPUS DRIVES & WALK-INS ──────────────── */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       {activeTab === 'drives' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
-          {filteredDrives.map(drive => (
-            <motion.div
-              key={drive.id}
-              whileHover={{ y: -3 }}
-              style={{
-                background: 'rgba(15,23,42,0.95)',
-                border: '1px solid rgba(139,92,246,0.3)',
-                borderRadius: '1.25rem',
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '1rem',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.35)'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                  <div>
-                    <span style={{ background: 'rgba(124,58,237,0.2)', color: '#c4b5fd', padding: '0.2rem 0.5rem', borderRadius: '0.4rem', fontSize: '0.7rem', fontWeight: '800' }}>
-                      {drive.hiringType}
-                    </span>
-                    <h3 style={{ color: 'white', fontWeight: '900', fontSize: '1.2rem', margin: '0.35rem 0 0' }}>
-                      {drive.company}
-                    </h3>
-                    <p style={{ color: '#60a5fa', fontWeight: '700', fontSize: '0.85rem', margin: '0.15rem 0 0' }}>
-                      {drive.title}
-                    </p>
-                  </div>
+        <>
+          {loadingDrives ? (
+            <div className="py-16 text-center text-slate-400">
+              <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+              Fetching official walk-in & off-campus drives...
+            </div>
+          ) : filteredDrives.length === 0 ? (
+            <div className="py-16 text-center text-slate-400 bg-slate-900/60 rounded-2xl border border-slate-800">
+              <p className="text-base font-semibold">No company drives matched your filter criteria.</p>
+              <p className="text-xs text-slate-500 mt-1">Try selecting "All Batches" or clear search keywords.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredDrives.map((drive) => (
+                <CompanyDriveCard
+                  key={drive._id || drive.id}
+                  drive={drive}
+                  onOpenDetails={(d) => setSelectedDriveModal(d)}
+                />
+              ))}
+            </div>
+          )}
 
-                  <span style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399', border: '1px solid rgba(52,211,153,0.3)', padding: '0.25rem 0.55rem', borderRadius: '0.5rem', fontSize: '0.7rem', fontWeight: '800', whiteSpace: 'nowrap' }}>
-                    {drive.status}
-                  </span>
-                </div>
-
-                <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '0.85rem', padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.78rem', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.06)', margin: '0.75rem 0' }}>
-                  <div>🎓 <strong>Batch Eligible:</strong> <span style={{ color: '#38bdf8', fontWeight: '800' }}>{drive.batchEligible}</span></div>
-                  <div>💰 <strong>Package:</strong> <span style={{ color: '#4ade80', fontWeight: '800' }}>{drive.ctc}</span></div>
-                  <div>💼 <strong>Offered Roles:</strong> {drive.roles}</div>
-                  <div>📍 <strong>Hiring Mode:</strong> {drive.hiringMode}</div>
-                  <div>📋 <strong>Criteria:</strong> {drive.eligibility}</div>
-                  <div>⏳ <strong>Deadline:</strong> <span style={{ color: '#f87171', fontWeight: '800' }}>{drive.registrationDeadline}</span></div>
-                </div>
-
-                {/* Selection Rounds Breakdown */}
-                <div style={{ fontSize: '0.74rem', color: '#94a3b8' }}>
-                  <strong style={{ color: '#cbd5e1' }}>Selection Rounds:</strong>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.3rem' }}>
-                    {drive.rounds.map((r, rIdx) => (
-                      <span key={rIdx} style={{ background: 'rgba(255,255,255,0.05)', padding: '0.15rem 0.45rem', borderRadius: '0.35rem' }}>
-                        {r}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '0.65rem' }}>
-                <a
-                  href={drive.applyLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
-                    color: 'white',
-                    padding: '0.65rem',
-                    borderRadius: '0.65rem',
-                    fontWeight: '800',
-                    fontSize: '0.82rem',
-                    textAlign: 'center',
-                    textDecoration: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem',
-                    boxShadow: '0 4px 15px rgba(124,58,237,0.35)'
-                  }}
-                >
-                  <span>🚀</span>
-                  <span>Official Drive Apply ➔</span>
-                </a>
-
-                <button
-                  onClick={() => handleSetReminder(drive, 'drive')}
-                  style={{
-                    background: remindedItems[drive.id] ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.06)',
-                    border: remindedItems[drive.id] ? '1px solid #4ade80' : '1px solid rgba(255,255,255,0.12)',
-                    color: remindedItems[drive.id] ? '#4ade80' : '#cbd5e1',
-                    padding: '0.65rem',
-                    borderRadius: '0.65rem',
-                    fontWeight: '700',
-                    fontSize: '0.78rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.35rem'
-                  }}
-                >
-                  <span>{remindedItems[drive.id] ? '✅' : '🔔'}</span>
-                  <span>{remindedItems[drive.id] ? 'Mail Sent' : 'Remind Me'}</span>
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+          {/* Details Modal */}
+          {selectedDriveModal && (
+            <CompanyDriveDetailsModal
+              drive={selectedDriveModal}
+              onClose={() => setSelectedDriveModal(null)}
+            />
+          )}
+        </>
       )}
 
       {/* ═══════════════════════════════════════════════════════════════ */}

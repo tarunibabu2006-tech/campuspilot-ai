@@ -47,6 +47,8 @@ import alumniRoutes from './routes/alumni.js'
 import schoolRoutes from './routes/school.js'
 import officialExamRoutes from './routes/exams.js'
 import adminExamRoutes from './routes/admin-exams.js'
+import companyDriveRoutes from './routes/companyDrives.js'
+import adminCompanyDriveRoutes from './routes/admin-company-drives.js'
 import { startNotificationScheduler } from './utils/scheduler.js'
 import { trackActivity } from './middleware/trackActivity.js'
 import { connectRedis } from './utils/redis.js'
@@ -223,6 +225,8 @@ app.use('/api/gmail', gmailOAuthRoutes)
 app.use('/api/school', schoolRoutes)
 app.use('/api/exams', officialExamRoutes)
 app.use('/api/admin/exams', adminExamRoutes)
+app.use('/api/company-drives', companyDriveRoutes)
+app.use('/api/admin/company-drives', adminCompanyDriveRoutes)
 
 // Health Check with Database Status
 app.get('/api/health', (req, res) => {

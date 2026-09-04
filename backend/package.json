@@ -7,6 +7,7 @@
     "start": "tsx server.js",
     "seed:notes": "tsx scripts/seedNoteCatalog.js",
     "seed:exams": "tsx scripts/seedExams.js",
+    "seed:drives": "tsx scripts/seedCompanyDrives.js",
     "notifications:start": "tsx utils/scheduler.js",
     "notifications:test": "tsx scripts/testNotifications.js"
   },
