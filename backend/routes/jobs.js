@@ -2,7 +2,6 @@ import express from 'express'
 import { protect } from '../middleware/auth.js'
 import Job from '../models/Job.js'
 import Application from '../models/Application.js'
-import { sendEmail } from '../utils/emailService.js'
 
 const router = express.Router()
 

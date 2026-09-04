@@ -150,380 +150,40 @@ function computeRealStudentXP(s) {
   return total
 }
 
-// Master Seed Student Database for persistent availability
-const MASTER_SEED_STUDENTS = [
-  {
-    _id: 'std_santhiya_2026',
-    name: 'S.Santhiya',
-    email: 's.santhiya@gmail.com',
-    department: 'B.Tech Computer Science Engineering (CSE)',
-    year: '4',
-    targetRole: 'Full Stack Software Engineer',
-    skills: ['React', 'Node.js', 'Python', 'Data Structures & Algorithms', 'SQL', 'Git'],
-    xpPoints: 340,
-    badges: ['Active Learner', 'Problem Solver', 'Job Ready'],
-    streak: 5,
-    loginCount: 14,
-    firstLogin: new Date('2026-08-01T10:00:00Z'),
-    lastLogin: new Date('2026-09-04T18:30:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T18:30:00Z'), ip: '157.48.192.10', device: 'Chrome on Windows', browser: 'Chrome 128.0' },
-      { date: new Date('2026-09-03T14:15:00Z'), ip: '157.48.192.10', device: 'Chrome on Windows', browser: 'Chrome 128.0' }
-    ],
-    activities: [
-      { action: 'POST', page: '/api/jobs/apply', feature: 'Job Portal', timestamp: new Date('2026-09-04T18:25:00Z') },
-      { action: 'GET', page: '/api/notes/cse-dsa', feature: 'Notes Hub', timestamp: new Date('2026-09-04T18:10:00Z') },
-      { action: 'POST', page: '/api/interview/start', feature: 'Mock Interview', timestamp: new Date('2026-09-03T15:00:00Z') }
-    ],
-    featureUsage: {
-      jobPortal: 8,
-      notesHub: 12,
-      mockInterview: 4,
-      aptitudeTest: 6,
-      skillHub: 15,
-      resumeBuilder: 2,
-      careerGps: 3,
-      aiApply: 5
-    },
-    createdAt: new Date('2026-08-01T10:00:00Z')
-  },
-  {
-    _id: 'std_tarunibabu_2026',
-    name: 'Taruni Babu',
-    email: 'tarunibabu.student@gmail.com',
-    department: 'B.Tech Artificial Intelligence & Data Science (AI&DS)',
-    year: '4',
-    targetRole: 'AI / Machine Learning Engineer',
-    skills: ['Python', 'TensorFlow', 'PyTorch', 'FastAPI', 'React', 'Docker'],
-    xpPoints: 520,
-    badges: ['AI Pioneer', 'Streak Master', 'Top Ranker'],
-    streak: 12,
-    loginCount: 28,
-    firstLogin: new Date('2026-07-15T09:00:00Z'),
-    lastLogin: new Date('2026-09-04T20:10:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T20:10:00Z'), ip: '106.213.84.92', device: 'Chrome on Windows', browser: 'Chrome 128.0' }
-    ],
-    activities: [
-      { action: 'POST', page: '/api/ai-apply/start', feature: 'AI Auto Apply', timestamp: new Date('2026-09-04T20:05:00Z') },
-      { action: 'GET', page: '/api/career-gps/roadmap', feature: 'Career GPS', timestamp: new Date('2026-09-04T19:40:00Z') }
-    ],
-    featureUsage: {
-      jobPortal: 14,
-      aiApply: 10,
-      mockInterview: 7,
-      aptitudeTest: 9,
-      notesHub: 20,
-      careerGps: 8,
-      resumeScorer: 3
-    },
-    createdAt: new Date('2026-07-15T09:00:00Z')
-  },
-  {
-    _id: 'std_rahul_2026',
-    name: 'Rahul M',
-    email: 'rahul.m@gmail.com',
-    department: 'B.E Information Technology (IT)',
-    year: '3',
-    targetRole: 'Frontend React Developer',
-    skills: ['JavaScript', 'React', 'CSS3', 'Tailwind', 'HTML5', 'Redux'],
-    xpPoints: 210,
-    badges: ['Frontend Specialist'],
-    streak: 3,
-    loginCount: 9,
-    firstLogin: new Date('2026-08-10T11:20:00Z'),
-    lastLogin: new Date('2026-09-03T16:45:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-03T16:45:00Z'), ip: '49.207.210.4', device: 'Firefox on macOS', browser: 'Firefox 129.0' }
-    ],
-    activities: [
-      { action: 'GET', page: '/api/skills/react', feature: 'Skill Hub', timestamp: new Date('2026-09-03T16:30:00Z') }
-    ],
-    featureUsage: {
-      skillHub: 10,
-      notesHub: 5,
-      aptitudeTest: 4,
-      jobPortal: 3
-    },
-    createdAt: new Date('2026-08-10T11:20:00Z')
-  },
-  {
-    _id: 'std_priya_2026',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@gmail.com',
-    department: 'B.E Electronics & Communication Engineering (ECE)',
-    year: '4',
-    targetRole: 'Embedded Systems & IoT Engineer',
-    skills: ['C++', 'Python', 'Embedded C', 'RTOS', 'MATLAB', 'VLSI'],
-    xpPoints: 290,
-    badges: ['Hardware Expert', 'Core Engineering Pro'],
-    streak: 4,
-    loginCount: 11,
-    firstLogin: new Date('2026-08-05T08:30:00Z'),
-    lastLogin: new Date('2026-09-04T12:15:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T12:15:00Z'), ip: '117.216.55.12', device: 'Safari on iPhone', browser: 'Safari Mobile' }
-    ],
-    activities: [
-      { action: 'GET', page: '/api/notes/ece-vlsi', feature: 'Notes Hub', timestamp: new Date('2026-09-04T12:00:00Z') }
-    ],
-    featureUsage: {
-      notesHub: 18,
-      vivaPrep: 6,
-      examEmergency: 5,
-      jobPortal: 4
-    },
-    createdAt: new Date('2026-08-05T08:30:00Z')
-  },
-  {
-    _id: 'std_prawinkumar_2026',
-    name: 'Prawin Kumar',
-    email: 'prawinkumar.student@gmail.com',
-    department: 'B.Tech Computer Science Engineering (CSE)',
-    year: '4',
-    targetRole: 'Backend & Cloud Architect',
-    skills: ['Node.js', 'Express', 'MongoDB', 'Docker', 'AWS', 'Kubernetes', 'Go'],
-    xpPoints: 480,
-    badges: ['Backend Master', 'Cloud Engineer'],
-    streak: 8,
-    loginCount: 22,
-    firstLogin: new Date('2026-07-20T14:00:00Z'),
-    lastLogin: new Date('2026-09-04T19:50:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T19:50:00Z'), ip: '182.73.91.45', device: 'Chrome on Linux', browser: 'Chrome 128.0' }
-    ],
-    activities: [
-      { action: 'POST', page: '/api/mock-tests/tcs-nqt', feature: 'Mock Tests', timestamp: new Date('2026-09-04T19:30:00Z') }
-    ],
-    featureUsage: {
-      mockTests: 8,
-      aptitudeTest: 12,
-      jobPortal: 11,
-      notesHub: 14,
-      aiApply: 7
-    },
-    createdAt: new Date('2026-07-20T14:00:00Z')
-  },
-  {
-    _id: 'student_auto_2026',
-    name: 'Student User',
-    email: 'student@campuspilot.ai',
-    department: 'B.Tech Computer Science Engineering (CSE)',
-    year: '4',
-    targetRole: 'Software Development Engineer (SDE-1)',
-    skills: ['Python', 'Java', 'React', 'Node.js', 'SQL', 'Git', 'AWS', 'Docker', 'Data Structures & Algorithms'],
-    xpPoints: 180,
-    badges: ['Active Learner'],
-    streak: 2,
-    loginCount: 5,
-    firstLogin: new Date('2026-08-15T10:00:00Z'),
-    lastLogin: new Date('2026-09-04T20:30:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T20:30:00Z'), ip: '127.0.0.1', device: 'Chrome on Windows', browser: 'Chrome' }
-    ],
-    activities: [
-      { action: 'GET', page: '/api/jobs', feature: 'Job Portal', timestamp: new Date('2026-09-04T20:28:00Z') }
-    ],
-    featureUsage: {
-      jobPortal: 5,
-      skillHub: 8,
-      resumeBuilder: 2,
-      notesHub: 6
-    },
-    createdAt: new Date('2026-08-15T10:00:00Z')
-  },
-  {
-    _id: 'std_kavitha_2026',
-    name: 'Kavitha S',
-    email: 'kavitha.s@gmail.com',
-    department: 'B.E Electrical & Electronics Engineering (EEE)',
-    year: '4',
-    targetRole: 'Power Systems & Automation Engineer',
-    skills: ['MATLAB', 'Electrical CAD', 'PLC Programming', 'Python', 'C++'],
-    xpPoints: 310,
-    badges: ['Power Pro', 'Core Specialist'],
-    streak: 6,
-    loginCount: 16,
-    firstLogin: new Date('2026-07-28T09:15:00Z'),
-    lastLogin: new Date('2026-09-04T15:40:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T15:40:00Z'), ip: '117.218.42.18', device: 'Chrome on Android', browser: 'Mobile Chrome' }
-    ],
-    activities: [
-      { action: 'GET', page: '/api/notes/eee-power', feature: 'Notes Hub', timestamp: new Date('2026-09-04T15:30:00Z') }
-    ],
-    featureUsage: {
-      notesHub: 22,
-      vivaPrep: 8,
-      jobPortal: 6,
-      aptitudeTest: 7
-    },
-    createdAt: new Date('2026-07-28T09:15:00Z')
-  },
-  {
-    _id: 'std_anand_2026',
-    name: 'Anand R',
-    email: 'anand.r@gmail.com',
-    department: 'B.E Mechanical Engineering (MECH)',
-    year: '4',
-    targetRole: 'Mechanical Design & CAD Engineer',
-    skills: ['SolidWorks', 'AutoCAD', 'ANSYS', 'Python', 'Thermodynamics'],
-    xpPoints: 270,
-    badges: ['CAD Expert', 'Mechanical Pro'],
-    streak: 4,
-    loginCount: 12,
-    firstLogin: new Date('2026-08-03T11:00:00Z'),
-    lastLogin: new Date('2026-09-03T18:20:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-03T18:20:00Z'), ip: '182.72.110.88', device: 'Edge on Windows', browser: 'Edge 128.0' }
-    ],
-    activities: [
-      { action: 'POST', page: '/api/jobs/apply', feature: 'Job Portal', timestamp: new Date('2026-09-03T18:15:00Z') }
-    ],
-    featureUsage: {
-      jobPortal: 9,
-      notesHub: 14,
-      examEmergency: 6,
-      resumeBuilder: 2
-    },
-    createdAt: new Date('2026-08-03T11:00:00Z')
-  },
-  {
-    _id: 'std_divya_2026',
-    name: 'Divya V',
-    email: 'divya.v@gmail.com',
-    department: 'B.Tech Computer Science Engineering (CSE)',
-    year: '3',
-    targetRole: 'Cybersecurity & Ethical Hacking Specialist',
-    skills: ['Python', 'Linux', 'Network Security', 'Wireshark', 'Metasploit', 'SQL'],
-    xpPoints: 390,
-    badges: ['Security Ninja', 'Linux Pro'],
-    streak: 7,
-    loginCount: 19,
-    firstLogin: new Date('2026-07-22T13:45:00Z'),
-    lastLogin: new Date('2026-09-04T17:10:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T17:10:00Z'), ip: '106.208.99.12', device: 'Chrome on Linux', browser: 'Chrome 128.0' }
-    ],
-    activities: [
-      { action: 'POST', page: '/api/interview/start', feature: 'Mock Interview', timestamp: new Date('2026-09-04T17:00:00Z') }
-    ],
-    featureUsage: {
-      mockInterview: 6,
-      skillHub: 18,
-      notesHub: 10,
-      jobPortal: 7
-    },
-    createdAt: new Date('2026-07-22T13:45:00Z')
-  },
-  {
-    _id: 'std_karthik_2026',
-    name: 'Karthik Raja',
-    email: 'karthik.raja@gmail.com',
-    department: 'B.E Information Technology (IT)',
-    year: '4',
-    targetRole: 'DevOps & Site Reliability Engineer (SRE)',
-    skills: ['Docker', 'Kubernetes', 'AWS', 'Terraform', 'CI/CD', 'Bash', 'Python'],
-    xpPoints: 440,
-    badges: ['DevOps Master', 'Cloud Architect'],
-    streak: 9,
-    loginCount: 21,
-    firstLogin: new Date('2026-07-18T10:30:00Z'),
-    lastLogin: new Date('2026-09-04T19:00:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T19:00:00Z'), ip: '49.206.14.77', device: 'Chrome on Windows', browser: 'Chrome 128.0' }
-    ],
-    activities: [
-      { action: 'POST', page: '/api/ai-apply/start', feature: 'AI Auto Apply', timestamp: new Date('2026-09-04T18:45:00Z') }
-    ],
-    featureUsage: {
-      aiApply: 9,
-      jobPortal: 12,
-      mockTests: 6,
-      careerGps: 5
-    },
-    createdAt: new Date('2026-07-18T10:30:00Z')
-  },
-  {
-    _id: 'std_meena_2026',
-    name: 'Meena Krishnan',
-    email: 'meena.k@gmail.com',
-    department: 'B.Tech Artificial Intelligence & Data Science (AI&DS)',
-    year: '3',
-    targetRole: 'Data Analyst & Business Intelligence Specialist',
-    skills: ['Python', 'SQL', 'Power BI', 'Tableau', 'Pandas', 'NumPy', 'Excel'],
-    xpPoints: 360,
-    badges: ['Data Wizard', 'Analytics Pro'],
-    streak: 5,
-    loginCount: 15,
-    firstLogin: new Date('2026-08-02T14:10:00Z'),
-    lastLogin: new Date('2026-09-04T16:25:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-04T16:25:00Z'), ip: '157.48.201.44', device: 'Chrome on macOS', browser: 'Chrome 128.0' }
-    ],
-    activities: [
-      { action: 'GET', page: '/api/skills/python-data', feature: 'Skill Hub', timestamp: new Date('2026-09-04T16:10:00Z') }
-    ],
-    featureUsage: {
-      skillHub: 16,
-      aptitudeTest: 8,
-      notesHub: 11,
-      jobPortal: 5
-    },
-    createdAt: new Date('2026-08-02T14:10:00Z')
-  },
-  {
-    _id: 'std_suresh_2026',
-    name: 'Suresh Kumar',
-    email: 'suresh.k@gmail.com',
-    department: 'B.E Electronics & Communication Engineering (ECE)',
-    year: '4',
-    targetRole: 'Wireless Communications & 5G Specialist',
-    skills: ['C++', 'Python', 'MATLAB', 'Wireless Protocols', 'Signal Processing'],
-    xpPoints: 280,
-    badges: ['Telecom Expert'],
-    streak: 3,
-    loginCount: 10,
-    firstLogin: new Date('2026-08-08T12:00:00Z'),
-    lastLogin: new Date('2026-09-03T14:50:00Z'),
-    loginHistory: [
-      { date: new Date('2026-09-03T14:50:00Z'), ip: '117.216.90.33', device: 'Chrome on Windows', browser: 'Chrome 128.0' }
-    ],
-    activities: [
-      { action: 'GET', page: '/api/notes/ece-wireless', feature: 'Notes Hub', timestamp: new Date('2026-09-03T14:40:00Z') }
-    ],
-    featureUsage: {
-      notesHub: 15,
-      vivaPrep: 5,
-      jobPortal: 4,
-      examEmergency: 4
-    },
-    createdAt: new Date('2026-08-08T12:00:00Z')
-  }
-]
 
 // ════════════════════════════════════════════════════════════════
-// 1. DASHBOARD - Real DB stats & Resilient Fallback Data
+// 1. DASHBOARD - Real DB stats only
 // ════════════════════════════════════════════════════════════════
 router.get('/dashboard', async (req, res) => {
   try {
     const isDB = mongoose.connection.readyState === 1
 
-    // Get real student counts
-    let dbStudents = []
-    try {
-      if (isDB) dbStudents = await Student.find().select('name email department year lastLogin loginCount createdAt xpPoints skills badges activities').sort({ createdAt: -1 }).lean()
-    } catch { }
+    if (!isDB) {
+      return res.json({
+        totalStudents: 0,
+        activeStudents: 0,
+        totalJobs: 0,
+        totalSkills: 0,
+        totalNotes: 0,
+        totalAlumni: 0,
+        totalCompanies: 0,
+        totalMentors: 0,
+        totalTests: 0,
+        totalAdmins: 1,
+        recentStudents: [],
+        recentJobs: [],
+        studentsByDepartment: [],
+        studentsByYear: [],
+        dbConnected: false,
+        message: 'Database not connected. Please set MONGODB_URI in Vercel environment variables.'
+      })
+    }
 
-    const memStudents = Array.from(memoryStudentStore.values())
-    const allEmails = new Set()
-    const rawStudents = [...dbStudents, ...memStudents, ...MASTER_SEED_STUDENTS]
-
-    const students = rawStudents.filter(s => {
-      if (!s.email || allEmails.has(s.email.toLowerCase())) return false
-      allEmails.add(s.email.toLowerCase())
-      return true
-    })
+    // Fetch real students from DB
+    const dbStudents = await Student.find()
+      .select('name email department year lastLogin loginCount createdAt xpPoints skills badges activities')
+      .sort({ createdAt: -1 })
+      .lean()
 
     const MentorModel = await getMentorModel()
     const TestModel = await getTestModel()
@@ -536,17 +196,9 @@ router.get('/dashboard', async (req, res) => {
       safeCount(CompanyArchive), safeCount(MentorModel), safeCount(TestModel)
     ])
 
-    const totalJobs = Math.max(dbJobs, 30)
-    const totalSkills = Math.max(dbSkills, 50)
-    const totalNotes = Math.max(dbNotes, 100000)
-    const totalAlumni = Math.max(dbAlumni, 20)
-    const totalCompanies = Math.max(dbCompanies, 15)
-    const totalMentors = Math.max(dbMentors, 12)
-    const totalTests = Math.max(dbTests, 10)
-
     const recentJobs = await safeFind(Job, {}, { sort: { createdAt: -1 }, limit: 5 })
-    const recentStudents = students.slice(0, 10).map(s => ({
-      _id: s._id || s.id,
+    const recentStudents = dbStudents.slice(0, 10).map(s => ({
+      _id: s._id,
       name: s.name,
       email: s.email,
       department: s.department || '',
@@ -559,35 +211,36 @@ router.get('/dashboard', async (req, res) => {
       badges: s.badges || []
     }))
 
-    // Dept breakdown
+    // Dept breakdown from real data
     const deptMap = {}
-    students.forEach(s => {
+    dbStudents.forEach(s => {
       const d = s.department || 'Not Specified'
       deptMap[d] = (deptMap[d] || 0) + 1
     })
     const studentsByDepartment = Object.entries(deptMap).map(([_id, count]) => ({ _id, count })).sort((a, b) => b.count - a.count)
 
-    // Year breakdown
+    // Year breakdown from real data
     const yearMap = {}
-    students.forEach(s => {
+    dbStudents.forEach(s => {
       const y = s.year ? `Year ${s.year}` : 'Not Specified'
       yearMap[y] = (yearMap[y] || 0) + 1
     })
     const studentsByYear = Object.entries(yearMap).map(([_id, count]) => ({ _id, count }))
 
     // Active last 7 days
-    const activeStudents = Math.max(students.length, 6)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const activeStudents = dbStudents.filter(s => s.lastLogin && new Date(s.lastLogin) > sevenDaysAgo).length
 
     res.json({
-      totalStudents: students.length,
+      totalStudents: dbStudents.length,
       activeStudents,
-      totalJobs,
-      totalSkills,
-      totalNotes,
-      totalAlumni,
-      totalCompanies,
-      totalMentors,
-      totalTests,
+      totalJobs: dbJobs,
+      totalSkills: dbSkills,
+      totalNotes: dbNotes,
+      totalAlumni: dbAlumni,
+      totalCompanies: dbCompanies,
+      totalMentors: dbMentors,
+      totalTests: dbTests,
       totalAdmins: 1,
       recentStudents,
       recentJobs,
@@ -602,37 +255,35 @@ router.get('/dashboard', async (req, res) => {
 })
 
 // ════════════════════════════════════════════════════════════════
-// 2. STUDENTS - Full CRUD
+// 2. STUDENTS - Full CRUD (Real DB data only)
 // ════════════════════════════════════════════════════════════════
 router.get('/students', async (req, res) => {
   try {
     const { search, department, year, page = 1, limit = 50 } = req.query
-    let dbStudents = []
 
-    if (mongoose.connection.readyState === 1) {
-      const query = {}
-      if (search) query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
-      ]
-      if (department && department !== 'All') query.department = department
-      if (year && year !== 'All') query.year = year
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ students: [], total: 0, page: parseInt(page), limit: parseInt(limit), dbConnected: false })
+    }
 
-      dbStudents = await Student.find(query)
+    const query = {}
+    if (search) query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } }
+    ]
+    if (department && department !== 'All') query.department = department
+    if (year && year !== 'All') query.year = year
+
+    const [dbStudents, totalCount] = await Promise.all([
+      Student.find(query)
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(parseInt(limit))
-        .lean()
-    }
+        .lean(),
+      Student.countDocuments(query)
+    ])
 
-    const memStudents = Array.from(memoryStudentStore.values())
-    const allEmails = new Set(dbStudents.map(s => (s.email || '').toLowerCase()))
-
-    const missingSeeds = MASTER_SEED_STUDENTS.filter(s => !allEmails.has((s.email || '').toLowerCase()))
-    const combined = [...dbStudents, ...memStudents.filter(s => !allEmails.has((s.email || '').toLowerCase())), ...missingSeeds]
-
-    const mapped = combined.map(s => ({
-      _id: s._id || s.id || s.email,
+    const mapped = dbStudents.map(s => ({
+      _id: s._id,
       name: s.name || s.email?.split('@')[0] || 'Student',
       email: s.email,
       department: s.department || '',
@@ -643,7 +294,7 @@ router.get('/students', async (req, res) => {
       github: s.github || '',
       xpPoints: computeRealStudentXP(s),
       badges: s.badges || [],
-      streak: s.streak === 3 ? 0 : (s.streak || 0),
+      streak: s.streak || 0,
       loginCount: s.loginCount || 1,
       firstLogin: s.firstLogin || s.createdAt,
       lastLogin: s.lastLogin || new Date(),
@@ -672,12 +323,7 @@ router.get('/students', async (req, res) => {
       createdAt: s.createdAt || new Date()
     }))
 
-    let totalCount = mapped.length
-    if (mongoose.connection.readyState === 1) {
-      try { totalCount = await Student.countDocuments() } catch { }
-    }
-
-    res.json({ students: mapped, total: totalCount, page: parseInt(page), limit: parseInt(limit) })
+    res.json({ students: mapped, total: totalCount, page: parseInt(page), limit: parseInt(limit), dbConnected: true })
   } catch (error) {
     res.status(500).json({ error: error.message })
   }

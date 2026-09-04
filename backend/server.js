@@ -43,10 +43,24 @@ import companyArchiveRoutes from './routes/companyArchives.js'
 import emailNotifyRoutes from './routes/emailNotify.js'
 import emailVerificationRoutes from './routes/email-verification.js'
 import gmailOAuthRoutes from './routes/gmail-oauth.js'
+import alumniRoutes from './routes/alumni.js'
 import schoolRoutes from './routes/school.js'
 import { trackActivity } from './middleware/trackActivity.js'
 import { connectRedis } from './utils/redis.js'
+import dns from 'dns'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1'])
+} catch (e) {
+  // Ignored if custom DNS cannot be configured in environment
+}
+
+dotenv.config({ path: path.join(__dirname, '.env') })
 dotenv.config()
 
 const app = express()
@@ -68,18 +82,23 @@ const connectDB = async () => {
     return cachedDB
   }
 
-  const fallbackCloudUri = 'mongodb+srv://campuspilot_app:CampusPilot2026Secure@cluster0.mongodb.net/campuspilot?retryWrites=true&w=majority'
-  const uri = process.env.MONGODB_URI || fallbackCloudUri
+  const uri = process.env.MONGODB_URI
+  if (!uri) {
+    logger.warn('⚠️ MONGODB_URI is not set in environment variables. Database features will be unavailable.')
+    return null
+  }
 
   try {
     cachedDB = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 10000
+      serverSelectionTimeoutMS: 8000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 10
     })
     logger.info('✅ MongoDB connected successfully!')
     return cachedDB
   } catch (err) {
-    logger.warn(`⚠️ MongoDB cloud connection notice: ${err.message}`)
+    logger.warn(`⚠️ MongoDB connection failed: ${err.message}`)
+    cachedDB = null
     return null
   }
 }
@@ -115,7 +134,9 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:5173',
     'https://campuspilot-ai.vercel.app',
-    process.env.CORS_ORIGIN
+    'https://campus-pilot-ai-eta.vercel.app',
+    process.env.CORS_ORIGIN,
+    process.env.FRONTEND_URL
   ].filter(Boolean),
   credentials: true
 }))

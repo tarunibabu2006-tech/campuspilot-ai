@@ -9,3 +9,5 @@ coverage/
 
 # Internal tooling
 .jetro/
+backend/logs/
+logs/
