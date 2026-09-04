@@ -13,10 +13,20 @@ router.get('/', async (req, res) => {
       return res.status(503).json({ error: 'Database not connected' })
     }
 
-    const { batch, driveType, location, search, status = 'active', page = 1, limit = 50 } = req.query
+    const { batch, driveType, location, search, status = 'active', includeExpired, page = 1, limit = 50 } = req.query
     const query = {}
 
-    if (status && status !== 'All') {
+    // Auto-filter expired company drives by default
+    if (includeExpired !== 'true') {
+      query.status = { $in: ['active', 'upcoming'] }
+      const todayStr = new Date().toISOString().split('T')[0]
+      query.$or = [
+        { registrationEnd: { $gte: todayStr } },
+        { walkinDate: { $gte: todayStr } },
+        { registrationEnd: { $eq: '' } },
+        { registrationEnd: { $exists: false } }
+      ]
+    } else if (status && status !== 'All') {
       query.status = status
     }
     if (batch && batch !== 'All') {

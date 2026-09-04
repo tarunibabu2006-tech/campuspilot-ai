@@ -28,23 +28,25 @@ export default function DailyOpportunityRadar({ onNavigateToJobs }) {
   const [dbDrives, setDbDrives] = useState([])
   const [loadingDrives, setLoadingDrives] = useState(false)
   const [selectedDriveModal, setSelectedDriveModal] = useState(null)
+  const [showExpired, setShowExpired] = useState(false)
+
+  const fetchCompanyDrives = async () => {
+    setLoadingDrives(true)
+    try {
+      const response = await axios.get(`/api/company-drives${showExpired ? '?includeExpired=true' : ''}`)
+      if (response.data?.drives) {
+        setDbDrives(response.data.drives)
+      }
+    } catch (err) {
+      console.warn('Could not fetch live company drives, falling back to static data:', err)
+    } finally {
+      setLoadingDrives(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchCompanyDrives = async () => {
-      setLoadingDrives(true)
-      try {
-        const response = await axios.get('/api/company-drives')
-        if (response.data?.drives) {
-          setDbDrives(response.data.drives)
-        }
-      } catch (err) {
-        console.warn('Could not fetch live company drives, falling back to static data:', err)
-      } finally {
-        setLoadingDrives(false)
-      }
-    }
     fetchCompanyDrives()
-  }, [])
+  }, [showExpired])
 
   // Batches for Company Drives
   const batchOptions = ['All', '2024', '2025', '2026', '2027']
@@ -55,7 +57,15 @@ export default function DailyOpportunityRadar({ onNavigateToJobs }) {
   // Filtered Company Drives (uses DB drives if available, otherwise static fallback)
   const filteredDrives = useMemo(() => {
     const drivesList = dbDrives.length > 0 ? dbDrives : DAILY_COMPANY_DRIVES
+    const todayStr = new Date().toISOString().split('T')[0]
+
     return drivesList.filter(d => {
+      // Exclude expired unless showExpired is enabled
+      if (!showExpired) {
+        const isExpired = d.status === 'expired' || (d.registrationEnd && d.registrationEnd < todayStr && d.walkinDate < todayStr)
+        if (isExpired) return false
+      }
+
       const batchStr = Array.isArray(d.batchEligible) ? d.batchEligible.join(' ') : (d.batchEligible || '')
       const matchBatch = selectedBatch === 'All' || batchStr.includes(selectedBatch)
 
@@ -66,7 +76,7 @@ export default function DailyOpportunityRadar({ onNavigateToJobs }) {
       const matchQ = !q || companyStr.toLowerCase().includes(q) || titleStr.toLowerCase().includes(q) || roleStr.toLowerCase().includes(q)
       return matchBatch && matchQ
     })
-  }, [dbDrives, selectedBatch, searchQuery])
+  }, [dbDrives, selectedBatch, searchQuery, showExpired])
 
   // Filtered Vacancies
   const filteredVacancies = useMemo(() => {
@@ -264,46 +274,69 @@ export default function DailyOpportunityRadar({ onNavigateToJobs }) {
           />
 
           {/* Dynamic Category Filter Pills */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
-            {activeTab === 'drives' &&
-              batchOptions.map(batch => (
-                <button
-                  key={batch}
-                  onClick={() => setSelectedBatch(batch)}
-                  style={{
-                    padding: '0.35rem 0.85rem',
-                    borderRadius: '0.6rem',
-                    background: selectedBatch === batch ? '#2563eb' : 'rgba(255,255,255,0.06)',
-                    color: selectedBatch === batch ? 'white' : '#94a3b8',
-                    border: 'none',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {batch}
-                </button>
-              ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.45rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
+              {activeTab === 'drives' &&
+                batchOptions.map(batch => (
+                  <button
+                    key={batch}
+                    onClick={() => setSelectedBatch(batch)}
+                    style={{
+                      padding: '0.35rem 0.85rem',
+                      borderRadius: '0.6rem',
+                      background: selectedBatch === batch ? '#2563eb' : 'rgba(255,255,255,0.06)',
+                      color: selectedBatch === batch ? 'white' : '#94a3b8',
+                      border: 'none',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {batch}
+                  </button>
+                ))}
 
-            {activeTab === 'vacancies' &&
-              vacCategories.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedVacCategory(cat)}
-                  style={{
-                    padding: '0.35rem 0.85rem',
-                    borderRadius: '0.6rem',
-                    background: selectedVacCategory === cat ? '#7c3aed' : 'rgba(255,255,255,0.06)',
-                    color: selectedVacCategory === cat ? 'white' : '#94a3b8',
-                    border: 'none',
-                    fontSize: '0.75rem',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {cat}
-                </button>
-              ))}
+              {activeTab === 'vacancies' &&
+                vacCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedVacCategory(cat)}
+                    style={{
+                      padding: '0.35rem 0.85rem',
+                      borderRadius: '0.6rem',
+                      background: selectedVacCategory === cat ? '#7c3aed' : 'rgba(255,255,255,0.06)',
+                      color: selectedVacCategory === cat ? 'white' : '#94a3b8',
+                      border: 'none',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+            </div>
+
+            {activeTab === 'drives' && (
+              <button
+                onClick={() => setShowExpired(prev => !prev)}
+                style={{
+                  padding: '0.35rem 0.85rem',
+                  borderRadius: '0.6rem',
+                  background: showExpired ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)',
+                  border: showExpired ? '1px solid #ef4444' : '1px solid rgba(255,255,255,0.12)',
+                  color: showExpired ? '#f87171' : '#94a3b8',
+                  fontSize: '0.75rem',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem'
+                }}
+              >
+                <span>{showExpired ? '⏱️ Showing All (Inc. Expired)' : '🛡️ Hiding Expired Drives'}</span>
+              </button>
+            )}
           </div>
         </div>
       )}

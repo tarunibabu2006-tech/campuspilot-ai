@@ -14,8 +14,21 @@ router.get('/', async (req, res) => {
       return res.status(503).json({ error: 'Database not connected' })
     }
 
-    const { category, conductingBody, stream, eligibility, status, search, page = 1, limit = 50 } = req.query
+    const { category, conductingBody, stream, eligibility, status, search, includeExpired, page = 1, limit = 50 } = req.query
     const query = {}
+
+    // Auto-filter expired exams by default
+    if (includeExpired !== 'true') {
+      query.status = { $in: ['active', 'upcoming'] }
+      const todayStr = new Date().toISOString().split('T')[0]
+      query.$or = [
+        { registrationEnd: { $gte: todayStr } },
+        { registrationEnd: { $eq: '' } },
+        { registrationEnd: { $exists: false } }
+      ]
+    } else if (status && status !== 'All') {
+      query.status = status
+    }
 
     if (category && category !== 'All') {
       query.category = { $regex: new RegExp(`^${category}$`, 'i') }

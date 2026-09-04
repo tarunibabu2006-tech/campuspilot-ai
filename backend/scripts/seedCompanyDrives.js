@@ -19,6 +19,13 @@ dotenv.config()
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://tarunibabu2006_db_user:Tarunikababu@cluster0.aespzsi.mongodb.net/campuspilot?retryWrites=true&w=majority'
 
+const today = new Date()
+const formatDate = (daysAhead) => {
+  const d = new Date(today)
+  d.setDate(d.getDate() + daysAhead)
+  return d.toISOString().split('T')[0]
+}
+
 const initialDrives = [
   {
     companyName: 'TCS (Tata Consultancy Services)',
@@ -31,9 +38,9 @@ const initialDrives = [
     ctcPackage: '₹3.36 LPA - ₹9.0 LPA',
     location: 'PAN India (Bengaluru, Chennai, Hyderabad, Pune)',
     venueDetails: 'Online Remote Assessment / TCS iON Digital Zones nationwide',
-    walkinDate: '2026-10-15',
+    walkinDate: formatDate(30),
     walkinTime: '09:00 AM IST',
-    registrationEnd: '2026-09-30',
+    registrationEnd: formatDate(20),
     applyLink: 'https://nextstep.tcs.com',
     officialNoticeUrl: 'https://nextstep.tcs.com',
     roundsInfo: [
@@ -56,9 +63,9 @@ const initialDrives = [
     ctcPackage: '₹5.5 LPA - ₹12.0 LPA',
     location: 'Chennai, Tenkasi, Coimbatore, Salem',
     venueDetails: 'Zoho Campus, Estancia IT Park, GST Road, Guduvanchery, Chennai - 603202',
-    walkinDate: '2026-09-20',
+    walkinDate: formatDate(12),
     walkinTime: '08:30 AM IST',
-    registrationEnd: '2026-09-18',
+    registrationEnd: formatDate(8),
     applyLink: 'https://www.zoho.com/careers/',
     officialNoticeUrl: 'https://www.zoho.com/careers/',
     roundsInfo: [
@@ -82,9 +89,9 @@ const initialDrives = [
     ctcPackage: '₹6.25 LPA - ₹9.5 LPA',
     location: 'Bengaluru, Hyderabad, Pune, Chennai',
     venueDetails: 'Infosys Springboard Assessment Platform (Proctored Online Test)',
-    walkinDate: '2026-10-05',
+    walkinDate: formatDate(25),
     walkinTime: '10:00 AM IST',
-    registrationEnd: '2026-09-25',
+    registrationEnd: formatDate(18),
     applyLink: 'https://www.infosys.com/careers.html',
     officialNoticeUrl: 'https://www.infosys.com/careers.html',
     roundsInfo: [
@@ -107,9 +114,9 @@ const initialDrives = [
     ctcPackage: '₹4.5 LPA - ₹6.5 LPA',
     location: 'Bengaluru, Gurugram, Hyderabad, Mumbai',
     venueDetails: 'Accenture Development Centre, Divyasree Technopolis, Yemalur, Bengaluru',
-    walkinDate: '2026-09-28',
+    walkinDate: formatDate(15),
     walkinTime: '09:00 AM IST',
-    registrationEnd: '2026-09-24',
+    registrationEnd: formatDate(10),
     applyLink: 'https://www.accenture.com/in-en/careers',
     officialNoticeUrl: 'https://www.accenture.com/in-en/careers',
     roundsInfo: [
@@ -133,9 +140,9 @@ const initialDrives = [
     ctcPackage: '₹28.0 LPA - ₹44.0 LPA',
     location: 'Bengaluru, Hyderabad, Chennai',
     venueDetails: 'Amazon Online Hiring Portal (Proctored Test)',
-    walkinDate: '2026-10-20',
+    walkinDate: formatDate(45),
     walkinTime: '11:00 AM IST',
-    registrationEnd: '2026-10-01',
+    registrationEnd: formatDate(35),
     applyLink: 'https://amazon.jobs/',
     officialNoticeUrl: 'https://amazon.jobs/',
     roundsInfo: [
@@ -159,9 +166,9 @@ const initialDrives = [
     ctcPackage: '₹4.0 LPA - ₹5.4 LPA',
     location: 'Chennai, Coimbatore, Kolkata, Hyderabad',
     venueDetails: 'Cognizant MEPZ Campus, Tambaram Sanatorium, Chennai - 600045',
-    walkinDate: '2026-09-25',
+    walkinDate: formatDate(14),
     walkinTime: '08:30 AM IST',
-    registrationEnd: '2026-09-22',
+    registrationEnd: formatDate(9),
     applyLink: 'https://www.cognizant.com/in/en/careers',
     officialNoticeUrl: 'https://www.cognizant.com/in/en/careers',
     roundsInfo: [
@@ -184,9 +191,9 @@ const initialDrives = [
     ctcPackage: '₹3.5 LPA - ₹6.5 LPA',
     location: 'PAN India',
     venueDetails: 'Wipro Assessment Platform (Online)',
-    walkinDate: '2026-10-10',
+    walkinDate: formatDate(35),
     walkinTime: '10:00 AM IST',
-    registrationEnd: '2026-09-29',
+    registrationEnd: formatDate(25),
     applyLink: 'https://careers.wipro.com/',
     officialNoticeUrl: 'https://careers.wipro.com/',
     roundsInfo: [
@@ -209,9 +216,9 @@ const initialDrives = [
     ctcPackage: '₹4.25 LPA - ₹7.5 LPA',
     location: 'Pune, Bengaluru, Noida',
     venueDetails: 'Capgemini Technology Services, Hinjewadi Phase 3, Pune - 411057',
-    walkinDate: '2026-10-02',
+    walkinDate: formatDate(22),
     walkinTime: '09:00 AM IST',
-    registrationEnd: '2026-09-28',
+    registrationEnd: formatDate(16),
     applyLink: 'https://www.capgemini.com/in-en/careers/',
     officialNoticeUrl: 'https://www.capgemini.com/in-en/careers/',
     roundsInfo: [
@@ -235,9 +242,9 @@ const initialDrives = [
     ctcPackage: '₹3.25 LPA - ₹5.0 LPA',
     location: 'Noida, Chennai, Madurai, Lucknow',
     venueDetails: 'HCLTech Assessment Portal (Online)',
-    walkinDate: '2026-10-12',
+    walkinDate: formatDate(28),
     walkinTime: '09:30 AM IST',
-    registrationEnd: '2026-10-05',
+    registrationEnd: formatDate(22),
     applyLink: 'https://www.hcltech.com/careers',
     officialNoticeUrl: 'https://www.hcltech.com/careers',
     roundsInfo: [
@@ -260,9 +267,9 @@ const initialDrives = [
     ctcPackage: '₹7.6 LPA - ₹11.5 LPA',
     location: 'Hyderabad, Bengaluru, Gurugram',
     venueDetails: 'Deloitte Online Recruitment Platform',
-    walkinDate: '2026-10-18',
+    walkinDate: formatDate(40),
     walkinTime: '10:00 AM IST',
-    registrationEnd: '2026-10-08',
+    registrationEnd: formatDate(30),
     applyLink: 'https://www2.deloitte.com/ui/en/careers/careers.html',
     officialNoticeUrl: 'https://www2.deloitte.com/ui/en/careers/careers.html',
     roundsInfo: [
