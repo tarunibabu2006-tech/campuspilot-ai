@@ -9,6 +9,7 @@ import {
   DAILY_COMPANY_DRIVES,
   DAILY_HOT_VACANCIES
 } from '../data/dailyUpdatesMasterData'
+import ExamHub from './Exams/ExamHub'
 
 export default function DailyOpportunityRadar({ onNavigateToJobs }) {
   const { user } = useAuth()
@@ -179,8 +180,8 @@ export default function DailyOpportunityRadar({ onNavigateToJobs }) {
             transition: 'all 0.15s ease'
           }}
         >
-          <span>🏛️</span>
-          <span>Competitive & Govt Exams ({DAILY_EXAM_ALERTS.length})</span>
+          <span>📢</span>
+          <span>Exam Hub & Live Notifications</span>
         </button>
 
         <button
@@ -232,200 +233,80 @@ export default function DailyOpportunityRadar({ onNavigateToJobs }) {
         </button>
       </div>
 
-      {/* ── SEARCH & DYNAMIC FILTER BAR ───────────────────────────── */}
-      <div style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-        <input
-          type="text"
-          placeholder={
-            activeTab === 'exams'
-              ? '🔍 Search exams (e.g. UPSC, SSC CGL, RRB NTPC, SBI PO, TNPSC, GATE)...'
-              : activeTab === 'drives'
-              ? '🔍 Search company drives (TCS NQT, Infosys, Zoho, Amazon WOW, Accenture)...'
-              : '🔍 Search vacancies by role (Software Engineer, Data Analyst) or company...'
-          }
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-          style={{
-            width: '100%',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: '0.75rem',
-            padding: '0.8rem 1.1rem',
-            color: 'white',
-            fontSize: '0.9rem',
-            outline: 'none'
-          }}
-        />
+      {/* ── SEARCH & DYNAMIC FILTER BAR (FOR DRIVES & VACANCIES) ── */}
+      {activeTab !== 'exams' && (
+        <div style={{ background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          <input
+            type="text"
+            placeholder={
+              activeTab === 'drives'
+                ? '🔍 Search company drives (TCS NQT, Infosys, Zoho, Amazon WOW, Accenture)...'
+                : '🔍 Search vacancies by role (Software Engineer, Data Analyst) or company...'
+            }
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '0.75rem',
+              padding: '0.8rem 1.1rem',
+              color: 'white',
+              fontSize: '0.9rem',
+              outline: 'none'
+            }}
+          />
 
-        {/* Dynamic Category Filter Pills */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
-          {activeTab === 'exams' &&
-            examCategories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelectedExamCategory(cat)}
-                style={{
-                  padding: '0.4rem 0.8rem',
-                  borderRadius: '0.55rem',
-                  background: selectedExamCategory === cat ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'rgba(255,255,255,0.04)',
-                  border: selectedExamCategory === cat ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)',
-                  color: selectedExamCategory === cat ? 'white' : '#cbd5e1',
-                  fontWeight: selectedExamCategory === cat ? '800' : '600',
-                  fontSize: '0.76rem',
-                  cursor: 'pointer'
-                }}
-              >
-                {cat}
-              </button>
-            ))}
+          {/* Dynamic Category Filter Pills */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
+            {activeTab === 'drives' &&
+              batchOptions.map(batch => (
+                <button
+                  key={batch}
+                  onClick={() => setSelectedBatch(batch)}
+                  style={{
+                    padding: '0.35rem 0.85rem',
+                    borderRadius: '0.6rem',
+                    background: selectedBatch === batch ? '#2563eb' : 'rgba(255,255,255,0.06)',
+                    color: selectedBatch === batch ? 'white' : '#94a3b8',
+                    border: 'none',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {batch}
+                </button>
+              ))}
 
-          {activeTab === 'drives' &&
-            batchOptions.map(batch => (
-              <button
-                key={batch}
-                onClick={() => setSelectedBatch(batch)}
-                style={{
-                  padding: '0.4rem 0.8rem',
-                  borderRadius: '0.55rem',
-                  background: selectedBatch === batch ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'rgba(255,255,255,0.04)',
-                  border: selectedBatch === batch ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)',
-                  color: selectedBatch === batch ? 'white' : '#cbd5e1',
-                  fontWeight: selectedBatch === batch ? '800' : '600',
-                  fontSize: '0.76rem',
-                  cursor: 'pointer'
-                }}
-              >
-                🎓 {batch}
-              </button>
-            ))}
-
-          {activeTab === 'vacancies' &&
-            vacCategories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setSelectedVacCategory(cat)}
-                style={{
-                  padding: '0.4rem 0.8rem',
-                  borderRadius: '0.55rem',
-                  background: selectedVacCategory === cat ? 'linear-gradient(135deg, #7c3aed, #2563eb)' : 'rgba(255,255,255,0.04)',
-                  border: selectedVacCategory === cat ? '1px solid #8b5cf6' : '1px solid rgba(255,255,255,0.08)',
-                  color: selectedVacCategory === cat ? 'white' : '#cbd5e1',
-                  fontWeight: selectedVacCategory === cat ? '800' : '600',
-                  fontSize: '0.76rem',
-                  cursor: 'pointer'
-                }}
-              >
-                💼 {cat}
-              </button>
-            ))}
+            {activeTab === 'vacancies' &&
+              vacCategories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedVacCategory(cat)}
+                  style={{
+                    padding: '0.35rem 0.85rem',
+                    borderRadius: '0.6rem',
+                    background: selectedVacCategory === cat ? '#7c3aed' : 'rgba(255,255,255,0.06)',
+                    color: selectedVacCategory === cat ? 'white' : '#94a3b8',
+                    border: 'none',
+                    fontSize: '0.75rem',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/* ── TAB 1: COMPETITIVE & GOVT EXAMS ──────────────────────────── */}
+      {/* ── TAB 1: OFFICIAL EXAM HUB & NOTIFICATIONS ──────────────────── */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       {activeTab === 'exams' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
-          {filteredExams.map(exam => (
-            <motion.div
-              key={exam.id}
-              whileHover={{ y: -3 }}
-              style={{
-                background: 'rgba(15,23,42,0.95)',
-                border: '1px solid rgba(139,92,246,0.3)',
-                borderRadius: '1.25rem',
-                padding: '1.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                gap: '1rem',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.35)'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                  <div>
-                    <span style={{ background: 'rgba(59,130,246,0.15)', color: '#93c5fd', padding: '0.2rem 0.5rem', borderRadius: '0.4rem', fontSize: '0.7rem', fontWeight: '800' }}>
-                      {exam.category}
-                    </span>
-                    <h3 style={{ color: 'white', fontWeight: '900', fontSize: '1.15rem', margin: '0.35rem 0 0' }}>
-                      {exam.title}
-                    </h3>
-                    <p style={{ color: '#94a3b8', fontSize: '0.8rem', margin: '0.15rem 0 0' }}>
-                      Conducting Body: <strong>{exam.conductingBody}</strong>
-                    </p>
-                  </div>
-
-                  <span style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)', padding: '0.25rem 0.55rem', borderRadius: '0.5rem', fontSize: '0.7rem', fontWeight: '800', whiteSpace: 'nowrap' }}>
-                    {exam.badge}
-                  </span>
-                </div>
-
-                <p style={{ color: '#cbd5e1', fontSize: '0.8rem', lineHeight: 1.5, margin: '0.5rem 0' }}>
-                  {exam.description}
-                </p>
-
-                {/* Exam Key Metrics Grid */}
-                <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '0.85rem', padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.78rem', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div>📊 <strong>Total Vacancies:</strong> <span style={{ color: '#4ade80', fontWeight: '800' }}>{exam.vacancies}</span></div>
-                  <div>💰 <strong>Pay Scale:</strong> <span style={{ color: '#facc15', fontWeight: '700' }}>{exam.salary}</span></div>
-                  <div>🎓 <strong>Eligibility:</strong> {exam.eligibility}</div>
-                  <div>👤 <strong>Age Limit:</strong> {exam.ageLimit}</div>
-                  <div>📅 <strong>Exam Date:</strong> <span style={{ color: '#60a5fa', fontWeight: '700' }}>{exam.examDate}</span></div>
-                  <div>⏳ <strong>Last Date to Apply:</strong> <span style={{ color: '#f87171', fontWeight: '800' }}>{exam.lastDate}</span></div>
-                </div>
-              </div>
-
-              {/* Action Buttons: Direct Apply Link + Gmail Reminder */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '0.65rem' }}>
-                <a
-                  href={exam.applyLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-                    color: 'white',
-                    padding: '0.65rem',
-                    borderRadius: '0.65rem',
-                    fontWeight: '800',
-                    fontSize: '0.82rem',
-                    textAlign: 'center',
-                    textDecoration: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.4rem',
-                    boxShadow: '0 4px 15px rgba(37,99,235,0.35)'
-                  }}
-                >
-                  <span>🔗</span>
-                  <span>Official Portal Apply ➔</span>
-                </a>
-
-                <button
-                  onClick={() => handleSetReminder(exam, 'exam')}
-                  style={{
-                    background: remindedItems[exam.id] ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.06)',
-                    border: remindedItems[exam.id] ? '1px solid #4ade80' : '1px solid rgba(255,255,255,0.12)',
-                    color: remindedItems[exam.id] ? '#4ade80' : '#cbd5e1',
-                    padding: '0.65rem',
-                    borderRadius: '0.65rem',
-                    fontWeight: '700',
-                    fontSize: '0.78rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.35rem'
-                  }}
-                >
-                  <span>{remindedItems[exam.id] ? '✅' : '🔔'}</span>
-                  <span>{remindedItems[exam.id] ? 'Mail Sent' : 'Remind Me'}</span>
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <ExamHub />
       )}
 
       {/* ═══════════════════════════════════════════════════════════════ */}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import LanguageSelector from '../LanguageSelector';
+import NotificationBell from '../Notifications/NotificationBell';
 
 const StudentLayout = ({
   children,
@@ -315,47 +316,8 @@ const StudentLayout = ({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-            {/* Notifications button */}
-            <button
-              onClick={onOpenNotifications}
-              style={{
-                background: 'rgba(255, 255, 255, 0.06)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: 'white',
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                position: 'relative',
-                fontSize: '1.1rem'
-              }}
-              title="Notifications"
-            >
-              🔔
-              {notificationCount > 0 && (
-                <span style={{
-                  position: 'absolute',
-                  top: '-2px',
-                  right: '-2px',
-                  background: '#ef4444',
-                  color: 'white',
-                  fontSize: '0.65rem',
-                  fontWeight: '800',
-                  borderRadius: '50%',
-                  width: '18px',
-                  height: '18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 0 8px rgba(239, 68, 68, 0.8)'
-                }}>
-                  {notificationCount}
-                </span>
-              )}
-            </button>
+            {/* Dynamic Exam & Platform Notification Bell */}
+            <NotificationBell onNavigateToExams={() => setActiveTab('daily-updates')} />
 
             {/* Quick Admin Button for Admin user */}
             {(user?.role === 'admin' || user?.email === 'tarunibabu2006@gmail.com') && (
